@@ -1,29 +1,14 @@
 # LedgerBox App
 
-Electron/Vite desktop app for LedgerBox.
+Electron/Vite application shell for LedgerBox.
 
-## Recommended IDE Setup
-
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
-
-## Project Setup
-
-### Install
+## Commands
 
 ```bash
-$ npm install
+npm install
+npm run dev
+npm run build
+npm run test:import
 ```
 
-### Development
-
-```bash
-$ npm run dev
-```
-
-### Build
-
-```bash
-$ npm run build
-```
-
-The bundled Electron output is written to `out/`.
+`npm run dev` opens the desktop app. `npm run test:import` runs a small import/materialization smoke test against a temporary data folder.
