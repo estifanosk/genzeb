@@ -11,7 +11,7 @@
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
-    "test:import": "tsc --outDir .tmp/import-test --module commonjs --target es2020 --esModuleInterop --moduleResolution node --types node --skipLibCheck --rootDir . scripts/import-test.ts && node .tmp/import-test/scripts/import-test.js",
+    "test:import": "tsc -p tsconfig.import-test.json && node .tmp/import-test/app/scripts/import-test.js",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
     "build": "npm run typecheck && electron-vite build",

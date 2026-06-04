@@ -1,13 +1,13 @@
 import { readFileSync, existsSync, writeFileSync, appendFileSync } from 'fs'
 import Papa from 'papaparse'
-import { ensureDataStructure, getDataFilePath } from '../utils/paths'
-import type { LedgerRow, TransactionRow, LineItemExplorerRow } from '../../shared/types'
+import { ensureDataStructure, getDataFilePath } from '../storage/paths'
+import type { LedgerRow, TransactionRow, LineItemExplorerRow } from '../types'
 import type {
   QueryTransactionsRequest,
   QueryTransactionsResponse,
   QueryLineItemsRequest,
   QueryLineItemsResponse
-} from '../../shared/types/ipc'
+} from '../types/ipc'
 import { readChanges } from '../ledger/changes'
 import { getRules } from '../rules'
 import { readReceiptDetail } from '../receipts/llm'

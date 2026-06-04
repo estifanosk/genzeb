@@ -1,11 +1,20 @@
+import { app } from 'electron'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { getSettingsPath, getDefaultDataFolder } from '../utils/paths'
+import { join } from 'path'
 import { setCachedSettings } from './file-system'
-import type { AppSettings } from '../../shared/types'
+import type { AppSettings } from '@core/types'
 
 const DEFAULT_SETTINGS: AppSettings = {
   dataFolder: '',
   autoMaterialize: true
+}
+
+function getDefaultDataFolder(): string {
+  return join(app.getPath('documents'), 'LedgerBox')
+}
+
+function getSettingsPath(): string {
+  return join(app.getPath('userData'), 'settings.json')
 }
 
 // Load settings from disk

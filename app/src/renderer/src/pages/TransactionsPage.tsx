@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, Sparkles } from 'lucide-react'
 import { Button } from '../components/ui/button'
-import type { AccountInfo, ReceiptDetail, TransactionRow } from '../../../shared/types'
-import type { CategorizeTransactionsResponse } from '../../../shared/types/ipc'
+import type { AccountInfo, ReceiptDetail, TransactionRow } from '@core/types'
+import type { CategorizeTransactionsResponse } from '@core/types/ipc'
 
 interface EditValues {
   category?: string

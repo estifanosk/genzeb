@@ -1,4 +1,4 @@
-import type { CategorizeTransactionsRequest, CategorizeTransactionsResponse } from '../../shared/types/ipc'
+import type { CategorizeTransactionsRequest, CategorizeTransactionsResponse } from '../types/ipc'
 import { getCategories } from '../rules'
 
 function buildSchema() {

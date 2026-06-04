@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { RefreshCw, Search } from 'lucide-react'
 import { Button } from '../components/ui/button'
-import type { LineItemExplorerRow } from '../../../shared/types'
-import type { QueryLineItemsResponse } from '../../../shared/types/ipc'
+import type { LineItemExplorerRow } from '@core/types'
+import type { QueryLineItemsResponse } from '@core/types/ipc'
 
 export function ItemExplorerPage() {
   const [isLoading, setIsLoading] = useState(true)

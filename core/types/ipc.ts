@@ -90,7 +90,7 @@ export interface ImportStatementsRequest {
 
 export interface QueryTransactionsRequest {
   filters: TransactionFilters
-  sortBy?: keyof TransactionRow
+  sortBy?: Extract<keyof TransactionRow, string>
   sortOrder?: 'asc' | 'desc'
   limit?: number
   offset?: number

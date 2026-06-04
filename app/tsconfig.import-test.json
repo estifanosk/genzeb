@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.node.json",
+  "include": ["scripts/import-test.ts", "../core/**/*"],
+  "compilerOptions": {
+    "outDir": ".tmp/import-test",
+    "rootDir": "..",
+    "module": "commonjs",
+    "target": "es2020",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "types": ["node"],
+    "skipLibCheck": true,
+    "composite": false
+  }
+}

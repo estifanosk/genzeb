@@ -1,5 +1,5 @@
 import { ipcMain, type IpcMain } from 'electron'
-import { IPC_CHANNELS } from '../../shared/types/ipc'
+import { IPC_CHANNELS } from '@core/types/ipc'
 import {
   selectDataFolder,
   scanInbox,
@@ -14,25 +14,25 @@ import {
   getCsvPreviewForFile,
   getCsvMappingForFile,
   getCsvStatsForFile
-} from '../import/statement-importer'
-import { materializeTransactions, queryTransactions, queryLineItems } from '../materializer'
-import { deleteTransactionsById, clearAllData } from '../data-admin'
-import { getAccounts } from '../accounts'
-import { appendChangeRow } from '../ledger/changes'
+} from '@core/importer/statement-importer'
+import { materializeTransactions, queryTransactions, queryLineItems } from '@core/materializer'
+import { deleteTransactionsById, clearAllData } from '@core/data-admin'
+import { getAccounts } from '@core/accounts'
+import { appendChangeRow } from '@core/ledger/changes'
 import {
   ingestReceipts,
   getReceiptMatchPreview,
   getReceiptMatchPreviewFromData,
   getReceiptPreviewData
-} from '../receipts/importer'
+} from '@core/receipts/importer'
 import {
   runReceiptLlmExtract,
   saveReceiptDetail as saveReceiptDetailFile,
   readReceiptDetail
-} from '../receipts/llm'
-import { getCategories, saveCategories, getRules, saveRule, deleteRule } from '../rules'
-import { categorizeTransactionsLlm } from '../llm/categorize'
-import type { AppSettings } from '../../shared/types'
+} from '@core/receipts/llm'
+import { getCategories, saveCategories, getRules, saveRule, deleteRule } from '@core/rules'
+import { categorizeTransactionsLlm } from '@core/llm/categorize'
+import type { AppSettings } from '@core/types'
 
 export function registerAllHandlers(_ipcMain: IpcMain): void {
   // Initialize settings on startup

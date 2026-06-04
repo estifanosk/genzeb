@@ -1,8 +1,8 @@
 import { dialog, shell } from 'electron'
 import { readdirSync, statSync, renameSync, existsSync, mkdirSync } from 'fs'
 import { join, basename } from 'path'
-import { ensureDataStructure, getDataDirPath } from '../utils/paths'
-import type { AppSettings } from '../../shared/types'
+import { ensureDataStructure, getDataDirPath } from '@core/storage/paths'
+import type { AppSettings } from '@core/types'
 
 // Open folder picker dialog
 export async function selectDataFolder(): Promise<string | null> {

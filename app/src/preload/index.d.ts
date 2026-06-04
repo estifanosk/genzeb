@@ -1,4 +1,4 @@
-import type { LedgerBoxAPI } from '../shared/types/ipc'
+import type { LedgerBoxAPI } from '@core/types/ipc'
 
 declare global {
   interface Window {

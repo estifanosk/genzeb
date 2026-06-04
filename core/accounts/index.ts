@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
-import { ensureDataStructure, getDataFilePath } from '../utils/paths'
-import type { AccountInfo } from '../../shared/types'
+import { ensureDataStructure, getDataFilePath } from '../storage/paths'
+import type { AccountInfo } from '../types'
 
 function readAccountsFile(path: string): AccountInfo[] {
   if (!existsSync(path)) return []

@@ -1,12 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { IPC_CHANNELS, type LedgerBoxAPI } from '../shared/types/ipc'
+import { IPC_CHANNELS, type LedgerBoxAPI } from '@core/types/ipc'
 import type {
   AppSettings,
   ChangeRow,
   CategoryRule,
   CategoryItem,
   ExportFilters
-} from '../shared/types'
+} from '@core/types'
 import type {
   ImportStatementsRequest,
   QueryTransactionsRequest,
@@ -15,7 +15,7 @@ import type {
   LinkReceiptRequest,
   AskLlmRequest,
   IngestReceiptsRequest
-} from '../shared/types/ipc'
+} from '@core/types/ipc'
 
 // Create the API object
 const api: LedgerBoxAPI = {

@@ -13,8 +13,8 @@ import type {
   ReceiptMatchPreview,
   IngestReceiptsResponse,
   ReceiptMatchMetadata
-} from '../../../shared/types/ipc'
-import type { ReceiptDetail, CategoryRule } from '../../../shared/types'
+} from '@core/types/ipc'
+import type { ReceiptDetail, CategoryRule } from '@core/types'
 
 function parseAccountFromFilename(filePath: string): {
   accountNumber?: string

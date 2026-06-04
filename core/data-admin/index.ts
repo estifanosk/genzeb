@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import Papa from 'papaparse'
-import { ensureDataStructure, getDataFilePath } from '../utils/paths'
-import type { LedgerRow, TransactionRow } from '../../shared/types'
+import { ensureDataStructure, getDataFilePath } from '../storage/paths'
+import type { LedgerRow, TransactionRow } from '../types'
 
 const LEDGER_HEADERS = [
   'id',
