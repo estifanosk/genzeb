@@ -1,6 +1,6 @@
-# Kaldi
+# LedgerBox
 
-Kaldi includes an interactive Electron app in the `app/` directory. The app uses Vite for the React renderer and launches an Electron desktop window in development.
+LedgerBox includes an interactive Electron app in the `app/` directory. The app uses Vite for the React renderer and launches an Electron desktop window in development.
 
 ## Run the App
 
@@ -16,6 +16,12 @@ npm run dev
 
 If dependencies are already installed, `npm install` can be skipped.
 
+## Smoke Test
+
+Use [smoke-test.md](smoke-test.md) with the sample statement in
+`test-data/statements/` to verify import, materialization, and transaction
+editing against a disposable data folder.
+
 ## Production Build
 
 To build the renderer:
@@ -25,11 +31,4 @@ cd app
 npm run build
 ```
 
-To preview the Vite build in a browser:
-
-```sh
-cd app
-npm run preview
-```
-
-The Electron main process loads `app/renderer/dist/index.html` when `VITE_DEV_SERVER_URL` is not set.
+The Electron/Vite build writes bundled output to `app/out/`.
