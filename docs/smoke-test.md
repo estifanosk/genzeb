@@ -8,7 +8,7 @@ Use this after starting the migrated Electron app.
    npm run dev
    ```
 2. In Settings, choose a disposable data folder, for example:
-   `/Users/estifanoskidane/tmp/ledgerbox-test-data`
+   `/tmp/ledgerbox-test-data`
 3. Open the generated statements inbox:
    `Inbox/statements`
 4. Copy this fixture into that folder:
