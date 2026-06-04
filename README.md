@@ -7,7 +7,7 @@ LedgerBox is a local-first desktop expense workspace built with Electron, React,
 - `app/` contains the Electron shell, renderer UI, and build config.
 - `core/` contains the domain logic for importing, materializing, receipts, rules, and shared types.
 - `test-data/` contains disposable sample input for smoke tests.
-- `smoke-test.md` documents the manual verification flow against a temporary data folder.
+- `docs/` contains the design notes, app notes, and smoke-test instructions.
 
 ## Run
 
@@ -23,7 +23,7 @@ npm run dev
 
 ## Verify
 
-Use [smoke-test.md](smoke-test.md) with the sample CSV in `test-data/statements/` to verify import, materialization, and transaction editing against a disposable data folder.
+Use [docs/smoke-test.md](docs/smoke-test.md) with the sample CSV in `test-data/statements/` to verify import, materialization, and transaction editing against a disposable data folder.
 
 ## Build
 
