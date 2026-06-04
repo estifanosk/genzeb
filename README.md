@@ -21,6 +21,23 @@ npm run dev
 
 `npm run dev` starts the renderer dev server and opens the Electron app.
 
+## Test data
+
+Seed realistic transactions, receipts, and categories into the app's data folder with a single command:
+
+```sh
+cd app
+NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/seed.ts
+```
+
+To wipe everything and start fresh:
+
+```sh
+NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/clean.ts
+```
+
+See [docs/seed-data.md](docs/seed-data.md) for full details on what is generated and how to target a custom data folder.
+
 ## Verify
 
 Use [docs/smoke-test.md](docs/smoke-test.md) with the sample CSV in `test-data/statements/` to verify import, materialization, and transaction editing against a disposable data folder.
