@@ -1,8 +1,15 @@
 # LedgerBox
 
-LedgerBox includes an interactive Electron app in the `app/` directory. The app uses Vite for the React renderer and launches an Electron desktop window in development.
+LedgerBox is a local-first desktop expense workspace built with Electron, React, Vite, and TypeScript.
 
-## Run the App
+## Layout
+
+- `app/` contains the Electron shell, renderer UI, and build config.
+- `core/` contains the domain logic for importing, materializing, receipts, rules, and shared types.
+- `test-data/` contains disposable sample input for smoke tests.
+- `smoke-test.md` documents the manual verification flow against a temporary data folder.
+
+## Run
 
 From the repo root:
 
@@ -12,23 +19,17 @@ npm install
 npm run dev
 ```
 
-`npm run dev` starts the Vite dev server at `http://localhost:5173` and then opens the Electron app window.
+`npm run dev` starts the renderer dev server and opens the Electron app.
 
-If dependencies are already installed, `npm install` can be skipped.
+## Verify
 
-## Smoke Test
+Use [smoke-test.md](smoke-test.md) with the sample CSV in `test-data/statements/` to verify import, materialization, and transaction editing against a disposable data folder.
 
-Use [smoke-test.md](smoke-test.md) with the sample statement in
-`test-data/statements/` to verify import, materialization, and transaction
-editing against a disposable data folder.
-
-## Production Build
-
-To build the renderer:
+## Build
 
 ```sh
 cd app
 npm run build
 ```
 
-The Electron/Vite build writes bundled output to `app/out/`.
+The bundled Electron output is written to `app/out/`.
