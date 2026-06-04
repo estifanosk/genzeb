@@ -4,13 +4,99 @@ The seed scripts generate realistic test data so you can develop and test the ap
 
 ## What gets generated
 
-- **163 transactions** across 4 accounts covering 3 months (Mar–May 2026):
-  - `1234` — Chase checking (paychecks, health, savings transfers)
-  - `5678` — BofA checking (utilities, gas, insurance)
-  - `9012` — Ally savings (savings transfers, interest)
-  - `3456` — Capital One credit card (groceries, dining, shopping, subscriptions, travel)
-- **~16 SVG receipt images** with line items attached to transactions (simulates LLM OCR output)
-- **Category assignments** for every transaction (Groceries, Dining, Utilities, Income, etc.)
+**163 transactions** across 4 accounts covering 3 months (Mar–May 2026), ~16 SVG receipts with line items, and category assignments for every transaction.
+
+### Accounts
+
+| Account | Type | Bank | Primary use |
+|---------|------|------|-------------|
+| `1234` | Checking | Chase | Paychecks, CC payments, savings transfers, health |
+| `5678` | Checking | Bank of America | Utilities, gas, insurance |
+| `9012` | Savings | Ally | Savings transfers in, monthly interest |
+| `3456` | Credit card | Capital One | Day-to-day spending — groceries, dining, shopping, subscriptions, travel |
+
+### Transaction types
+
+| Type | Account | Frequency | Amount range |
+|------|---------|-----------|--------------|
+| Paycheck (Acme Corp) | `1234` | Twice/month (1st & 15th) | $3,200–$5,500 |
+| Savings transfer | `1234` → `9012` | Monthly (5th) | $300–$800 |
+| Credit card payment | `1234` | Monthly (20th) | $800–$2,200 |
+| Utilities & insurance | `5678` | Monthly per provider | varies |
+| Gas | `5678` | Every 10–14 days | $28–$85 |
+| Subscriptions | `3456` | Monthly per service | $0.99–$25 |
+| Groceries | `3456` | 2–3× per week | $30–$180 |
+| Dining | `3456` | 2–4× per week | $5–$95 |
+| Shopping | `3456` | ~15 sporadic | $15–$400 |
+| Travel | `3456` | ~4 sporadic | $7–$650 |
+| Health / pharmacy | `1234` | ~8 sporadic | $8–$85 |
+| Savings interest | `9012` | Monthly (28th) | $1–$25 |
+
+### Merchants
+
+<details>
+<summary>Groceries</summary>
+
+Whole Foods Market, Trader Joe's, Kroger, Safeway
+
+</details>
+
+<details>
+<summary>Dining & coffee</summary>
+
+Starbucks, Chipotle Mexican Grill, McDonald's, Panera Bread, The Cheesecake Factory, Panda Express, Local Sushi Bar
+
+</details>
+
+<details>
+<summary>Shopping</summary>
+
+Amazon, Target, Best Buy, Home Depot
+
+</details>
+
+<details>
+<summary>Utilities & insurance</summary>
+
+Pacific Gas & Electric, Comcast Internet, AT&T Wireless, City Water Dept, Progressive Insurance
+
+</details>
+
+<details>
+<summary>Subscriptions</summary>
+
+Netflix, Spotify Premium, Amazon Prime, Hulu, Apple iCloud+, YouTube Premium, Microsoft 365, Planet Fitness
+
+</details>
+
+<details>
+<summary>Gas</summary>
+
+Shell Gas Station, BP Gas Station, Chevron, ExxonMobil
+
+</details>
+
+<details>
+<summary>Travel & transportation</summary>
+
+United Airlines, Marriott Hotels, Airbnb, Uber, Lyft
+
+</details>
+
+<details>
+<summary>Health</summary>
+
+CVS Pharmacy, Walgreens
+
+</details>
+
+### Receipts and line items
+
+~10% of transactions (those from grocery, dining, shopping, and health merchants) get an SVG receipt image and a receipt detail JSON file. Each receipt has 2–6 line items with description, quantity, unit price, and total. The JSON simulates what the LLM OCR step would produce, so the Item Explorer and transaction receipt expand work without needing an API key.
+
+### Categories
+
+Every transaction is assigned one of: Coffee, Dining, Electronics, Entertainment, Gas, Groceries, Health, Home, Income, Insurance, Payment, Shopping, Subscriptions, Transfer, Transportation, Travel, Utilities.
 
 ## Prerequisites
 
