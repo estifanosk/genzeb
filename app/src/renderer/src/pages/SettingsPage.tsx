@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Input } from '../components/ui/input'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs'
 import { useSettingsStore } from '../stores/settings'
-import type { InboxPaths } from '../../../shared/types/ipc'
-import type { CategoryItem, CategoryRule } from '../../../shared/types'
+import type { InboxPaths } from '@core/types/ipc'
+import type { CategoryItem, CategoryRule } from '@core/types'
 
 export function SettingsPage() {
   const { settings, isLoading, error, loadSettings, selectDataFolder, updateSettings } =

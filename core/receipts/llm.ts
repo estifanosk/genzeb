@@ -1,8 +1,8 @@
 import { readFileSync, existsSync, writeFileSync } from 'fs'
 import { basename, extname } from 'path'
 import { v4 as uuidv4 } from 'uuid'
-import type { ReceiptDetail } from '../../shared/types'
-import { getDataDirPath, getDataFilePath } from '../utils/paths'
+import type { ReceiptDetail } from '../types'
+import { getDataDirPath, getDataFilePath } from '../storage/paths'
 import Papa from 'papaparse'
 
 function fileToDataUri(filePath: string): { dataUri: string; mime: string } {

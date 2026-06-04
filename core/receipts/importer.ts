@@ -2,11 +2,11 @@ import { existsSync, readFileSync, writeFileSync, appendFileSync, copyFileSync, 
 import { join, extname, basename } from 'path'
 import Papa from 'papaparse'
 import { v4 as uuidv4 } from 'uuid'
-import { ensureDataStructure, getDataDirPath, getDataFilePath } from '../utils/paths'
-import { hashBinaryFile } from '../utils/file-hash'
-import { moveToImported } from '../ipc/file-system'
-import type { ReceiptIndexRow, TransactionRow, ChangeRow } from '../../shared/types'
-import type { IngestReceiptsRequest, IngestReceiptsResponse, ReceiptMatchPreview } from '../../shared/types/ipc'
+import { ensureDataStructure, getDataDirPath, getDataFilePath } from '../storage/paths'
+import { hashBinaryFile } from '../storage/file-hash'
+import { moveToImported } from '../storage/imported-files'
+import type { ReceiptIndexRow, TransactionRow, ChangeRow } from '../types'
+import type { IngestReceiptsRequest, IngestReceiptsResponse, ReceiptMatchPreview } from '../types/ipc'
 import { appendChangeRow } from '../ledger/changes'
 
 function escapeCsvValue(value: string): string {

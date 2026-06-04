@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import Papa from 'papaparse'
 import { v4 as uuidv4 } from 'uuid'
-import type { CategoryItem, CategoryRule } from '../../shared/types'
-import { ensureDataStructure, getDataFilePath } from '../utils/paths'
+import type { CategoryItem, CategoryRule } from '../types'
+import { ensureDataStructure, getDataFilePath } from '../storage/paths'
 
 const DEFAULT_CATEGORIES: CategoryItem[] = [
   { category: 'Groceries', subcategory: 'Produce' },

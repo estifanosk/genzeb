@@ -3,18 +3,18 @@ import { basename } from 'path'
 import Papa from 'papaparse'
 import { v4 as uuidv4 } from 'uuid'
 import { parse, parseISO, isValid, format } from 'date-fns'
-import { ensureDataStructure, getDataFilePath } from '../utils/paths'
-import { hashFile } from '../utils/file-hash'
-import { moveFilesToImported } from '../ipc/file-system'
+import { ensureDataStructure, getDataFilePath } from '../storage/paths'
+import { hashFile } from '../storage/file-hash'
+import { moveFilesToImported } from '../storage/imported-files'
 import { upsertAccount } from '../accounts'
-import type { ImportStatementsRequest } from '../../shared/types/ipc'
+import type { ImportStatementsRequest } from '../types/ipc'
 import type {
   ImportResult,
   LedgerRow,
   ImportLogRow,
   ImportError,
   AccountInfo
-} from '../../shared/types'
+} from '../types'
 
 const DATE_FORMATS = ['yyyy-MM-dd', 'MM/dd/yyyy', 'M/d/yyyy', 'MM/dd/yy', 'M/d/yy', 'dd/MM/yyyy']
 

@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, writeFileSync, appendFileSync } from 'fs'
 import Papa from 'papaparse'
 import { v4 as uuidv4 } from 'uuid'
-import type { ChangeRow } from '../../shared/types'
-import { ensureDataStructure, getDataFilePath } from '../utils/paths'
+import type { ChangeRow } from '../types'
+import { ensureDataStructure, getDataFilePath } from '../storage/paths'
 
 const CHANGE_HEADERS = ['change_id', 'transaction_id', 'change_type', 'field', 'value', 'time']
 

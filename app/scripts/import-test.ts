@@ -2,8 +2,8 @@ import { mkdtempSync, writeFileSync, readFileSync, existsSync, readdirSync } fro
 import { tmpdir } from 'os'
 import { join, basename } from 'path'
 import assert from 'assert'
-import { ensureDataStructure, getDataFilePath, getDataDirPath } from '../src/main/utils/paths'
-import { importStatementFiles } from '../src/main/import/statement-importer'
+import { ensureDataStructure, getDataFilePath, getDataDirPath } from '../../core/storage/paths'
+import { importStatementFiles } from '../../core/importer/statement-importer'
 
 function lineCount(path: string): number {
   const content = readFileSync(path, 'utf-8').trim()
