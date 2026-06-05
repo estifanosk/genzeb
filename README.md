@@ -4,6 +4,12 @@ A free, local-first desktop app for tracking personal expenses. Import bank and 
 
 > **Platform:** macOS, Windows, and Linux. Built with Electron so it runs on all three. macOS is the primary development platform — if you hit a platform-specific issue on Windows or Linux, please [open an issue](https://github.com/estifanosk/genzeb/issues).
 
+### Append-only data model
+
+Every edit you make is recorded as a new row in `changes.csv` — nothing is ever overwritten or deleted from the raw ledger. The current view of your transactions is always rebuilt from scratch by replaying the ledger and change log. This means your data is fully auditable: you can see exactly what changed, when, and whether it was edited by you or by an AI agent. If something goes wrong, the original import is always intact.
+
+See [docs/design-doc.md](docs/design-doc.md) for the full data model and schema.
+
 ---
 
 ## Contents
