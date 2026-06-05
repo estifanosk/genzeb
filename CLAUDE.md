@@ -1,4 +1,4 @@
-# LedgerBox — Claude Instructions
+# Genzeb — Claude Instructions
 
 ## Decision logging
 
@@ -31,7 +31,7 @@ Do not log implementation details that are already obvious from the code or comm
 ## Key conventions
 
 - All user edits write to `changes.csv` via `appendChangeRow()` — never mutate `ledger.csv` or `transactions.csv` directly.
-- The data folder path comes from settings (`~/Library/Application Support/ledgerbox/settings.json`), not hardcoded.
+- The data folder path comes from settings (`~/Library/Application Support/genzeb/settings.json`), not hardcoded.
 - IPC channels are defined in `core/types/ipc.ts` — add new channels there first, then wire handler in `app/src/main/ipc/index.ts`, expose in `app/src/preload/index.ts`.
 - Main process changes require a full dev server restart (`pkill -f electron && npm run dev`) — renderer-only changes hot-reload.
 - Run scripts from `app/` with `NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/<script>.ts`.

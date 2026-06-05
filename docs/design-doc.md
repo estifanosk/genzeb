@@ -1,4 +1,4 @@
-# LedgerBox — Design Doc (v1)
+# Genzeb — Design Doc (v1)
 
 ## Summary
 A personal, local‑first desktop expense workspace that ingests bank/credit card statements and receipts from a watched folder, stores transactions as portable CSV, and supports categorization, reconciliation, and receipt linking. Optional LLM features are opt‑in via user‑provided API keys. All data lives in a cloud‑syncable folder.

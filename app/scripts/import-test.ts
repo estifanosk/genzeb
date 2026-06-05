@@ -12,7 +12,7 @@ function lineCount(path: string): number {
 }
 
 async function run(): Promise<void> {
-  const tempDir = mkdtempSync(join(tmpdir(), 'ledgerbox-import-test-'))
+  const tempDir = mkdtempSync(join(tmpdir(), 'genzeb-import-test-'))
   ensureDataStructure(tempDir)
 
   const statementsDir = getDataDirPath(tempDir, 'INBOX_STATEMENTS')

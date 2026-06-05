@@ -9,7 +9,7 @@ function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
-    title: 'LedgerBox',
+    title: 'Genzeb',
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -44,7 +44,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.ledgerbox')
+  electronApp.setAppUserModelId('com.genzeb')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

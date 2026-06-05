@@ -10,7 +10,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 }
 
 function getDefaultDataFolder(): string {
-  return join(app.getPath('documents'), 'LedgerBox')
+  return join(app.getPath('documents'), 'Genzeb')
 }
 
 function getSettingsPath(): string {

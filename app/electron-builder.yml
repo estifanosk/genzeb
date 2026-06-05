@@ -1,5 +1,5 @@
-appId: com.ledgerbox.app
-productName: ledgerbox
+appId: com.genzeb.app
+productName: genzeb
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: ledgerbox
+  executableName: genzeb
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
@@ -40,4 +40,4 @@ appImage:
 npmRebuild: false
 publish:
   provider: generic
-  url: https://ledgerbox.local/auto-updates
+  url: https://genzeb.local/auto-updates

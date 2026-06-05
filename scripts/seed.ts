@@ -1,5 +1,5 @@
 /**
- * LedgerBox Seed Script
+ * Genzeb Seed Script
  *
  * Generates realistic test data for manual testing and development:
  *   - 4 accounts: 2 checking, 1 savings, 1 credit card
@@ -23,7 +23,7 @@
  * -----
  *   NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/seed.ts [data-folder]
  *
- * Defaults to ~/Documents/LedgerBox if no argument is given.
+ * Defaults to ~/Documents/Genzeb if no argument is given.
  * Safe to re-run after clean.ts has wiped the data folder.
  */
 
@@ -39,7 +39,7 @@ import type { ReceiptDetail, ReceiptIndexRow } from '../core/types'
 
 // ── config ─────────────────────────────────────────────────────────────────────
 
-const DATA_FOLDER = process.argv[2] || join(homedir(), 'Documents', 'LedgerBox')
+const DATA_FOLDER = process.argv[2] || join(homedir(), 'Documents', 'Genzeb')
 const STAGING_DIR = join(DATA_FOLDER, '_seed_staging')
 
 // Reproducible random (simple LCG seeded at 42)
@@ -439,7 +439,7 @@ function appendReceiptIndex(dataFolder: string, row: ReceiptIndexRow): void {
 // ── main ────────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log('=== LedgerBox Seed ===\n')
+  console.log('=== Genzeb Seed ===\n')
   console.log('Data folder:', DATA_FOLDER)
 
   ensureDataStructure(DATA_FOLDER)

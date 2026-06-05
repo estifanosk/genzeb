@@ -12,7 +12,7 @@ interface EditValues {
 }
 
 export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) => void }) {
-  const storageKey = 'ledgerbox.transactions.ui'
+  const storageKey = 'genzeb.transactions.ui'
   const defaultVisibleColumns: Record<string, boolean> = {
     date: true,
     merchant: true,
