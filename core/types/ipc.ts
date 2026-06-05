@@ -114,6 +114,7 @@ export interface QueryLineItemsRequest {
       min?: number
       max?: number
     }
+    linkedStatus?: 'all' | 'linked' | 'unlinked'
   }
   sortBy?: 'date' | 'merchant' | 'item' | 'total' | 'category'
   sortOrder?: 'asc' | 'desc'

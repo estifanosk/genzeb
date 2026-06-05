@@ -11,6 +11,7 @@ import type {
 import { readChanges } from '../ledger/changes'
 import { getRules } from '../rules'
 import { readReceiptDetail } from '../receipts/llm'
+import { readReceiptIndex } from '../receipts/importer'
 
 function escapeCsvValue(value: string): string {
   if (value.includes('"') || value.includes(',') || value.includes('\n')) {
@@ -414,9 +415,47 @@ export function queryLineItems(
     }
   }
 
+  // Second pass: unlinked receipts — receipts that have no entry in any transaction's receipt_files
+  const coveredReceiptIds = new Set(
+    rows.flatMap((tx) =>
+      tx.receipt_files
+        ? tx.receipt_files.split(';').map((s) => s.trim()).filter(Boolean)
+        : []
+    )
+  )
+  const allReceiptIndexRows = readReceiptIndex(dataFolder)
+  for (const indexRow of allReceiptIndexRows) {
+    if (coveredReceiptIds.has(indexRow.receipt_id)) continue
+    const detail = readReceiptDetail(dataFolder, indexRow.receipt_id)
+    if (!detail?.line_items?.length) continue
+    detail.line_items.forEach((item, idx) => {
+      items.push({
+        id: `unlinked:${indexRow.receipt_id}:${idx}`,
+        transaction_id: '',
+        receipt_id: indexRow.receipt_id,
+        date: detail.date || indexRow.date || '',
+        merchant: detail.merchant || indexRow.merchant || '',
+        description: '',
+        item: item.description,
+        quantity: item.quantity ?? undefined,
+        unit_price: item.unit_price ?? undefined,
+        item_total: item.total,
+        transaction_amount: detail.total ?? 0,
+        account: '',
+        category: undefined,
+        subcategory: undefined,
+        notes: undefined,
+        item_category: item.category_hint || undefined,
+        is_unlinked: true
+      })
+    })
+  }
+
   const filtered = items.filter((row) => {
     const { filters } = req
     if (!filters) return true
+    if (filters.linkedStatus === 'linked' && row.is_unlinked) return false
+    if (filters.linkedStatus === 'unlinked' && !row.is_unlinked) return false
     if (filters.search) {
       const needle = filters.search.toLowerCase()
       const haystack = `${row.item} ${row.description} ${row.merchant}`.toLowerCase()
