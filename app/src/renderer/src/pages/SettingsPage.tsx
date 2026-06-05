@@ -8,6 +8,68 @@ import { useSettingsStore } from '../stores/settings'
 import type { InboxPaths, CategorizeTransactionsResponse } from '@core/types/ipc'
 import type { CategoryItem, CategoryRule, TransactionRow } from '@core/types'
 
+function ApiKeysCard({
+  openAiKey,
+  anthropicKey,
+  onSave,
+}: {
+  openAiKey: string
+  anthropicKey: string
+  onSave: (keys: { openAiKey?: string; anthropicKey?: string }) => void
+}) {
+  const [oai, setOai] = useState(openAiKey)
+  const [ant, setAnt] = useState(anthropicKey)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => { setOai(openAiKey) }, [openAiKey])
+  useEffect(() => { setAnt(anthropicKey) }, [anthropicKey])
+
+  const handleSave = () => {
+    onSave({ openAiKey: oai, anthropicKey: ant })
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  const dirty = oai !== openAiKey || ant !== anthropicKey
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>API Keys</CardTitle>
+        <CardDescription>
+          Optional keys for AI-powered features (receipt OCR, bulk categorization, Ask AI).
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <label className="text-sm font-medium mb-1.5 block">OpenAI API Key</label>
+          <Input
+            type="password"
+            placeholder="sk-..."
+            value={oai}
+            onChange={(e) => { setOai(e.target.value); setSaved(false) }}
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1.5 block">Anthropic API Key</label>
+          <Input
+            type="password"
+            placeholder="sk-ant-..."
+            value={ant}
+            onChange={(e) => { setAnt(e.target.value); setSaved(false) }}
+          />
+        </div>
+        <div className="flex items-center gap-3 pt-1">
+          <Button onClick={handleSave} size="sm" disabled={!dirty && !saved}>
+            Save
+          </Button>
+          {saved && <span className="text-xs text-green-400">Saved ✓</span>}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 function ClearAllSection() {
   const [confirming, setConfirming] = useState(false)
   const [clearing, setClearing] = useState(false)
@@ -608,42 +670,15 @@ export function SettingsPage() {
         </Card>
 
         {/* API Keys */}
-        <Card>
-          <CardHeader>
-            <CardTitle>API Keys</CardTitle>
-            <CardDescription>
-              Optional API keys for AI-powered features like receipt parsing and Q&A.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">OpenAI API Key</label>
-              <Input
-                type="password"
-                placeholder="sk-..."
-                value={openAiKey}
-                onChange={(e) => {
-                  const value = e.target.value
-                  setOpenAiKey(value)
-                  updateSettings({ openAiKey: value })
-                }}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Anthropic API Key</label>
-              <Input
-                type="password"
-                placeholder="sk-ant-..."
-                value={anthropicKey}
-                onChange={(e) => {
-                  const value = e.target.value
-                  setAnthropicKey(value)
-                  updateSettings({ anthropicKey: value })
-                }}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <ApiKeysCard
+          openAiKey={openAiKey}
+          anthropicKey={anthropicKey}
+          onSave={(keys) => {
+            if (keys.openAiKey !== undefined) setOpenAiKey(keys.openAiKey)
+            if (keys.anthropicKey !== undefined) setAnthropicKey(keys.anthropicKey)
+            updateSettings(keys)
+          }}
+        />
 
         {/* Data Management */}
         <Card className="border-destructive/40">
