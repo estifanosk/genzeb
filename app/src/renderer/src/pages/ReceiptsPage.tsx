@@ -64,7 +64,7 @@ function ReceiptExpandedDetail({ receipt }: { receipt: ReceiptRow }) {
   if (loading) {
     return (
       <div className="flex gap-6 p-4 bg-muted/30 border-t border-border">
-        <div className="w-64 h-80 rounded bg-muted animate-pulse shrink-0" />
+        <div className="w-96 h-96 rounded bg-muted animate-pulse shrink-0" />
         <div className="flex-1 space-y-2">
           <div className="h-3 bg-muted rounded w-24 animate-pulse" />
           <div className="h-3 bg-muted rounded w-full animate-pulse" />
@@ -77,7 +77,7 @@ function ReceiptExpandedDetail({ receipt }: { receipt: ReceiptRow }) {
   return (
     <div className="flex gap-6 p-4 bg-muted/30 border-t border-border">
       {/* Full receipt image */}
-      <div className="w-64 shrink-0">
+      <div className="w-96 shrink-0">
         {imageData ? (
           <img
             src={imageData}
@@ -85,7 +85,7 @@ function ReceiptExpandedDetail({ receipt }: { receipt: ReceiptRow }) {
             className="w-full rounded border border-border"
           />
         ) : (
-          <div className="w-full h-80 rounded border border-border flex flex-col items-center justify-center gap-2 text-muted-foreground bg-muted/50">
+          <div className="w-full h-96 rounded border border-border flex flex-col items-center justify-center gap-2 text-muted-foreground bg-muted/50">
             <ImageOff className="h-8 w-8" />
             <span className="text-xs">No image available</span>
           </div>
