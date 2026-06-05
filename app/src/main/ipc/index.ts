@@ -10,6 +10,7 @@ import {
 import { getSettings, updateSettings, loadSettings } from './settings'
 import {
   importStatementFiles,
+  readImportLog,
   getCsvHeadersForFile,
   getCsvPreviewForFile,
   getCsvMappingForFile,
@@ -83,6 +84,12 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
       materializeTransactions(settings.dataFolder)
     }
     return results
+  })
+
+  ipcMain.handle(IPC_CHANNELS.GET_IMPORT_LOG, async () => {
+    const settings = getSettings()
+    if (!settings.dataFolder) return []
+    return readImportLog(settings.dataFolder)
   })
 
   ipcMain.handle(IPC_CHANNELS.GET_CSV_HEADERS, async (_, _path: string) => {

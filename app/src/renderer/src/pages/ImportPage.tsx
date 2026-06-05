@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import { FileText, Receipt, RefreshCw, ExternalLink, Eye, Sparkles } from 'lucide-react'
+import { FileText, Receipt, RefreshCw, ExternalLink, Eye, Sparkles, History } from 'lucide-react'
+import type { ImportLogRow } from '@core/types'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs'
@@ -41,11 +42,13 @@ function parseAccountFromFilename(filePath: string): {
 
 type Step = 'select' | 'preview' | 'summary'
 
-type TabKey = 'statements' | 'receipts'
+type TabKey = 'statements' | 'receipts' | 'history'
 
 export function ImportPage() {
   const { settings } = useSettingsStore()
   const [activeTab, setActiveTab] = useState<TabKey>('statements')
+  const [importLog, setImportLog] = useState<ImportLogRow[]>([])
+  const [isLoadingLog, setIsLoadingLog] = useState(false)
   const [inboxScan, setInboxScan] = useState<InboxScanResult | null>(null)
   const [inboxPaths, setInboxPaths] = useState<InboxPaths | null>(null)
   const [isScanning, setIsScanning] = useState(false)
@@ -84,6 +87,20 @@ export function ImportPage() {
   const [receiptLlmResult, setReceiptLlmResult] = useState<ReceiptDetail | null>(null)
   const [isLlmLoading, setIsLlmLoading] = useState(false)
   const [llmError, setLlmError] = useState<string | null>(null)
+
+  const loadImportLog = useCallback(async () => {
+    setIsLoadingLog(true)
+    try {
+      const log = await window.api.getImportLog()
+      setImportLog(log)
+    } finally {
+      setIsLoadingLog(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (activeTab === 'history') loadImportLog()
+  }, [activeTab, loadImportLog])
 
   const scanInbox = useCallback(async () => {
     if (!settings?.dataFolder) return
@@ -347,6 +364,10 @@ export function ImportPage() {
         <TabsList>
           <TabsTrigger value="statements">Statements</TabsTrigger>
           <TabsTrigger value="receipts">Receipts</TabsTrigger>
+          <TabsTrigger value="history">
+            <History className="h-3.5 w-3.5 mr-1.5" />
+            History
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="statements">
@@ -887,6 +908,79 @@ export function ImportPage() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="history">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <History className="h-5 w-5" />
+                    Import History
+                  </CardTitle>
+                  <CardDescription>
+                    Every statement file that has been imported into this data folder.
+                  </CardDescription>
+                </div>
+                <Button variant="outline" size="sm" onClick={loadImportLog} disabled={isLoadingLog}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingLog ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {isLoadingLog && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground py-6 justify-center">
+                  <RefreshCw className="h-4 w-4 animate-spin" /> Loading…
+                </div>
+              )}
+              {!isLoadingLog && importLog.length === 0 && (
+                <p className="text-sm text-muted-foreground py-6 text-center">
+                  No imports yet. Import a CSV statement to get started.
+                </p>
+              )}
+              {!isLoadingLog && importLog.length > 0 && (
+                <div className="overflow-auto rounded border border-border">
+                  <table className="w-full text-sm">
+                    <thead className="bg-secondary text-secondary-foreground border-b border-border">
+                      <tr>
+                        <th className="text-left p-3 font-medium">File</th>
+                        <th className="text-left p-3 font-medium">Imported</th>
+                        <th className="text-left p-3 font-medium">Type</th>
+                        <th className="text-right p-3 font-medium">Rows imported</th>
+                        <th className="text-right p-3 font-medium">Skipped</th>
+                        <th className="text-left p-3 font-medium">Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {importLog.map((row) => (
+                        <tr key={row.import_id} className="border-t border-border hover:bg-accent/40">
+                          <td className="p-3 font-medium truncate max-w-xs" title={row.source_file}>
+                            {row.source_file}
+                          </td>
+                          <td className="p-3 whitespace-nowrap text-muted-foreground">
+                            {new Date(row.imported_at).toLocaleString(undefined, {
+                              month: 'short', day: 'numeric', year: 'numeric',
+                              hour: '2-digit', minute: '2-digit'
+                            })}
+                          </td>
+                          <td className="p-3 uppercase text-xs text-muted-foreground">{row.file_type}</td>
+                          <td className="p-3 text-right">{row.rows_imported}</td>
+                          <td className="p-3 text-right">
+                            {row.rows_skipped > 0
+                              ? <span className="text-amber-400">{row.rows_skipped}</span>
+                              : <span className="text-muted-foreground">—</span>}
+                          </td>
+                          <td className="p-3 text-muted-foreground">{row.notes || '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

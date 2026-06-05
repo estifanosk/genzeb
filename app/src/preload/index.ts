@@ -29,6 +29,7 @@ const api: LedgerBoxAPI = {
   // Import
   importStatements: (req: ImportStatementsRequest) =>
     ipcRenderer.invoke(IPC_CHANNELS.IMPORT_STATEMENTS, req),
+  getImportLog: () => ipcRenderer.invoke(IPC_CHANNELS.GET_IMPORT_LOG),
   getCsvHeaders: (path: string) => ipcRenderer.invoke(IPC_CHANNELS.GET_CSV_HEADERS, path),
   getCsvPreview: (path: string, rows?: number) =>
     ipcRenderer.invoke(IPC_CHANNELS.GET_CSV_PREVIEW, path, rows),

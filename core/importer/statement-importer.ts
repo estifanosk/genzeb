@@ -16,6 +16,27 @@ import type {
   AccountInfo
 } from '../types'
 
+export function readImportLog(dataFolder: string): ImportLogRow[] {
+  const importLogPath = getDataFilePath(dataFolder, 'IMPORT_LOG')
+  if (!existsSync(importLogPath)) return []
+  const content = readFileSync(importLogPath, 'utf-8')
+  if (!content.trim()) return []
+  const parsed = Papa.parse<Record<string, string>>(content, { header: true, skipEmptyLines: true })
+  return parsed.data
+    .filter((row) => row && row.import_id)
+    .map((row) => ({
+      import_id: row.import_id,
+      source_file: row.source_file,
+      source_hash: row.source_hash,
+      file_type: (row.file_type || 'csv') as ImportLogRow['file_type'],
+      imported_at: row.imported_at,
+      rows_imported: Number(row.rows_imported) || 0,
+      rows_skipped: Number(row.rows_skipped) || 0,
+      notes: row.notes || undefined
+    }))
+    .reverse() // most recent first
+}
+
 const DATE_FORMATS = ['yyyy-MM-dd', 'MM/dd/yyyy', 'M/d/yyyy', 'MM/dd/yy', 'M/d/yy', 'dd/MM/yyyy']
 
 function normalizeHeader(header: string): string {
