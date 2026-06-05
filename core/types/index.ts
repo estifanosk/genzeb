@@ -118,6 +118,7 @@ export interface LineItemExplorerRow {
   subcategory?: string
   notes?: string
   item_category?: string
+  is_unlinked?: boolean
 }
 
 export interface LinkRow {

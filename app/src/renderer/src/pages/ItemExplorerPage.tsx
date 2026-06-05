@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { RefreshCw, Search } from 'lucide-react'
+import { RefreshCw, Search, AlertCircle } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import type { LineItemExplorerRow } from '@core/types'
 import type { QueryLineItemsResponse } from '@core/types/ipc'
@@ -18,6 +18,7 @@ export function ItemExplorerPage() {
   const [dateEnd, setDateEnd] = useState('')
   const [amountMin, setAmountMin] = useState('')
   const [amountMax, setAmountMax] = useState('')
+  const [linkedStatus, setLinkedStatus] = useState<'all' | 'linked' | 'unlinked'>('all')
 
   const [sortBy, setSortBy] = useState<'date' | 'merchant' | 'item' | 'total' | 'category'>(
     'date'
@@ -34,6 +35,7 @@ export function ItemExplorerPage() {
           ...(category !== 'all' ? { category } : {}),
           ...(merchant ? { merchant } : {}),
           ...(dateStart || dateEnd ? { dateRange: { start: dateStart, end: dateEnd } } : {}),
+          ...(linkedStatus !== 'all' ? { linkedStatus } : {}),
           ...(amountMin || amountMax
             ? {
                 amountRange: {
@@ -58,7 +60,7 @@ export function ItemExplorerPage() {
 
   useEffect(() => {
     loadItems()
-  }, [search, category, merchant, dateStart, dateEnd, amountMin, amountMax, sortBy, sortOrder])
+  }, [search, category, merchant, dateStart, dateEnd, amountMin, amountMax, linkedStatus, sortBy, sortOrder])
 
   const quickCategories = useMemo(() => {
     const counts = new Map<string, number>()
@@ -79,6 +81,12 @@ export function ItemExplorerPage() {
           <h2 className="text-2xl font-bold">Item Explorer</h2>
           <p className="text-sm text-muted-foreground mt-1">
             {total} item{total === 1 ? '' : 's'} • Total {totalAmount.toFixed(2)}
+            {items.some(i => i.is_unlinked) && (
+              <span className="ml-3 inline-flex items-center gap-1 text-amber-400">
+                <AlertCircle className="h-3.5 w-3.5" />
+                {items.filter(i => i.is_unlinked).length} unlinked
+              </span>
+            )}
           </p>
         </div>
         <div className="flex gap-2 items-center flex-wrap">
@@ -165,6 +173,18 @@ export function ItemExplorerPage() {
             onChange={(e) => setAmountMax(e.target.value)}
           />
         </div>
+        <div>
+          <label className="text-xs text-muted-foreground">Status</label>
+          <select
+            className="border rounded-md px-2 text-sm w-full h-8"
+            value={linkedStatus}
+            onChange={(e) => setLinkedStatus(e.target.value as 'all' | 'linked' | 'unlinked')}
+          >
+            <option value="all">All</option>
+            <option value="linked">Linked only</option>
+            <option value="unlinked">Unlinked only</option>
+          </select>
+        </div>
       </div>
 
       {quickCategories.length > 0 && (
@@ -239,7 +259,7 @@ export function ItemExplorerPage() {
           </div>
           <div className="overflow-auto">
             <div className="min-w-[1400px]">
-              <div className="grid grid-cols-[120px_2fr_2fr_2fr_140px_140px_90px_110px_120px_140px_160px_2fr] gap-x-3 bg-muted px-3 py-2 text-xs font-medium">
+              <div className="grid grid-cols-[120px_2fr_2fr_2fr_140px_140px_90px_110px_120px_140px_160px_100px_2fr] gap-x-3 bg-muted px-3 py-2 text-xs font-medium sticky top-0">
                 <div>Date</div>
                 <div>Merchant</div>
                 <div>Description</div>
@@ -251,29 +271,30 @@ export function ItemExplorerPage() {
                 <div className="text-right">Item Total</div>
                 <div className="text-right">Tx Amount</div>
                 <div>Account</div>
+                <div>Status</div>
                 <div>Notes</div>
               </div>
               <div className="max-h-[70vh] overflow-auto">
                 {items.map((row) => (
                   <div
                     key={row.id}
-                    className="grid grid-cols-[120px_2fr_2fr_2fr_140px_140px_90px_110px_120px_140px_160px_2fr] gap-x-3 px-3 py-2 text-sm border-t"
+                    className={`grid grid-cols-[120px_2fr_2fr_2fr_140px_140px_90px_110px_120px_140px_160px_100px_2fr] gap-x-3 px-3 py-2 text-sm border-t ${row.is_unlinked ? 'bg-amber-500/5' : ''}`}
                   >
                     <div className="whitespace-nowrap text-muted-foreground">{row.date}</div>
                     <div className="truncate" title={row.merchant}>
-                      {row.merchant}
+                      {row.merchant || <span className="text-muted-foreground italic">Unknown</span>}
                     </div>
-                    <div className="truncate" title={row.description}>
-                      {row.description}
+                    <div className="truncate text-muted-foreground" title={row.description}>
+                      {row.description || '—'}
                     </div>
                     <div className="truncate" title={row.item}>
                       {row.item}
                     </div>
                     <div className="truncate" title={row.category || ''}>
-                      {row.category || '—'}
+                      {row.category || <span className="text-muted-foreground">—</span>}
                     </div>
                     <div className="truncate" title={row.subcategory || ''}>
-                      {row.subcategory || '—'}
+                      {row.subcategory || <span className="text-muted-foreground">—</span>}
                     </div>
                     <div className="text-right whitespace-nowrap">{row.quantity ?? '—'}</div>
                     <div className="text-right whitespace-nowrap">
@@ -283,9 +304,24 @@ export function ItemExplorerPage() {
                       {row.item_total.toFixed(2)}
                     </div>
                     <div className="text-right whitespace-nowrap text-muted-foreground">
-                      {row.transaction_amount.toFixed(2)}
+                      {row.transaction_amount > 0 ? row.transaction_amount.toFixed(2) : '—'}
                     </div>
-                    <div className="truncate text-muted-foreground">{row.account}</div>
+                    <div className="truncate text-muted-foreground">
+                      {row.account || <span className="italic">—</span>}
+                    </div>
+                    <div>
+                      {row.is_unlinked ? (
+                        <span
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-400"
+                          title="No linked transaction — reconcile in the Receipts page"
+                        >
+                          <AlertCircle className="h-3 w-3" />
+                          Unlinked
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/50">—</span>
+                      )}
+                    </div>
                     <div className="truncate text-muted-foreground">{row.notes || '—'}</div>
                   </div>
                 ))}
