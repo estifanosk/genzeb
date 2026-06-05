@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { ensureDataStructure, getDataDirPath, getDataFilePath } from '../storage/paths'
 import { hashBinaryFile } from '../storage/file-hash'
 import { moveToImported } from '../storage/imported-files'
-import type { ReceiptIndexRow, TransactionRow, ChangeRow } from '../types'
+import type { ReceiptIndexRow, TransactionRow, ChangeRow, LinkRow } from '../types'
 import type { IngestReceiptsRequest, IngestReceiptsResponse, ReceiptMatchPreview } from '../types/ipc'
 import { appendChangeRow } from '../ledger/changes'
 
@@ -320,4 +320,71 @@ export function ingestReceipts(
   }
 
   return { receipts, linked, unmatched }
+}
+
+const LINK_HEADERS = ['link_id', 'transaction_id', 'receipt_id', 'line_item_id', 'amount', 'confidence', 'notes']
+
+export function readLinks(dataFolder: string): LinkRow[] {
+  const linksPath = getDataFilePath(dataFolder, 'LINKS')
+  if (!existsSync(linksPath)) return []
+  const content = readFileSync(linksPath, 'utf-8')
+  if (!content.trim()) return []
+  const parsed = Papa.parse<Record<string, string>>(content, { header: true, skipEmptyLines: true })
+  return parsed.data
+    .filter((row) => row && row.link_id)
+    .map((row) => ({
+      link_id: row.link_id,
+      transaction_id: row.transaction_id,
+      receipt_id: row.receipt_id,
+      line_item_id: row.line_item_id || undefined,
+      amount: row.amount ? Number(row.amount) : undefined,
+      confidence: row.confidence ? Number(row.confidence) : undefined,
+      notes: row.notes || undefined
+    }))
+}
+
+export function writeLink(dataFolder: string, link: Omit<LinkRow, 'link_id'>): void {
+  const linksPath = getDataFilePath(dataFolder, 'LINKS')
+  appendCsvRow(linksPath, LINK_HEADERS, { link_id: uuidv4(), ...link } as Record<string, unknown>)
+}
+
+export function removeLink(dataFolder: string, transactionId: string, receiptId: string): void {
+  const links = readLinks(dataFolder)
+  const filtered = links.filter(
+    (l) => !(l.transaction_id === transactionId && l.receipt_id === receiptId)
+  )
+  if (filtered.length === links.length) return
+  const linksPath = getDataFilePath(dataFolder, 'LINKS')
+  const rows = [LINK_HEADERS.join(',')]
+  for (const link of filtered) {
+    rows.push(
+      LINK_HEADERS.map((h) => escapeCsvValue(String((link as unknown as Record<string, unknown>)[h] ?? ''))).join(',')
+    )
+  }
+  writeFileSync(linksPath, rows.join('\n') + '\n', 'utf-8')
+}
+
+export interface TransactionCandidate {
+  transaction: TransactionRow
+  score: number
+}
+
+export function getCandidatesForReceipt(
+  dataFolder: string,
+  receiptId: string,
+  dayWindow: number = 7,
+  tolerance: number = 2
+): TransactionCandidate[] {
+  const receipt = readReceiptIndex(dataFolder).find((r) => r.receipt_id === receiptId)
+  if (!receipt) return []
+  const transactions = loadTransactions(dataFolder)
+  const matches = computeMatches(
+    transactions,
+    { date: receipt.date, amount: receipt.total, merchant: receipt.merchant },
+    dayWindow,
+    tolerance
+  )
+  return matches
+    .map((m) => ({ transaction: transactions.find((tx) => tx.id === m.transactionId)!, score: m.score }))
+    .filter((c) => c.transaction)
 }

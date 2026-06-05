@@ -25,7 +25,11 @@ import {
   readReceiptIndex,
   getReceiptMatchPreview,
   getReceiptMatchPreviewFromData,
-  getReceiptPreviewData
+  getReceiptPreviewData,
+  readLinks,
+  writeLink,
+  removeLink,
+  getCandidatesForReceipt
 } from '@core/receipts/importer'
 import {
   runReceiptLlmExtract,
@@ -217,24 +221,53 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
     saveReceiptDetailFile(settings.dataFolder, { ...detail, receipt_id: receiptId })
   })
 
-  // === Matching Handlers (placeholder) ===
+  // === Matching Handlers ===
 
-  ipcMain.handle(IPC_CHANNELS.LINK_RECEIPT, async (_, _req) => {
-    // TODO: Implement in Phase 6
+  ipcMain.handle(IPC_CHANNELS.LINK_RECEIPT, async (_, req) => {
+    const settings = getSettings()
+    const receipts = readReceiptIndex(settings.dataFolder)
+    const receipt = receipts.find((r) => r.receipt_id === req.receiptId)
+    writeLink(settings.dataFolder, {
+      transaction_id: req.transactionId,
+      receipt_id: req.receiptId,
+      line_item_id: req.lineItemId,
+      amount: receipt?.total,
+      confidence: 1,
+      notes: req.notes ?? 'manual'
+    })
+    appendChangeRow(settings.dataFolder, {
+      transaction_id: req.transactionId,
+      change_type: 'link_receipt',
+      value: req.receiptId
+    })
+    await materializeTransactions(settings.dataFolder)
   })
 
-  ipcMain.handle(IPC_CHANNELS.UNLINK_RECEIPT, async (_, _txId: string, _receiptId: string) => {
-    // TODO: Implement in Phase 6
+  ipcMain.handle(IPC_CHANNELS.UNLINK_RECEIPT, async (_, txId: string, receiptId: string) => {
+    const settings = getSettings()
+    removeLink(settings.dataFolder, txId, receiptId)
+    appendChangeRow(settings.dataFolder, {
+      transaction_id: txId,
+      change_type: 'unlink_receipt',
+      value: receiptId
+    })
+    await materializeTransactions(settings.dataFolder)
   })
 
   ipcMain.handle(IPC_CHANNELS.GET_LINKS, async () => {
-    // TODO: Implement in Phase 6
-    return []
+    const settings = getSettings()
+    if (!settings.dataFolder) return []
+    return readLinks(settings.dataFolder)
   })
 
   ipcMain.handle(IPC_CHANNELS.GET_MATCH_SUGGESTIONS, async (_, _txId: string) => {
-    // TODO: Implement in Phase 6
     return []
+  })
+
+  ipcMain.handle(IPC_CHANNELS.GET_CANDIDATES_FOR_RECEIPT, async (_, receiptId: string) => {
+    const settings = getSettings()
+    if (!settings.dataFolder) return []
+    return getCandidatesForReceipt(settings.dataFolder, receiptId)
   })
 
   // === Rules Handlers (placeholder) ===
