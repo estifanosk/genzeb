@@ -2,12 +2,32 @@
 
 LedgerBox is a local-first desktop expense workspace built with Electron, React, Vite, and TypeScript.
 
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Desktop shell | [Electron 39](https://www.electronjs.org/) |
+| Build tooling | [electron-vite 5](https://electron-vite.org/), [Vite 7](https://vite.dev/) |
+| UI framework | [React 19](https://react.dev/) |
+| Language | [TypeScript 5](https://www.typescriptlang.org/) |
+| Styling | [Tailwind CSS 4](https://tailwindcss.com/) |
+| UI components | [Radix UI](https://www.radix-ui.com/) primitives + [shadcn/ui](https://ui.shadcn.com/) patterns, [Lucide](https://lucide.dev/) icons |
+| Table / virtualisation | [@tanstack/react-table](https://tanstack.com/table), [@tanstack/react-virtual](https://tanstack.com/virtual) |
+| State management | [Zustand 5](https://zustand.pmnd.rs/) |
+| CSV parsing | [PapaParse 5](https://www.papaparse.com/) |
+| SQLite index | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) |
+| Date handling | [date-fns 4](https://date-fns.org/) |
+| Validation | [Zod 4](https://zod.dev/) |
+| LLM integration | OpenAI API (opt-in, user-supplied key) |
+
 ## Layout
 
 - `app/` contains the Electron shell, renderer UI, and build config.
 - `core/` contains the domain logic for importing, materializing, receipts, rules, and shared types.
 - `test-data/` contains disposable sample input for smoke tests.
-- `docs/` contains the design notes, app notes, and smoke-test instructions.
+- `docs/` contains the design notes, app notes, and how-tos.
+
+See [docs/architecture.md](docs/architecture.md) for a full breakdown of the process model, data pipeline, IPC layer, and data folder layout.
 
 ## Run
 
