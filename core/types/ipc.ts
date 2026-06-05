@@ -257,6 +257,7 @@ export interface LedgerBoxAPI {
 
   // Ledger
   appendChange(change: Omit<ChangeRow, 'change_id' | 'time'>): Promise<void>
+  getChanges(): Promise<ChangeRow[]>
 
   // Materializer
   materialize(): Promise<void>

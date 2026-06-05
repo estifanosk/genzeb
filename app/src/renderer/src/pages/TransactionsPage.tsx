@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, Sparkles } from 'lucide-react'
+import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, Sparkles, History } from 'lucide-react'
 import { Button } from '../components/ui/button'
-import type { AccountInfo, ReceiptDetail, TransactionRow } from '@core/types'
+import type { AccountInfo, ReceiptDetail, TransactionRow, ChangeRow } from '@core/types'
 import type { CategorizeTransactionsResponse } from '@core/types/ipc'
 
 interface EditValues {
@@ -57,6 +57,7 @@ export function TransactionsPage() {
     useState<Record<string, boolean>>(defaultVisibleColumns)
   const [receiptDetails, setReceiptDetails] = useState<Record<string, ReceiptDetail | null>>({})
   const [expandedReceiptTx, setExpandedReceiptTx] = useState<string | null>(null)
+  const [changesByTx, setChangesByTx] = useState<Map<string, ChangeRow[]>>(new Map())
   const [settingsKey, setSettingsKey] = useState<string | null>(null)
   const [llmSuggestions, setLlmSuggestions] = useState<CategorizeTransactionsResponse['suggestions']>([])
   const [llmError, setLlmError] = useState<string | null>(null)
@@ -189,6 +190,22 @@ export function TransactionsPage() {
       setIsLoading(false)
     }
   }
+
+  const loadChanges = async () => {
+    try {
+      const all = await window.api.getChanges()
+      const map = new Map<string, ChangeRow[]>()
+      for (const c of all) {
+        if (!map.has(c.transaction_id)) map.set(c.transaction_id, [])
+        map.get(c.transaction_id)!.push(c)
+      }
+      setChangesByTx(map)
+    } catch {
+      // non-critical — history just won't show
+    }
+  }
+
+  useEffect(() => { loadChanges() }, [])
 
   useEffect(() => {
     loadTransactions()
@@ -1135,7 +1152,7 @@ export function TransactionsPage() {
                           </>
                         )}
                       </div>
-                      {isExpanded && hasReceipt && (
+                      {isExpanded && (hasReceipt || (changesByTx.get(tx.id)?.length ?? 0) > 0) && (
                         <div className="col-span-full mt-2 rounded-md border bg-muted/40 p-3 text-xs">
                           {receiptIds.map((receiptId) => {
                             const detail = receiptDetails[receiptId]
@@ -1203,6 +1220,45 @@ export function TransactionsPage() {
                               </div>
                             )
                           })}
+                          {/* Change history */}
+                          {(() => {
+                            const txChanges = changesByTx.get(tx.id) ?? []
+                            if (!txChanges.length) return null
+                            const label = (c: ChangeRow) => {
+                              switch (c.change_type) {
+                                case 'set_category':    return `Category → ${c.value || '(cleared)'}`
+                                case 'set_subcategory': return `Subcategory → ${c.value || '(cleared)'}`
+                                case 'set_merchant':    return `Merchant → ${c.value || '(cleared)'}`
+                                case 'set_notes':       return c.value ? `Note: ${c.value}` : 'Note cleared'
+                                case 'link_receipt':    return 'Receipt linked'
+                                case 'unlink_receipt':  return 'Receipt unlinked'
+                                case 'split':           return 'Transaction split'
+                                default:                return c.change_type
+                              }
+                            }
+                            const fmt = (iso: string) => {
+                              const d = new Date(iso)
+                              return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+                                + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+                            }
+                            return (
+                              <div className={hasReceipt ? 'mt-3 pt-3 border-t border-border' : ''}>
+                                <div className="flex items-center gap-1.5 mb-2 text-muted-foreground font-medium">
+                                  <History className="h-3 w-3" />
+                                  <span>History ({txChanges.length})</span>
+                                </div>
+                                <ol className="space-y-1.5">
+                                  {txChanges.map((c) => (
+                                    <li key={c.change_id} className="flex items-start gap-2">
+                                      <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-muted-foreground/50 shrink-0 mt-1.5" />
+                                      <span className="flex-1">{label(c)}</span>
+                                      <span className="text-muted-foreground/60 whitespace-nowrap">{fmt(c.time)}</span>
+                                    </li>
+                                  ))}
+                                </ol>
+                              </div>
+                            )
+                          })()}
                         </div>
                       )}
                     </div>

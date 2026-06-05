@@ -38,6 +38,7 @@ const api: LedgerBoxAPI = {
   // Ledger
   appendChange: (change: Omit<ChangeRow, 'change_id' | 'time'>) =>
     ipcRenderer.invoke(IPC_CHANNELS.APPEND_CHANGE, change),
+  getChanges: () => ipcRenderer.invoke(IPC_CHANNELS.GET_CHANGES),
 
   // Materializer
   materialize: () => ipcRenderer.invoke(IPC_CHANNELS.MATERIALIZE),
