@@ -1,5 +1,5 @@
 /**
- * Genzeb Smoke Test
+ * LedgerBox Smoke Test
  *
  * What it does
  * ------------
@@ -43,7 +43,7 @@ import { existsSync, mkdirSync, copyFileSync } from 'fs'
 import { join } from 'path'
 
 const DATA_FOLDER = process.argv[2] || '/tmp/genzeb-smoke'
-const TEST_CSV_ORIGINAL = '/Users/estifanoskidane/projects/genzeb/test-data/statements/1234_checking_demo-bank_2026-05.csv'
+const TEST_CSV_ORIGINAL = join(__dirname, '../test-data/statements/1234_checking_demo-bank_2026-05.csv')
 
 async function main() {
   if (!existsSync(DATA_FOLDER)) mkdirSync(DATA_FOLDER, { recursive: true })
@@ -53,7 +53,7 @@ async function main() {
   const TEST_CSV = join(DATA_FOLDER, '1234_checking_demo-bank_2026-05.csv')
   copyFileSync(TEST_CSV_ORIGINAL, TEST_CSV)
 
-  console.log('=== Genzeb Smoke Test ===\n')
+  console.log('=== LedgerBox Smoke Test ===\n')
 
   // Step 1: Import
   console.log('--- Step 1: Import CSV ---')
