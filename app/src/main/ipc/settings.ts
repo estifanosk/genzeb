@@ -19,6 +19,13 @@ function getSettingsPath(): string {
 
 // Load settings from disk
 export function loadSettings(): AppSettings {
+  // E2E tests inject a throwaway data folder via env var to avoid touching real user data
+  if (process.env.E2E_DATA_FOLDER) {
+    const settings: AppSettings = { ...DEFAULT_SETTINGS, dataFolder: process.env.E2E_DATA_FOLDER }
+    setCachedSettings(settings)
+    return settings
+  }
+
   const settingsPath = getSettingsPath()
 
   if (!existsSync(settingsPath)) {
