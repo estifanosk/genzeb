@@ -23,6 +23,7 @@ Do not log implementation details that are already obvious from the code or comm
 | File | Purpose |
 |---|---|
 | `docs/decisions.md` | Dated decision journal — always update this |
+| `docs/backlog.md` | Feature backlog — add items here when deferred |
 | `docs/architecture.md` | Process model, feature status table, data layout |
 | `docs/design-doc.md` | Original design spec |
 | `docs/seed-data.md` | How to run seed and clean scripts |
