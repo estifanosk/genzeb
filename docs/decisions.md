@@ -84,6 +84,24 @@ These can be picked up as small follow-on tasks whenever needed.
 
 ---
 
+## 2026-06-05 — UI improvement priorities agreed
+
+Reviewed the full UI. Agreed on 11 improvement tasks in priority order:
+
+1. Amount formatting — $ prefix, red/green colour, thousands separator
+2. Window title — fix "Electron" → "LedgerBox"
+3. Stub pages — remove "Coming in Phase 8", fix Reconcile copy
+4. Toolbar clutter — hide bulk actions unless rows are selected
+5. Filtered total — show sum of filtered transactions in footer
+6. Sidebar — reorder and add section grouping
+7. Filter panel — make collapsible, show active filter count badge
+8. Light/dark mode — toggle persisted in localStorage, default to system
+9. App logo — SVG icon in sidebar header
+10. Relative dates — "Today", "Yesterday" for recent transactions
+11. Empty state CTAs — "Import a statement" / "Import a receipt" buttons
+
+No colour palette or full redesign — the dark theme is good, just needs polish and reduced clutter.
+
 ## 2026-06-05 — LLM Categorization moved from Transactions to Settings
 
 The LLM Categorization panel was a permanent block above the transaction table. Moved it to Settings → Categories & Rules → LLM Categorize tab.
