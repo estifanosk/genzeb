@@ -21,6 +21,7 @@ import { getAccounts } from '@core/accounts'
 import { appendChangeRow } from '@core/ledger/changes'
 import {
   ingestReceipts,
+  readReceiptIndex,
   getReceiptMatchPreview,
   getReceiptMatchPreviewFromData,
   getReceiptPreviewData
@@ -156,8 +157,17 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.GET_RECEIPTS, async () => {
-    // TODO: Implement in Phase 5
-    return []
+    const settings = getSettings()
+    if (!settings.dataFolder) return []
+    const receipts = readReceiptIndex(settings.dataFolder)
+    const txns = queryTransactions(settings.dataFolder, { filters: {}, limit: 99999 })
+    const linkedIds = new Set<string>()
+    for (const tx of txns.transactions) {
+      if (tx.receipt_files) {
+        tx.receipt_files.split(';').map((s) => s.trim()).filter(Boolean).forEach((id) => linkedIds.add(id))
+      }
+    }
+    return receipts.map((r) => ({ ...r, linked: linkedIds.has(r.receipt_id) }))
   })
 
   ipcMain.handle(IPC_CHANNELS.GET_RECEIPT_DETAIL, async (_, _receiptId: string) => {

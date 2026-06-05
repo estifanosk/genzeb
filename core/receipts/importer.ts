@@ -171,6 +171,28 @@ export function getReceiptMatchPreviewFromData(
   }
 }
 
+export function readReceiptIndex(dataFolder: string): ReceiptIndexRow[] {
+  const indexPath = getDataFilePath(dataFolder, 'RECEIPTS_INDEX')
+  if (!existsSync(indexPath)) return []
+  const content = readFileSync(indexPath, 'utf-8')
+  if (!content.trim()) return []
+  const parsed = Papa.parse<Record<string, string>>(content, { header: true, skipEmptyLines: true })
+  return parsed.data
+    .filter((row) => row && row.receipt_id)
+    .map((row) => ({
+      receipt_id: row.receipt_id,
+      file_path: row.file_path,
+      receipt_type: (row.receipt_type || 'image') as ReceiptIndexRow['receipt_type'],
+      merchant: row.merchant || undefined,
+      date: row.date || undefined,
+      total: row.total ? Number(row.total) : undefined,
+      currency: row.currency || undefined,
+      source_hash: row.source_hash,
+      ocr_status: (row.ocr_status || 'pending') as ReceiptIndexRow['ocr_status'],
+      created_at: row.created_at
+    }))
+}
+
 export function getReceiptPreviewData(filePath: string): string | null {
   const ext = extname(filePath).toLowerCase()
   const imageTypes: Record<string, string> = {
