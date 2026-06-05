@@ -18,7 +18,7 @@ import {
 import { materializeTransactions, queryTransactions, queryLineItems } from '@core/materializer'
 import { deleteTransactionsById, clearAllData } from '@core/data-admin'
 import { getAccounts } from '@core/accounts'
-import { appendChangeRow } from '@core/ledger/changes'
+import { appendChangeRow, readChanges } from '@core/ledger/changes'
 import {
   ingestReceipts,
   readReceiptIndex,
@@ -112,8 +112,9 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.GET_CHANGES, async () => {
-    // TODO: Implement in Phase 2
-    return []
+    const settings = getSettings()
+    if (!settings.dataFolder) return []
+    return readChanges(settings.dataFolder)
   })
 
   // === Materializer Handlers (placeholder) ===
