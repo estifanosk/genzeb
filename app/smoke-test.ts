@@ -42,8 +42,8 @@ import { materializeTransactions, queryTransactions } from '../core/materializer
 import { existsSync, mkdirSync, copyFileSync } from 'fs'
 import { join } from 'path'
 
-const DATA_FOLDER = process.argv[2] || '/tmp/ledgerbox-smoke'
-const TEST_CSV_ORIGINAL = '/Users/estifanoskidane/projects/ledgerbox/test-data/statements/1234_checking_demo-bank_2026-05.csv'
+const DATA_FOLDER = process.argv[2] || '/tmp/genzeb-smoke'
+const TEST_CSV_ORIGINAL = join(__dirname, '../test-data/statements/1234_checking_demo-bank_2026-05.csv')
 
 async function main() {
   if (!existsSync(DATA_FOLDER)) mkdirSync(DATA_FOLDER, { recursive: true })
