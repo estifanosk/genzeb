@@ -94,6 +94,8 @@ CVS Pharmacy, Walgreens
 
 ~10% of transactions (those from grocery, dining, shopping, and health merchants) get an SVG receipt image and a receipt detail JSON file. Each receipt has 2–6 line items with description, quantity, unit price, and total. The JSON simulates what the LLM OCR step would produce, so the Item Explorer and transaction receipt expand work without needing an API key.
 
+Of those receipts, **~70% are linked** to their transaction (via a `link_receipt` change) and **~30% are left unlinked** — they exist in the receipts index and have full detail JSON but no transaction association. The unlinked receipts are intentional: they let the Reconcile page demo work with receipts that are waiting to be matched.
+
 ### Categories
 
 Every transaction is assigned one of: Coffee, Dining, Electronics, Entertainment, Gas, Groceries, Health, Home, Income, Insurance, Payment, Shopping, Subscriptions, Transfer, Transportation, Travel, Utilities.

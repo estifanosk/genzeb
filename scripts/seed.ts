@@ -469,27 +469,30 @@ async function main() {
   const { transactions } = queryTransactions(DATA_FOLDER, { limit: 9999 })
   console.log(`  ${transactions.length} transactions materialized`)
 
-  // Phase 5+6: Receipts for ~10% of transactions that have line items
+  // Phase 5+6: Receipts for ~10% of transactions that have line items.
+  // ~70% get linked to their transaction; ~30% are left unlinked to demo the reconcile flow.
   console.log('\n── Phase 5: generate receipts ───────────────────────────')
   const receiptCandidates = transactions.filter(tx => {
-    // Match back to the seed row to get line items
     const seedRow = rows.find(r => r.merchant === tx.merchant && r.date === tx.date && Math.abs(r.amount - tx.amount) < 0.01)
     return seedRow && seedRow.lineItems.length > 0
   })
   const receiptTargets = sample(receiptCandidates, Math.round(transactions.length * 0.10))
+  const linkedCutoff = Math.round(receiptTargets.length * 0.70)
   const receiptDir = getDataDirPath(DATA_FOLDER, 'RECEIPTS')
 
-  let receiptCount = 0
-  for (const tx of receiptTargets) {
+  let linkedCount = 0
+  let unlinkedCount = 0
+
+  for (let i = 0; i < receiptTargets.length; i++) {
+    const tx = receiptTargets[i]
     const seedRow = rows.find(r => r.merchant === tx.merchant && r.date === tx.date && Math.abs(r.amount - tx.amount) < 0.01)
     if (!seedRow) continue
 
     const receiptId = uuidv4()
     const svgPath = join(receiptDir, `${receiptId}.svg`)
-    const svgContent = generateReceiptSVG(tx.merchant, tx.date, Math.abs(tx.amount), seedRow.lineItems)
-    writeFileSync(svgPath, svgContent, 'utf-8')
+    writeFileSync(svgPath, generateReceiptSVG(tx.merchant, tx.date, Math.abs(tx.amount), seedRow.lineItems), 'utf-8')
 
-    // Write receipt detail JSON (simulates LLM OCR output)
+    // Receipt detail JSON (simulates LLM OCR output)
     const detail: ReceiptDetail = {
       receipt_id: receiptId,
       file_path: svgPath,
@@ -510,7 +513,6 @@ async function main() {
     }
     writeFileSync(join(receiptDir, `${receiptId}.json`), JSON.stringify(detail, null, 2), 'utf-8')
 
-    // Write to receipt index
     appendReceiptIndex(DATA_FOLDER, {
       receipt_id: receiptId,
       file_path: svgPath,
@@ -524,16 +526,19 @@ async function main() {
       created_at: new Date().toISOString()
     })
 
-    // Link receipt to transaction
-    appendChangeRow(DATA_FOLDER, {
-      transaction_id: tx.id,
-      change_type: 'link_receipt',
-      value: receiptId
-    })
-
-    receiptCount++
+    // First 70% get linked; remaining 30% stay unlinked for demo purposes
+    if (i < linkedCutoff) {
+      appendChangeRow(DATA_FOLDER, {
+        transaction_id: tx.id,
+        change_type: 'link_receipt',
+        value: receiptId
+      })
+      linkedCount++
+    } else {
+      unlinkedCount++
+    }
   }
-  console.log(`  Generated ${receiptCount} receipts with line items`)
+  console.log(`  Generated ${linkedCount + unlinkedCount} receipts  •  ${linkedCount} linked  •  ${unlinkedCount} unlinked`)
 
   // Phase 7: Assign categories
   console.log('\n── Phase 6: assign categories ───────────────────────────')
@@ -562,7 +567,7 @@ async function main() {
   console.log('\n=== Done ===')
   console.log(`  Data folder: ${DATA_FOLDER}`)
   console.log(`  Transactions: ${final.total}`)
-  console.log(`  Receipts: ${receiptCount}`)
+  console.log(`  Receipts: ${linkedCount + unlinkedCount} (${linkedCount} linked, ${unlinkedCount} unlinked)`)
   console.log('\nReload the app with Cmd+R to see the data.')
 }
 
