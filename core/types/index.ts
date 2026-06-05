@@ -30,6 +30,7 @@ export interface ChangeRow {
   field?: string
   value: string // text or JSON
   time: string // ISO timestamp
+  agent?: string  // set when the change was made by an AI agent (e.g. 'claude')
 }
 
 export interface TransactionRow {
@@ -51,6 +52,7 @@ export interface TransactionRow {
   source_hash: string
   import_time: string
   confidence?: number
+  ai_edited?: boolean  // true when any change on this transaction was made by an AI agent
 }
 
 export interface ImportLogRow {

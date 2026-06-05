@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import type { ChangeRow } from '../types'
 import { ensureDataStructure, getDataFilePath } from '../storage/paths'
 
-const CHANGE_HEADERS = ['change_id', 'transaction_id', 'change_type', 'field', 'value', 'time']
+const CHANGE_HEADERS = ['change_id', 'transaction_id', 'change_type', 'field', 'value', 'time', 'agent']
 
 function escapeCsvValue(value: string): string {
   if (value.includes('"') || value.includes(',') || value.includes('\n')) {
@@ -56,6 +56,7 @@ export function readChanges(dataFolder: string): ChangeRow[] {
       change_type: row.change_type as ChangeRow['change_type'],
       field: row.field || undefined,
       value: row.value ?? '',
-      time: row.time
+      time: row.time,
+      agent: row.agent || undefined
     }))
 }

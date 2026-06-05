@@ -128,6 +128,16 @@ The Import → History tab was added to show `import-log.csv`. A parallel "Recei
 
 ---
 
+## 2026-06-05 — AI agent uses MCP server wrapping core libraries
+
+The AI workflow (import CSVs, categorize, reconcile) is implemented as an MCP server in `agent/` that calls the same core TypeScript functions the Electron app uses. No reimplementation — `appendChangeRow`, `importStatementFiles`, `materializeTransactions`, etc. are shared.
+
+**Reason:** a separate reimplementation would diverge from the app over time. Wrapping the core as MCP tools means the AI and the UI are always in sync with the same business logic and the same data files.
+
+AI-authored changes are tagged with `agent: 'claude'` (or whichever model) in `changes.csv`. The materializer sets `ai_edited: true` on any transaction that has at least one agent-sourced change. The UI renders a small "AI" badge next to the merchant name so users can see what the model touched and decide whether to accept or override.
+
+---
+
 ## 2026-06-05 — Reconcile page is receipt-centric, not transaction-centric
 
 Implemented the Reconcile page to show unlinked receipts on the left and candidate transactions on the right, rather than the reverse.

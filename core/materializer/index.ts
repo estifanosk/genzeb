@@ -106,6 +106,7 @@ function applyChanges(
   for (const change of ordered) {
     const tx = byId.get(change.transaction_id)
     if (!tx) continue
+    if (change.agent) tx.ai_edited = true
     switch (change.change_type) {
       case 'set_category':
         tx.category = change.value || undefined
@@ -230,7 +231,8 @@ export function materializeTransactions(dataFolder: string): void {
       'source_file',
       'source_hash',
       'import_time',
-      'confidence'
+      'confidence',
+      'ai_edited'
     ],
     transactionRows
   )
@@ -270,7 +272,8 @@ function readTransactionRows(dataFolder: string): TransactionRow[] {
       source_file: row.source_file,
       source_hash: row.source_hash,
       import_time: row.import_time,
-      confidence: row.confidence ? parseAmount(row.confidence) : undefined
+      confidence: row.confidence ? parseAmount(row.confidence) : undefined,
+      ai_edited: row.ai_edited === 'true' ? true : undefined
     }))
 }
 
