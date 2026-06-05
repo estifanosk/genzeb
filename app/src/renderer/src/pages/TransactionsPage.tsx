@@ -479,6 +479,16 @@ export function TransactionsPage() {
           >
             <Filter className="h-4 w-4 mr-1" />
             Filters
+            {(() => {
+              const count = [dateStart, dateEnd, amountMin, amountMax, merchantContains]
+                .filter(Boolean).length +
+                (selectedAccount !== 'all' ? 1 : 0) +
+                (hasReceipt !== 'all' ? 1 : 0) +
+                (uncategorized ? 1 : 0)
+              return count > 0
+                ? <span className="ml-1.5 bg-primary-foreground text-primary text-[10px] font-bold rounded-full px-1.5 py-0.5">{count}</span>
+                : null
+            })()}
           </Button>
           <Button
             variant={showColumnManager ? 'default' : 'outline'}
