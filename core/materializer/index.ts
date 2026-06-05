@@ -339,9 +339,12 @@ export function queryTransactions(
   const limit = req.limit ?? 200
   const page = sorted.slice(offset, offset + limit)
 
+  const totalAmount = sorted.reduce((sum, tx) => sum + tx.amount, 0)
+
   return {
     transactions: page,
-    total: sorted.length
+    total: sorted.length,
+    totalAmount
   }
 }
 

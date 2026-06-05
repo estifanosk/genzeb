@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from './components/layout/Sidebar'
+import { useTheme } from './hooks/useTheme'
 import { TransactionsPage } from './pages/TransactionsPage'
 import { ItemExplorerPage } from './pages/ItemExplorerPage'
 import { ReceiptsPage } from './pages/ReceiptsPage'
@@ -21,6 +22,7 @@ type PageId =
 function App() {
   const [currentPage, setCurrentPage] = useState<PageId>('transactions')
   const { loadSettings, settings } = useSettingsStore()
+  const { theme, toggleTheme } = useTheme()
 
   // Load settings on mount
   useEffect(() => {
@@ -37,13 +39,13 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'transactions':
-        return <TransactionsPage />
+        return <TransactionsPage onNavigate={(page) => setCurrentPage(page as PageId)} />
       case 'items':
         return <ItemExplorerPage />
       case 'receipts':
-        return <ReceiptsPage />
+        return <ReceiptsPage onNavigate={(page) => setCurrentPage(page as PageId)} />
       case 'reconcile':
-        return <ReconcilePage />
+        return <ReconcilePage onNavigate={(page) => setCurrentPage(page as PageId)} />
       case 'import':
         return <ImportPage />
       case 'ask':
@@ -57,7 +59,7 @@ function App() {
 
   return (
     <div className="flex h-screen bg-background">
-      <Sidebar currentPage={currentPage} onNavigate={(page) => setCurrentPage(page as PageId)} />
+      <Sidebar currentPage={currentPage} onNavigate={(page) => setCurrentPage(page as PageId)} theme={theme} onToggleTheme={toggleTheme} />
       <main className="flex-1 overflow-auto">{renderPage()}</main>
     </div>
   )

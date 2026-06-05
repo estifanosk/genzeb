@@ -16,7 +16,7 @@ export function AskPage() {
           <p className="text-sm mt-1">
             Ask questions about your expenses using natural language
           </p>
-          <p className="text-xs mt-4 text-muted-foreground/70">Coming in Phase 8</p>
+          <p className="text-xs mt-4 text-muted-foreground/70">Coming soon</p>
         </div>
       </div>
 

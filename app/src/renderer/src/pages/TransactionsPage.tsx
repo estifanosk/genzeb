@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, History } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { fmtCurrency, amountClass, fmtDate } from '../lib/utils'
 import type { AccountInfo, ReceiptDetail, TransactionRow, ChangeRow } from '@core/types'
 
 interface EditValues {
@@ -10,7 +11,7 @@ interface EditValues {
   notes?: string
 }
 
-export function TransactionsPage() {
+export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const storageKey = 'ledgerbox.transactions.ui'
   const defaultVisibleColumns: Record<string, boolean> = {
     date: true,
@@ -25,6 +26,7 @@ export function TransactionsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [transactions, setTransactions] = useState<TransactionRow[]>([])
   const [total, setTotal] = useState(0)
+  const [totalAmount, setTotalAmount] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [accounts, setAccounts] = useState<AccountInfo[]>([])
@@ -167,6 +169,7 @@ export function TransactionsPage() {
       })
       setTransactions(res.transactions)
       setTotal(res.total)
+      setTotalAmount(res.totalAmount ?? 0)
       setSelectedIds(new Set())
       const accountList = await window.api.getAccounts()
       setAccounts(accountList)
@@ -476,6 +479,16 @@ export function TransactionsPage() {
           >
             <Filter className="h-4 w-4 mr-1" />
             Filters
+            {(() => {
+              const count = [dateStart, dateEnd, amountMin, amountMax, merchantContains]
+                .filter(Boolean).length +
+                (selectedAccount !== 'all' ? 1 : 0) +
+                (hasReceipt !== 'all' ? 1 : 0) +
+                (uncategorized ? 1 : 0)
+              return count > 0
+                ? <span className="ml-1.5 bg-primary-foreground text-primary text-[10px] font-bold rounded-full px-1.5 py-0.5">{count}</span>
+                : null
+            })()}
           </Button>
           <Button
             variant={showColumnManager ? 'default' : 'outline'}
@@ -530,24 +543,28 @@ export function TransactionsPage() {
               )}
             </div>
           )}
-          <Button
-            onClick={() => setShowBulkEdit(true)}
-            variant="outline"
-            size="sm"
-            disabled={selectedIds.size === 0}
-          >
-            <Edit2 className="h-4 w-4 mr-1" />
-            Bulk Edit
-          </Button>
-          <Button
-            onClick={removeSelected}
-            variant="outline"
-            size="sm"
-            disabled={isLoading || selectedIds.size === 0}
-          >
-            <Trash2 className="h-4 w-4 mr-1" />
-            Remove Selected
-          </Button>
+          {selectedIds.size > 0 && (
+            <>
+              <span className="text-xs text-muted-foreground">{selectedIds.size} selected</span>
+              <Button
+                onClick={() => setShowBulkEdit(true)}
+                variant="outline"
+                size="sm"
+              >
+                <Edit2 className="h-4 w-4 mr-1" />
+                Bulk Edit
+              </Button>
+              <Button
+                onClick={removeSelected}
+                variant="outline"
+                size="sm"
+                disabled={isLoading}
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Remove Selected
+              </Button>
+            </>
+          )}
           <Button onClick={clearAll} variant="outline" size="sm" disabled={isLoading}>
             Clear All
           </Button>
@@ -759,7 +776,12 @@ export function TransactionsPage() {
           <div className="text-center text-muted-foreground">
             <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium">No transactions yet</p>
-            <p className="text-sm mt-1">Import a CSV statement to get started</p>
+            <p className="text-sm mt-1 mb-4">Import a CSV statement to get started</p>
+            {onNavigate && (
+              <Button size="sm" onClick={() => onNavigate('import')}>
+                Import a statement
+              </Button>
+            )}
           </div>
         </div>
       ) : (
@@ -852,7 +874,7 @@ export function TransactionsPage() {
                         ) : null}
                       </div>
                       {effectiveVisibleColumns.date && (
-                        <div className="whitespace-nowrap">{tx.date}</div>
+                        <div className="whitespace-nowrap">{fmtDate(tx.date)}</div>
                       )}
                       {effectiveVisibleColumns.merchant && (
                         <div className="truncate" title={tx.merchant || ''}>
@@ -876,7 +898,9 @@ export function TransactionsPage() {
                         </div>
                       )}
                       {effectiveVisibleColumns.amount && (
-                        <div className="text-right whitespace-nowrap">{tx.amount.toFixed(2)}</div>
+                        <div className={`text-right whitespace-nowrap font-medium ${amountClass(tx.amount)}`}>
+                          {fmtCurrency(tx.amount)}
+                        </div>
                       )}
                       {effectiveVisibleColumns.account && (
                         <div className="truncate whitespace-nowrap">
@@ -1093,9 +1117,16 @@ export function TransactionsPage() {
 
       <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
         <div>
-          {total > 0
-            ? `Showing ${showingStart}–${showingEnd} of ${total}`
-            : 'No transactions'}
+          <span>
+            {total > 0
+              ? `Showing ${showingStart}–${showingEnd} of ${total}`
+              : 'No transactions'}
+          </span>
+          {total > 0 && (
+            <span className={`ml-4 font-medium ${amountClass(totalAmount)}`}>
+              {fmtCurrency(totalAmount)}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Button

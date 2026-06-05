@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { RefreshCw, Search, AlertCircle } from 'lucide-react'
+import { RefreshCw, Search, AlertCircle, Filter } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { fmtCurrency, amountClass } from '../lib/utils'
 import type { LineItemExplorerRow } from '@core/types'
 import type { QueryLineItemsResponse } from '@core/types/ipc'
 
@@ -19,6 +20,7 @@ export function ItemExplorerPage() {
   const [amountMin, setAmountMin] = useState('')
   const [amountMax, setAmountMax] = useState('')
   const [linkedStatus, setLinkedStatus] = useState<'all' | 'linked' | 'unlinked'>('all')
+  const [showFilters, setShowFilters] = useState(false)
 
   const [sortBy, setSortBy] = useState<'date' | 'merchant' | 'item' | 'total' | 'category'>(
     'date'
@@ -80,7 +82,7 @@ export function ItemExplorerPage() {
         <div>
           <h2 className="text-2xl font-bold">Item Explorer</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {total} item{total === 1 ? '' : 's'} • Total {totalAmount.toFixed(2)}
+            {total} item{total === 1 ? '' : 's'} • Total {fmtCurrency(totalAmount)}
             {items.some(i => i.is_unlinked) && (
               <span className="ml-3 inline-flex items-center gap-1 text-amber-400">
                 <AlertCircle className="h-3.5 w-3.5" />
@@ -90,6 +92,23 @@ export function ItemExplorerPage() {
           </p>
         </div>
         <div className="flex gap-2 items-center flex-wrap">
+          <Button
+            variant={showFilters ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowFilters(p => !p)}
+          >
+            <Filter className="h-4 w-4 mr-1" />
+            Filters
+            {(() => {
+              const count = [search, merchant, dateStart, dateEnd, amountMin, amountMax]
+                .filter(Boolean).length +
+                (category !== 'all' ? 1 : 0) +
+                (linkedStatus !== 'all' ? 1 : 0)
+              return count > 0
+                ? <span className="ml-1.5 bg-primary-foreground text-primary text-[10px] font-bold rounded-full px-1.5 py-0.5">{count}</span>
+                : null
+            })()}
+          </Button>
           <Button variant="outline" size="sm" onClick={loadItems} disabled={isLoading}>
             <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
@@ -97,7 +116,7 @@ export function ItemExplorerPage() {
         </div>
       </div>
 
-      <div className="border rounded-lg p-4 mb-4 grid grid-cols-1 md:grid-cols-6 gap-3">
+      {showFilters && <div className="border rounded-lg p-4 mb-4 grid grid-cols-1 md:grid-cols-6 gap-3">
         <div className="md:col-span-2">
           <label className="text-xs text-muted-foreground">Search item name</label>
           <div className="relative">
@@ -185,7 +204,7 @@ export function ItemExplorerPage() {
             <option value="unlinked">Unlinked only</option>
           </select>
         </div>
-      </div>
+      </div>}
 
       {quickCategories.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
@@ -298,13 +317,13 @@ export function ItemExplorerPage() {
                     </div>
                     <div className="text-right whitespace-nowrap">{row.quantity ?? '—'}</div>
                     <div className="text-right whitespace-nowrap">
-                      {row.unit_price !== undefined ? row.unit_price.toFixed(2) : '—'}
+                      {row.unit_price !== undefined ? fmtCurrency(row.unit_price) : '—'}
                     </div>
-                    <div className="text-right whitespace-nowrap font-medium">
-                      {row.item_total.toFixed(2)}
+                    <div className={`text-right whitespace-nowrap font-medium ${amountClass(row.item_total)}`}>
+                      {fmtCurrency(row.item_total)}
                     </div>
-                    <div className="text-right whitespace-nowrap text-muted-foreground">
-                      {row.transaction_amount > 0 ? row.transaction_amount.toFixed(2) : '—'}
+                    <div className={`text-right whitespace-nowrap ${row.transaction_amount !== 0 ? amountClass(row.transaction_amount) : 'text-muted-foreground'}`}>
+                      {row.transaction_amount !== 0 ? fmtCurrency(row.transaction_amount) : '—'}
                     </div>
                     <div className="truncate text-muted-foreground">
                       {row.account || <span className="italic">—</span>}

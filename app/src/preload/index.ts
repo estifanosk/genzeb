@@ -73,6 +73,9 @@ const api: LedgerBoxAPI = {
     ipcRenderer.invoke(IPC_CHANNELS.UNLINK_RECEIPT, transactionId, receiptId),
   getMatchSuggestions: (transactionId: string) =>
     ipcRenderer.invoke(IPC_CHANNELS.GET_MATCH_SUGGESTIONS, transactionId),
+  getLinks: () => ipcRenderer.invoke(IPC_CHANNELS.GET_LINKS),
+  getCandidatesForReceipt: (receiptId: string) =>
+    ipcRenderer.invoke(IPC_CHANNELS.GET_CANDIDATES_FOR_RECEIPT, receiptId),
 
   // Rules
   getRules: () => ipcRenderer.invoke(IPC_CHANNELS.GET_RULES),

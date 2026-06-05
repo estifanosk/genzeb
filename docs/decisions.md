@@ -125,3 +125,11 @@ Item Explorer previously only traversed transactions → receipt_files → recei
 The Import → History tab was added to show `import-log.csv`. A parallel "Receipt import history" view was considered but not built.
 
 **Decision:** the Receipts page already surfaces `receipts/index.csv` (ingested-at timestamp, OCR status, linked status) — that is the receipt import log. Building a duplicate in Import would be redundant.
+
+---
+
+## 2026-06-05 — Reconcile page is receipt-centric, not transaction-centric
+
+Implemented the Reconcile page to show unlinked receipts on the left and candidate transactions on the right, rather than the reverse.
+
+**Reason:** receipts are the actionable backlog — the user knows which receipts need a home. Transactions are the reference. The existing `computeMatches` scoring function already runs in the receipt → transactions direction (given a receipt's date/amount/merchant, find matching transactions), so no inversion was needed.

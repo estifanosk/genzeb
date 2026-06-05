@@ -12,7 +12,8 @@ import type {
   ColumnMapping,
   AppSettings,
   AccountInfo,
-  LineItemExplorerRow
+  LineItemExplorerRow,
+  LinkRow
 } from './index'
 
 // === IPC Channel Names ===
@@ -61,6 +62,7 @@ export const IPC_CHANNELS = {
   UNLINK_RECEIPT: 'matching:unlink',
   GET_LINKS: 'matching:get-links',
   GET_MATCH_SUGGESTIONS: 'matching:suggestions',
+  GET_CANDIDATES_FOR_RECEIPT: 'matching:candidates-for-receipt',
 
   // Rules
   GET_RULES: 'rules:get-all',
@@ -101,6 +103,7 @@ export interface QueryTransactionsRequest {
 export interface QueryTransactionsResponse {
   transactions: TransactionRow[]
   total: number
+  totalAmount: number
 }
 
 export interface QueryLineItemsRequest {
@@ -170,6 +173,13 @@ export interface MatchSuggestion {
     merchant: number
   }
 }
+
+export interface TransactionCandidate {
+  transaction: TransactionRow
+  score: number
+}
+
+export { LinkRow }
 
 export interface InboxScanResult {
   statements: string[]
@@ -289,6 +299,8 @@ export interface LedgerBoxAPI {
   linkReceipt(req: LinkReceiptRequest): Promise<void>
   unlinkReceipt(transactionId: string, receiptId: string): Promise<void>
   getMatchSuggestions(transactionId: string): Promise<MatchSuggestion[]>
+  getLinks(): Promise<LinkRow[]>
+  getCandidatesForReceipt(receiptId: string): Promise<TransactionCandidate[]>
 
   // Rules
   getRules(): Promise<CategoryRule[]>
