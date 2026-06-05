@@ -72,11 +72,15 @@ function clean() {
 
 clean()
 
-// Run seed.ts in the same process environment
+// Run seed.ts — pass NODE_PATH via env so this works on Windows too
 const seedScript = join(__dirname, 'seed.ts')
-const dataArg = process.argv[2] ? ` "${process.argv[2]}"` : ''
+const seedArgs = process.argv[2] ? [process.argv[2]] : []
 
 execSync(
-  `NODE_PATH="${join(__dirname, '../app/node_modules')}" npx tsx --tsconfig "${join(__dirname, '../app/tsconfig.node.json')}" "${seedScript}"${dataArg}`,
-  { stdio: 'inherit', cwd: join(__dirname, '../app') }
+  `npx tsx --tsconfig "${join(__dirname, '../app/tsconfig.node.json')}" "${seedScript}" ${seedArgs.map(a => `"${a}"`).join(' ')}`.trim(),
+  {
+    stdio: 'inherit',
+    cwd: join(__dirname, '../app'),
+    env: { ...process.env, NODE_PATH: join(__dirname, '../app/node_modules') }
+  }
 )

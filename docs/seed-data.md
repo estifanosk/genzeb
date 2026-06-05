@@ -113,20 +113,34 @@ npm install
 
 Populate the app's default data folder (`~/Documents/LedgerBox`):
 
+**macOS / Linux:**
 ```sh
 cd app
 NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/seed.ts
 ```
 
-Then reload the running app with **Cmd+R** to see the data.
+**Windows (PowerShell):**
+```powershell
+cd app
+$env:NODE_PATH=".\node_modules"; npx tsx --tsconfig tsconfig.node.json ..\scripts\seed.ts
+```
+
+Then reload the running app with **Cmd+R** (macOS) or **Ctrl+R** (Windows/Linux) to see the data.
 
 ## Clean and reseed
 
 Wipe all generated data and start fresh:
 
+**macOS / Linux:**
 ```sh
 cd app
 NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/clean.ts
+```
+
+**Windows (PowerShell):**
+```powershell
+cd app
+$env:NODE_PATH=".\node_modules"; npx tsx --tsconfig tsconfig.node.json ..\scripts\clean.ts
 ```
 
 This deletes the contents of `Data/`, `Inbox/`, and `Data/accounts.json`, then immediately re-runs the seed. The folder structure is preserved.
@@ -135,12 +149,16 @@ This deletes the contents of `Data/`, `Inbox/`, and `Data/accounts.json`, then i
 
 Pass a path as the first argument to target any folder instead of the default:
 
+**macOS / Linux:**
 ```sh
-# Seed into a disposable temp folder
 NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/seed.ts /tmp/ledgerbox-dev
-
-# Clean and reseed that same folder
 NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/clean.ts /tmp/ledgerbox-dev
+```
+
+**Windows (PowerShell):**
+```powershell
+$env:NODE_PATH=".\node_modules"; npx tsx --tsconfig tsconfig.node.json ..\scripts\seed.ts C:\ledgerbox-dev
+$env:NODE_PATH=".\node_modules"; npx tsx --tsconfig tsconfig.node.json ..\scripts\clean.ts C:\ledgerbox-dev
 ```
 
 If you use a custom folder, open Settings in the app and point the data folder there before reloading.

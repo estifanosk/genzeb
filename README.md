@@ -53,18 +53,21 @@ Once set, the app opens on the Transactions page. It will be empty until you imp
 
 The fastest way to see the app in action is to load the included seed data — 163 realistic transactions across 4 accounts, 16 receipts with line items, and category assignments.
 
+**macOS / Linux:**
 ```sh
 cd app
 NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/seed.ts
 ```
 
-Then press **Cmd+R** in the app to reload. The Transactions page will show all 163 rows.
-
-To wipe everything and start fresh:
-
-```sh
-NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/clean.ts
+**Windows (PowerShell):**
+```powershell
+cd app
+$env:NODE_PATH=".\node_modules"; npx tsx --tsconfig tsconfig.node.json ..\scripts\seed.ts
 ```
+
+Then press **Cmd+R** (macOS) or **Ctrl+R** (Windows/Linux) in the app to reload. The Transactions page will show all 163 rows.
+
+To wipe everything and start fresh, run `clean.ts` the same way — it wipes the data folder then re-runs the seed automatically.
 
 See [docs/seed-data.md](docs/seed-data.md) for what the sample data contains.
 
@@ -158,8 +161,13 @@ Output goes to `app/out/`. This produces an unsigned app bundle — for distribu
 ### Verify the core pipeline
 
 ```sh
+# macOS / Linux
 cd app
 NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json smoke-test.ts
+
+# Windows (PowerShell)
+cd app
+$env:NODE_PATH=".\node_modules"; npx tsx --tsconfig tsconfig.node.json smoke-test.ts
 ```
 
 See [docs/smoke-test.md](docs/smoke-test.md) for the manual UI smoke test.

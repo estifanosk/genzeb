@@ -20,18 +20,15 @@
  * ----------
  * From the `app/` directory:
  *
- *   NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json smoke-test.ts
+ *   macOS / Linux:
+ *     NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json smoke-test.ts
  *
- * Optionally pass a data folder as the first argument (defaults to /tmp/ledgerbox-smoke):
+ *   Windows (PowerShell):
+ *     $env:NODE_PATH=".\node_modules"; npx tsx --tsconfig tsconfig.node.json smoke-test.ts
+ *
+ * Optionally pass a data folder as the first argument (defaults to a temp folder):
  *
  *   NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json smoke-test.ts /path/to/folder
- *
- * To seed the live app data folder so the running Electron app shows real data,
- * pass the path from ~/Library/Application Support/ledgerbox/settings.json:
- *
- *   NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json smoke-test.ts "$HOME/Documents/LedgerBox"
- *
- * Then reload the app with Cmd+R.
  *
  * Why NODE_PATH is required
  * -------------------------
