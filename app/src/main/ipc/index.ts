@@ -297,16 +297,74 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
     saveCategories(settings.dataFolder, categories)
   })
 
-  // === LLM Handlers (placeholder) ===
+  // === LLM Q&A Handlers ===
 
-  ipcMain.handle(IPC_CHANNELS.EXPORT_FOR_LLM, async (_, _filters, _format: 'csv' | 'md') => {
-    // TODO: Implement in Phase 8
-    return ''
+  ipcMain.handle(IPC_CHANNELS.EXPORT_FOR_LLM, async (_, filters, _format: 'csv' | 'md') => {
+    const settings = getSettings()
+    if (!settings.dataFolder) return ''
+    const res = queryTransactions(settings.dataFolder, { filters, limit: 500, offset: 0, sortBy: 'date', sortOrder: 'desc' })
+    const rows = res.transactions
+    if (!rows.length) return ''
+    const headers = ['date', 'merchant', 'description', 'amount', 'category', 'subcategory', 'account', 'notes']
+    const lines = [headers.join(',')]
+    for (const tx of rows) {
+      lines.push(headers.map(h => {
+        const val = String((tx as unknown as Record<string, unknown>)[h] ?? '')
+        return val.includes(',') || val.includes('"') ? `"${val.replace(/"/g, '""')}"` : val
+      }).join(','))
+    }
+    return lines.join('\n')
   })
 
-  ipcMain.handle(IPC_CHANNELS.ASK_LLM, async (_, _req) => {
-    // TODO: Implement in Phase 8
-    return ''
+  ipcMain.handle(IPC_CHANNELS.ASK_LLM, async (_, req) => {
+    const settings = getSettings()
+    const { prompt, filters, provider } = req
+
+    const res = queryTransactions(settings.dataFolder, { filters, limit: 500, offset: 0, sortBy: 'date', sortOrder: 'desc' })
+    const rows = res.transactions
+    const headers = ['date', 'merchant', 'description', 'amount', 'category', 'subcategory', 'account', 'notes']
+    const csvLines = [headers.join(',')]
+    for (const tx of rows) {
+      csvLines.push(headers.map(h => {
+        const val = String((tx as unknown as Record<string, unknown>)[h] ?? '')
+        return val.includes(',') || val.includes('"') ? `"${val.replace(/"/g, '""')}"` : val
+      }).join(','))
+    }
+    const csv = csvLines.join('\n')
+
+    const systemPrompt = `You are a personal finance assistant. Answer the user's question based on their transaction data below. Be concise. Use markdown for tables and bold key numbers.\n\n<transactions total="${res.total}" shown="${rows.length}">\n${csv}\n</transactions>`
+
+    if (provider === 'anthropic') {
+      const key = settings.anthropicKey
+      if (!key) throw new Error('Anthropic API key not set. Add it in Settings → API Keys.')
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1024,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      })
+      if (!r.ok) throw new Error(`Anthropic error ${r.status}: ${await r.text()}`)
+      const data = await r.json() as { content: Array<{ type: string; text: string }> }
+      return data.content.find(b => b.type === 'text')?.text ?? ''
+    } else {
+      const key = settings.openAiKey
+      if (!key) throw new Error('OpenAI API key not set. Add it in Settings → API Keys.')
+      const r = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }]
+        })
+      })
+      if (!r.ok) throw new Error(`OpenAI error ${r.status}: ${await r.text()}`)
+      const data = await r.json() as { choices: Array<{ message: { content: string } }> }
+      return data.choices[0]?.message?.content ?? ''
+    }
   })
 
   ipcMain.handle(IPC_CHANNELS.CATEGORIZE_TRANSACTIONS, async (_, req) => {

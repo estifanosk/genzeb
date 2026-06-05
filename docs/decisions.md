@@ -128,6 +128,16 @@ The Import → History tab was added to show `import-log.csv`. A parallel "Recei
 
 ---
 
+## 2026-06-05 — Ask AI is single-shot, auto-selects provider, renders markdown
+
+Each question is independent — no conversation history is maintained between turns. The full filtered transaction set (up to 500 rows) is re-sent with every question as a CSV block in the system prompt. This avoids the complexity of multi-turn context management while still giving the model full data access for each answer.
+
+Provider is auto-selected: Anthropic if an Anthropic key is present, otherwise OpenAI. The user sets keys once in Settings and the page just works.
+
+Response is rendered as markdown via `react-markdown` since AI answers commonly include tables, bold numbers, and bullet lists. A "View data sent" disclosure on each answer lets the user see exactly what rows were sent to the API.
+
+---
+
 ## 2026-06-05 — AI agent uses MCP server wrapping core libraries
 
 The AI workflow (import CSVs, categorize, reconcile) is implemented as an MCP server in `agent/` that calls the same core TypeScript functions the Electron app uses. No reimplementation — `appendChangeRow`, `importStatementFiles`, `materializeTransactions`, etc. are shared.
