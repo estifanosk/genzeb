@@ -200,7 +200,8 @@ export function getReceiptPreviewData(filePath: string): string | null {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.webp': 'image/webp',
-    '.heic': 'image/heic'
+    '.heic': 'image/heic',
+    '.svg': 'image/svg+xml'
   }
   const mime = imageTypes[ext] || (ext === '.pdf' ? 'application/pdf' : undefined)
   if (!mime) return null
