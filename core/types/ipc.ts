@@ -2,6 +2,7 @@ import type {
   ChangeRow,
   TransactionRow,
   ImportResult,
+  ImportLogRow,
   ReceiptIndexRow,
   ReceiptDetail,
   CategoryRule,
@@ -25,6 +26,7 @@ export const IPC_CHANNELS = {
 
   // Import
   IMPORT_STATEMENTS: 'import:statements',
+  GET_IMPORT_LOG: 'import:get-log',
   GET_CSV_HEADERS: 'import:get-csv-headers',
   GET_CSV_PREVIEW: 'import:get-csv-preview',
   GET_CSV_MAPPING: 'import:get-csv-mapping',
@@ -251,6 +253,7 @@ export interface LedgerBoxAPI {
 
   // Import
   importStatements(req: ImportStatementsRequest): Promise<ImportResult[]>
+  getImportLog(): Promise<ImportLogRow[]>
   getCsvHeaders(path: string): Promise<string[]>
   getCsvPreview(path: string, rows?: number): Promise<CsvPreview>
   getCsvMapping(path: string): Promise<CsvMappingInfo>
