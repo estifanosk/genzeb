@@ -16,9 +16,38 @@ function LinkedBadge({ linked }: { linked: boolean }) {
   return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-muted text-muted-foreground">Unlinked</span>
 }
 
-function ReceiptDetail({ receipt }: { receipt: ReceiptRow }) {
+// Small thumbnail shown in the table row
+function ReceiptThumbnail({ filePath }: { filePath: string }) {
+  const [src, setSrc] = useState<string | null | undefined>(undefined)
+
+  useEffect(() => {
+    window.api.getReceiptPreview(filePath).then(setSrc)
+  }, [filePath])
+
+  if (src === undefined) {
+    // Loading skeleton
+    return <div className="w-10 h-14 rounded bg-muted animate-pulse" />
+  }
+  if (!src) {
+    return (
+      <div className="w-10 h-14 rounded border border-border bg-muted/40 flex items-center justify-center text-muted-foreground">
+        <ImageOff className="h-4 w-4" />
+      </div>
+    )
+  }
+  return (
+    <img
+      src={src}
+      alt="Receipt thumbnail"
+      className="w-10 h-14 object-cover rounded border border-border"
+    />
+  )
+}
+
+// Expanded detail panel: full-size image + line items
+function ReceiptExpandedDetail({ receipt }: { receipt: ReceiptRow }) {
   const [detail, setDetail] = useState<ReceiptDetail | null>(null)
-  const [imageData, setImageData] = useState<string | null>(null)
+  const [imageData, setImageData] = useState<string | null | undefined>(undefined)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -32,18 +61,33 @@ function ReceiptDetail({ receipt }: { receipt: ReceiptRow }) {
     }).finally(() => setLoading(false))
   }, [receipt.receipt_id])
 
-  if (loading) return <div className="p-4 text-sm text-muted-foreground">Loading…</div>
+  if (loading) {
+    return (
+      <div className="flex gap-6 p-4 bg-muted/30 border-t border-border">
+        <div className="w-96 h-96 rounded bg-muted animate-pulse shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-3 bg-muted rounded w-24 animate-pulse" />
+          <div className="h-3 bg-muted rounded w-full animate-pulse" />
+          <div className="h-3 bg-muted rounded w-3/4 animate-pulse" />
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="flex gap-4 p-4 bg-muted/30 border-t border-border">
-      {/* Image */}
-      <div className="w-52 shrink-0">
+    <div className="flex gap-6 p-4 bg-muted/30 border-t border-border">
+      {/* Full receipt image */}
+      <div className="w-96 shrink-0">
         {imageData ? (
-          <img src={imageData} alt="Receipt" className="w-full rounded border border-border" />
+          <img
+            src={imageData}
+            alt="Receipt"
+            className="w-full rounded border border-border"
+          />
         ) : (
-          <div className="w-full h-40 rounded border border-border flex flex-col items-center justify-center gap-2 text-muted-foreground bg-muted/50">
-            <ImageOff className="h-6 w-6" />
-            <span className="text-xs">No preview</span>
+          <div className="w-full h-96 rounded border border-border flex flex-col items-center justify-center gap-2 text-muted-foreground bg-muted/50">
+            <ImageOff className="h-8 w-8" />
+            <span className="text-xs">No image available</span>
           </div>
         )}
       </div>
@@ -52,35 +96,39 @@ function ReceiptDetail({ receipt }: { receipt: ReceiptRow }) {
       <div className="flex-1 min-w-0">
         {detail?.line_items?.length ? (
           <>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Line items ({detail.line_items.length})
             </p>
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-muted-foreground border-b border-border">
-                  <th className="text-left pb-1 pr-3 font-medium">Item</th>
-                  <th className="text-right pb-1 pr-3 font-medium w-10">Qty</th>
-                  <th className="text-right pb-1 pr-3 font-medium w-20">Unit</th>
-                  <th className="text-right pb-1 font-medium w-20">Total</th>
+                  <th className="text-left pb-1.5 pr-3 font-medium">Item</th>
+                  <th className="text-right pb-1.5 pr-3 font-medium w-10">Qty</th>
+                  <th className="text-right pb-1.5 pr-3 font-medium w-20">Unit</th>
+                  <th className="text-right pb-1.5 font-medium w-20">Total</th>
                 </tr>
               </thead>
               <tbody>
                 {detail.line_items.map((item, i) => (
                   <tr key={i} className="border-b border-border/50 last:border-0">
-                    <td className="py-1 pr-3">{item.description}</td>
-                    <td className="py-1 pr-3 text-right text-muted-foreground">{item.quantity ?? '—'}</td>
-                    <td className="py-1 pr-3 text-right text-muted-foreground">
+                    <td className="py-1.5 pr-3">{item.description}</td>
+                    <td className="py-1.5 pr-3 text-right text-muted-foreground">{item.quantity ?? '—'}</td>
+                    <td className="py-1.5 pr-3 text-right text-muted-foreground">
                       {item.unit_price !== undefined ? `$${item.unit_price.toFixed(2)}` : '—'}
                     </td>
-                    <td className="py-1 text-right font-medium">${item.total.toFixed(2)}</td>
+                    <td className="py-1.5 text-right font-medium">${item.total.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
             {(detail.tax !== undefined || detail.tip !== undefined) && (
-              <div className="mt-2 text-xs text-muted-foreground space-y-0.5">
-                {detail.tax !== undefined && <div className="flex justify-between"><span>Tax</span><span>${detail.tax.toFixed(2)}</span></div>}
-                {detail.tip !== undefined && <div className="flex justify-between"><span>Tip</span><span>${detail.tip.toFixed(2)}</span></div>}
+              <div className="mt-3 pt-2 border-t border-border text-xs text-muted-foreground space-y-1">
+                {detail.tax !== undefined && (
+                  <div className="flex justify-between"><span>Tax</span><span>${detail.tax.toFixed(2)}</span></div>
+                )}
+                {detail.tip !== undefined && (
+                  <div className="flex justify-between"><span>Tip</span><span>${detail.tip.toFixed(2)}</span></div>
+                )}
               </div>
             )}
           </>
@@ -165,6 +213,7 @@ export function ReceiptsPage() {
             <thead className="sticky top-0 bg-secondary text-secondary-foreground border-b border-border">
               <tr>
                 <th className="w-6 p-3" />
+                <th className="w-16 p-3" /> {/* thumbnail column */}
                 <th className="text-left p-3 font-medium">Date</th>
                 <th className="text-left p-3 font-medium">Merchant</th>
                 <th className="text-right p-3 font-medium">Total</th>
@@ -185,8 +234,13 @@ export function ReceiptsPage() {
                         ? <ChevronDown className="h-3.5 w-3.5" />
                         : <ChevronRight className="h-3.5 w-3.5" />}
                     </td>
+                    <td className="p-2">
+                      <ReceiptThumbnail filePath={r.file_path} />
+                    </td>
                     <td className="p-3 whitespace-nowrap text-muted-foreground">{r.date ?? '—'}</td>
-                    <td className="p-3 font-medium">{r.merchant ?? <span className="text-muted-foreground italic">Unknown</span>}</td>
+                    <td className="p-3 font-medium">
+                      {r.merchant ?? <span className="text-muted-foreground italic">Unknown</span>}
+                    </td>
                     <td className="p-3 text-right whitespace-nowrap">
                       {r.total !== undefined ? `$${r.total.toFixed(2)}` : '—'}
                     </td>
@@ -195,8 +249,8 @@ export function ReceiptsPage() {
                   </tr>
                   {expanded === r.receipt_id && (
                     <tr key={`${r.receipt_id}-detail`} className="border-b border-border">
-                      <td colSpan={6} className="p-0">
-                        <ReceiptDetail receipt={r} />
+                      <td colSpan={7} className="p-0">
+                        <ReceiptExpandedDetail receipt={r} />
                       </td>
                     </tr>
                   )}
