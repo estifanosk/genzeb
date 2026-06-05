@@ -603,7 +603,7 @@ export function SettingsPage() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              LedgerBox v1.0.0
+              Genzeb v1.0.0
               <br />
               A local-first, privacy-preserving expense tracking application.
             </p>

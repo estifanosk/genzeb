@@ -1,8 +1,8 @@
-# LedgerBox
+# Genzeb
 
 A free, local-first desktop app for tracking personal expenses. Import bank and credit card statements, link receipts, categorize transactions, and browse line items — all stored as plain CSV files on your own machine. No cloud, no subscription, no data shared with anyone.
 
-> **Platform:** macOS, Windows, and Linux. Built with Electron so it runs on all three. macOS is the primary development platform — if you hit a platform-specific issue on Windows or Linux, please [open an issue](https://github.com/estifanosk/ledgerbox/issues).
+> **Platform:** macOS, Windows, and Linux. Built with Electron so it runs on all three. macOS is the primary development platform — if you hit a platform-specific issue on Windows or Linux, please [open an issue](https://github.com/estifanosk/genzeb/issues).
 
 ---
 
@@ -29,8 +29,8 @@ A free, local-first desktop app for tracking personal expenses. Import bank and 
 ## Install
 
 ```sh
-git clone https://github.com/estifanosk/ledgerbox.git
-cd ledgerbox/app
+git clone https://github.com/estifanosk/genzeb.git
+cd genzeb/app
 npm install
 ```
 
@@ -43,7 +43,7 @@ cd app          # if not already there
 npm run dev
 ```
 
-This starts the app. On first open you will be prompted to choose a **data folder** — this is where all your expense data will be stored as plain files. A folder like `~/Documents/LedgerBox` works well. It can be inside a cloud-synced folder (Dropbox, iCloud, OneDrive) for automatic backup.
+This starts the app. On first open you will be prompted to choose a **data folder** — this is where all your expense data will be stored as plain files. A folder like `~/Documents/Genzeb` works well. It can be inside a cloud-synced folder (Dropbox, iCloud, OneDrive) for automatic backup.
 
 Once set, the app opens on the Transactions page. It will be empty until you import data.
 
@@ -78,10 +78,10 @@ See [docs/seed-data.md](docs/seed-data.md) for what the sample data contains.
 ### Import a bank statement
 
 1. Export a statement from your bank as a **CSV file**.
-2. In LedgerBox, go to **Import → Statements**.
+2. In Genzeb, go to **Import → Statements**.
 3. Click **Next**, select your CSV, review the column mapping, and import.
 
-LedgerBox auto-detects common column names (Date, Amount, Description, Merchant). If your bank uses different names, you can map them manually in the import preview step.
+Genzeb auto-detects common column names (Date, Amount, Description, Merchant). If your bank uses different names, you can map them manually in the import preview step.
 
 The statement filename determines the account name. Rename it to match the pattern `{accountNumber}_{type}_{bank}_{period}.csv` for the best results — e.g. `1234_checking_chase_2025-12.csv`. Any filename works if you prefer.
 
@@ -102,7 +102,7 @@ The statement filename determines the account name. Rename it to match the patte
 
 ## Optional: LLM features
 
-LedgerBox has two opt-in LLM features that use the OpenAI API:
+Genzeb has two opt-in LLM features that use the OpenAI API:
 
 | Feature | Where |
 |---|---|
@@ -112,9 +112,9 @@ LedgerBox has two opt-in LLM features that use the OpenAI API:
 To enable them:
 
 1. Get an [OpenAI API key](https://platform.openai.com/api-keys).
-2. In LedgerBox, go to **Settings → API Keys** and paste it in.
+2. In Genzeb, go to **Settings → API Keys** and paste it in.
 
-Your key is stored locally in `~/Library/Application Support/ledgerbox/settings.json` and is never sent anywhere except directly to OpenAI when you explicitly trigger an LLM action.
+Your key is stored locally in `~/Library/Application Support/genzeb/settings.json` and is never sent anywhere except directly to OpenAI when you explicitly trigger an LLM action.
 
 ---
 

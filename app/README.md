@@ -1,6 +1,6 @@
-# LedgerBox App
+# Genzeb App
 
-Electron/Vite application shell for LedgerBox.
+Electron/Vite application shell for Genzeb.
 
 ## Commands
 

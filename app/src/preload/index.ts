@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { IPC_CHANNELS, type LedgerBoxAPI } from '@core/types/ipc'
+import { IPC_CHANNELS, type GenzebAPI } from '@core/types/ipc'
 import type {
   AppSettings,
   ChangeRow,
@@ -18,7 +18,7 @@ import type {
 } from '@core/types/ipc'
 
 // Create the API object
-const api: LedgerBoxAPI = {
+const api: GenzebAPI = {
   // File System
   selectDataFolder: () => ipcRenderer.invoke(IPC_CHANNELS.SELECT_DATA_FOLDER),
   scanInbox: () => ipcRenderer.invoke(IPC_CHANNELS.SCAN_INBOX),

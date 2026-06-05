@@ -2,10 +2,10 @@
 
 ## Overview
 
-LedgerBox is a local-first Electron desktop app. All data lives in a user-chosen folder on disk — no server, no cloud sync dependency. The codebase is split into two packages that live in the same repository:
+Genzeb is a local-first Electron desktop app. All data lives in a user-chosen folder on disk — no server, no cloud sync dependency. The codebase is split into two packages that live in the same repository:
 
 ```
-ledgerbox/
+genzeb/
   app/      Electron shell, IPC handlers, React UI
   core/     Pure TypeScript domain logic (no Electron dependency)
   scripts/  Dev utilities (seed, clean)
@@ -61,7 +61,7 @@ core/
     imported-files.ts  Move-to-imported logic
   types/
     index.ts        All domain types (LedgerRow, TransactionRow, ReceiptDetail, …)
-    ipc.ts          IPC channel names, request/response types, LedgerBoxAPI interface
+    ipc.ts          IPC channel names, request/response types, GenzebAPI interface
 ```
 
 ### Data pipeline
@@ -144,7 +144,7 @@ app/src/
     index.ts          Electron entry: creates BrowserWindow, registers IPC handlers
     ipc/
       index.ts        All ipcMain.handle() registrations (~40 channels)
-      settings.ts     Read/write ~/Library/Application Support/ledgerbox/settings.json
+      settings.ts     Read/write ~/Library/Application Support/genzeb/settings.json
       file-system.ts  Inbox scanning, folder picker, data structure init
   preload/
     index.ts          contextBridge: exposes window.api to renderer
@@ -246,10 +246,10 @@ There are ~40 registered channels covering: file system, import, ledger changes,
 
 ## Data folder layout
 
-The data folder is user-chosen (default `~/Documents/LedgerBox`). All paths are relative to it and defined in `core/storage/paths.ts`.
+The data folder is user-chosen (default `~/Documents/Genzeb`). All paths are relative to it and defined in `core/storage/paths.ts`.
 
 ```
-LedgerBox/
+Genzeb/
   Inbox/
     statements/           Drop CSV statements here for import
       imported/           Moved here after successful import
@@ -284,7 +284,7 @@ LedgerBox/
 App settings (data folder path, API keys, preferences) are stored separately from the data folder in the OS app-data directory:
 
 ```
-~/Library/Application Support/ledgerbox/settings.json
+~/Library/Application Support/genzeb/settings.json
 ```
 
 Managed by `app/src/main/ipc/settings.ts`. The renderer reads settings via the `GET_SETTINGS` IPC channel on mount and caches them in the Zustand settings store.

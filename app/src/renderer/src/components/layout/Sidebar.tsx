@@ -45,7 +45,7 @@ const navGroups: NavGroup[] = [
   }
 ]
 
-function LedgerBoxLogo() {
+function GenzebLogo() {
   return (
     <svg
       viewBox="0 0 20 20"
@@ -71,8 +71,8 @@ export function Sidebar({ currentPage, onNavigate, theme, onToggleTheme }: Sideb
   return (
     <aside className="w-56 border-r bg-muted/30 flex flex-col">
       <div className="p-4 border-b flex items-center gap-2.5">
-        <LedgerBoxLogo />
-        <h1 className="text-lg font-semibold">LedgerBox</h1>
+        <GenzebLogo />
+        <h1 className="text-lg font-semibold">Genzeb</h1>
       </div>
       <nav className="flex-1 p-2 overflow-y-auto">
         {navGroups.map((group, gi) => (

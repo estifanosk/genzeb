@@ -1,4 +1,4 @@
-# LedgerBox — Decision Log
+# Genzeb — Decision Log
 
 A running journal of design and product decisions. Each entry is dated so context doesn't rot.
 
@@ -89,7 +89,7 @@ These can be picked up as small follow-on tasks whenever needed.
 Reviewed the full UI. Agreed on 11 improvement tasks in priority order:
 
 1. Amount formatting — $ prefix, red/green colour, thousands separator
-2. Window title — fix "Electron" → "LedgerBox"
+2. Window title — fix "Electron" → "Genzeb"
 3. Stub pages — remove "Coming in Phase 8", fix Reconcile copy
 4. Toolbar clutter — hide bulk actions unless rows are selected
 5. Filtered total — show sum of filtered transactions in footer

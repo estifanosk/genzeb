@@ -253,7 +253,7 @@ export interface IngestReceiptsResponse {
 }
 
 // === Preload API Shape ===
-export interface LedgerBoxAPI {
+export interface GenzebAPI {
   // File System
   selectDataFolder(): Promise<string | null>
   scanInbox(): Promise<InboxScanResult>
@@ -325,6 +325,6 @@ export interface LedgerBoxAPI {
 // Extend Window interface
 declare global {
   interface Window {
-    api: LedgerBoxAPI
+    api: GenzebAPI
   }
 }

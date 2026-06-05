@@ -1,5 +1,5 @@
 /**
- * LedgerBox Clean + Reseed Script
+ * Genzeb Clean + Reseed Script
  *
  * Wipes all generated data from the data folder, then runs seed.ts.
  * Safe to run repeatedly during development.
@@ -26,7 +26,7 @@ import { join } from 'path'
 import { homedir } from 'os'
 import { execSync } from 'child_process'
 
-const DATA_FOLDER = process.argv[2] || join(homedir(), 'Documents', 'LedgerBox')
+const DATA_FOLDER = process.argv[2] || join(homedir(), 'Documents', 'Genzeb')
 
 const DIRS_TO_WIPE = [
   'Data/transactions',
@@ -42,7 +42,7 @@ const FILES_TO_WIPE = [
 ]
 
 function clean() {
-  console.log('=== LedgerBox Clean ===\n')
+  console.log('=== Genzeb Clean ===\n')
   console.log('Data folder:', DATA_FOLDER)
 
   if (!existsSync(DATA_FOLDER)) {

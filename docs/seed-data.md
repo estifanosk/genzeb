@@ -111,7 +111,7 @@ npm install
 
 ## Seed
 
-Populate the app's default data folder (`~/Documents/LedgerBox`):
+Populate the app's default data folder (`~/Documents/Genzeb`):
 
 **macOS / Linux:**
 ```sh
@@ -151,14 +151,14 @@ Pass a path as the first argument to target any folder instead of the default:
 
 **macOS / Linux:**
 ```sh
-NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/seed.ts /tmp/ledgerbox-dev
-NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/clean.ts /tmp/ledgerbox-dev
+NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/seed.ts /tmp/genzeb-dev
+NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/clean.ts /tmp/genzeb-dev
 ```
 
 **Windows (PowerShell):**
 ```powershell
-$env:NODE_PATH=".\node_modules"; npx tsx --tsconfig tsconfig.node.json ..\scripts\seed.ts C:\ledgerbox-dev
-$env:NODE_PATH=".\node_modules"; npx tsx --tsconfig tsconfig.node.json ..\scripts\clean.ts C:\ledgerbox-dev
+$env:NODE_PATH=".\node_modules"; npx tsx --tsconfig tsconfig.node.json ..\scripts\seed.ts C:\genzeb-dev
+$env:NODE_PATH=".\node_modules"; npx tsx --tsconfig tsconfig.node.json ..\scripts\clean.ts C:\genzeb-dev
 ```
 
 If you use a custom folder, open Settings in the app and point the data folder there before reloading.
