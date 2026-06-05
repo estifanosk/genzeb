@@ -313,18 +313,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
     }
   }
 
-  const clearAll = async () => {
-    const confirmed = window.confirm('Clear all transactions and import logs?')
-    if (!confirmed) return
-    setIsLoading(true)
-    try {
-      await window.api.clearAllData()
-      await loadTransactions()
-    } catch (err) {
-      setError((err as Error).message)
-      setIsLoading(false)
-    }
-  }
 
   const startEdit = (tx: TransactionRow) => {
     setEditingId(tx.id)
@@ -565,9 +553,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               </Button>
             </>
           )}
-          <Button onClick={clearAll} variant="outline" size="sm" disabled={isLoading}>
-            Clear All
-          </Button>
           <Button onClick={loadTransactions} variant="outline" size="sm" disabled={isLoading}>
             <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh

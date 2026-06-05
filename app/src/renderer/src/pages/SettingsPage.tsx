@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Folder, RefreshCw, FolderOpen, FileText, Receipt, Trash2, Sparkles } from 'lucide-react'
+import { Folder, RefreshCw, FolderOpen, FileText, Receipt, Trash2, Sparkles, AlertTriangle } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -7,6 +7,55 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs'
 import { useSettingsStore } from '../stores/settings'
 import type { InboxPaths, CategorizeTransactionsResponse } from '@core/types/ipc'
 import type { CategoryItem, CategoryRule, TransactionRow } from '@core/types'
+
+function ClearAllSection() {
+  const [confirming, setConfirming] = useState(false)
+  const [clearing, setClearing] = useState(false)
+  const [done, setDone] = useState(false)
+
+  const handleClear = async () => {
+    setClearing(true)
+    try {
+      await window.api.clearAllData()
+      setDone(true)
+      setConfirming(false)
+    } finally {
+      setClearing(false)
+    }
+  }
+
+  if (done) {
+    return <p className="text-sm text-muted-foreground">All data cleared. Re-import your statements to start fresh.</p>
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="text-sm font-medium">Clear all data</p>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Deletes all transactions, ledger entries, receipts, changes, and import logs from the data folder.
+          Your settings and API keys are not affected.
+        </p>
+      </div>
+      {!confirming ? (
+        <Button variant="destructive" size="sm" onClick={() => setConfirming(true)}>
+          <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+          Clear all data
+        </Button>
+      ) : (
+        <div className="flex items-center gap-3 p-3 rounded-md border border-destructive/40 bg-destructive/5">
+          <p className="text-sm flex-1">This will permanently delete everything. Are you sure?</p>
+          <Button variant="destructive" size="sm" onClick={handleClear} disabled={clearing}>
+            {clearing ? 'Clearing…' : 'Yes, delete everything'}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setConfirming(false)} disabled={clearing}>
+            Cancel
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function SettingsPage() {
   const { settings, isLoading, error, loadSettings, selectDataFolder, updateSettings } =
@@ -593,6 +642,22 @@ export function SettingsPage() {
                 }}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Data Management */}
+        <Card className="border-destructive/40">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-4 w-4" />
+              Data Management
+            </CardTitle>
+            <CardDescription>
+              Destructive actions that cannot be undone. Your raw data files will be permanently deleted.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ClearAllSection />
           </CardContent>
         </Card>
 
