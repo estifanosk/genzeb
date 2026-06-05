@@ -25,9 +25,10 @@ LedgerBox is a local-first desktop expense workspace built with Electron, React,
 - `app/` contains the Electron shell, renderer UI, and build config.
 - `core/` contains the domain logic for importing, materializing, receipts, rules, and shared types.
 - `test-data/` contains disposable sample input for smoke tests.
-- `docs/` contains the design notes, app notes, and how-tos.
+- `docs/` contains the design doc, architecture reference, decision log, and how-tos.
 
-See [docs/architecture.md](docs/architecture.md) for a full breakdown of the process model, data pipeline, IPC layer, and data folder layout.
+See [docs/architecture.md](docs/architecture.md) for the process model, data pipeline, IPC layer, feature status, and data folder layout.  
+See [docs/decisions.md](docs/decisions.md) for a dated log of design and product decisions.
 
 ## Run
 
