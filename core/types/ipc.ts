@@ -101,6 +101,7 @@ export interface QueryTransactionsRequest {
 export interface QueryTransactionsResponse {
   transactions: TransactionRow[]
   total: number
+  totalAmount: number
 }
 
 export interface QueryLineItemsRequest {

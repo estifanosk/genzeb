@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, History } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { fmtCurrency, amountClass } from '../lib/utils'
 import type { AccountInfo, ReceiptDetail, TransactionRow, ChangeRow } from '@core/types'
 
 interface EditValues {
@@ -25,6 +26,7 @@ export function TransactionsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [transactions, setTransactions] = useState<TransactionRow[]>([])
   const [total, setTotal] = useState(0)
+  const [totalAmount, setTotalAmount] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [accounts, setAccounts] = useState<AccountInfo[]>([])
@@ -167,6 +169,7 @@ export function TransactionsPage() {
       })
       setTransactions(res.transactions)
       setTotal(res.total)
+      setTotalAmount(res.totalAmount ?? 0)
       setSelectedIds(new Set())
       const accountList = await window.api.getAccounts()
       setAccounts(accountList)
@@ -530,24 +533,28 @@ export function TransactionsPage() {
               )}
             </div>
           )}
-          <Button
-            onClick={() => setShowBulkEdit(true)}
-            variant="outline"
-            size="sm"
-            disabled={selectedIds.size === 0}
-          >
-            <Edit2 className="h-4 w-4 mr-1" />
-            Bulk Edit
-          </Button>
-          <Button
-            onClick={removeSelected}
-            variant="outline"
-            size="sm"
-            disabled={isLoading || selectedIds.size === 0}
-          >
-            <Trash2 className="h-4 w-4 mr-1" />
-            Remove Selected
-          </Button>
+          {selectedIds.size > 0 && (
+            <>
+              <span className="text-xs text-muted-foreground">{selectedIds.size} selected</span>
+              <Button
+                onClick={() => setShowBulkEdit(true)}
+                variant="outline"
+                size="sm"
+              >
+                <Edit2 className="h-4 w-4 mr-1" />
+                Bulk Edit
+              </Button>
+              <Button
+                onClick={removeSelected}
+                variant="outline"
+                size="sm"
+                disabled={isLoading}
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Remove Selected
+              </Button>
+            </>
+          )}
           <Button onClick={clearAll} variant="outline" size="sm" disabled={isLoading}>
             Clear All
           </Button>
@@ -876,7 +883,9 @@ export function TransactionsPage() {
                         </div>
                       )}
                       {effectiveVisibleColumns.amount && (
-                        <div className="text-right whitespace-nowrap">{tx.amount.toFixed(2)}</div>
+                        <div className={`text-right whitespace-nowrap font-medium ${amountClass(tx.amount)}`}>
+                          {fmtCurrency(tx.amount)}
+                        </div>
                       )}
                       {effectiveVisibleColumns.account && (
                         <div className="truncate whitespace-nowrap">
@@ -1093,9 +1102,16 @@ export function TransactionsPage() {
 
       <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
         <div>
-          {total > 0
-            ? `Showing ${showingStart}–${showingEnd} of ${total}`
-            : 'No transactions'}
+          <span>
+            {total > 0
+              ? `Showing ${showingStart}–${showingEnd} of ${total}`
+              : 'No transactions'}
+          </span>
+          {total > 0 && (
+            <span className={`ml-4 font-medium ${amountClass(totalAmount)}`}>
+              {fmtCurrency(totalAmount)}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Button

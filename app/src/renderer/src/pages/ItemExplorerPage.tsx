@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { RefreshCw, Search, AlertCircle } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { fmtCurrency, amountClass } from '../lib/utils'
 import type { LineItemExplorerRow } from '@core/types'
 import type { QueryLineItemsResponse } from '@core/types/ipc'
 
@@ -80,7 +81,7 @@ export function ItemExplorerPage() {
         <div>
           <h2 className="text-2xl font-bold">Item Explorer</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {total} item{total === 1 ? '' : 's'} • Total {totalAmount.toFixed(2)}
+            {total} item{total === 1 ? '' : 's'} • Total {fmtCurrency(totalAmount)}
             {items.some(i => i.is_unlinked) && (
               <span className="ml-3 inline-flex items-center gap-1 text-amber-400">
                 <AlertCircle className="h-3.5 w-3.5" />
@@ -298,13 +299,13 @@ export function ItemExplorerPage() {
                     </div>
                     <div className="text-right whitespace-nowrap">{row.quantity ?? '—'}</div>
                     <div className="text-right whitespace-nowrap">
-                      {row.unit_price !== undefined ? row.unit_price.toFixed(2) : '—'}
+                      {row.unit_price !== undefined ? fmtCurrency(row.unit_price) : '—'}
                     </div>
-                    <div className="text-right whitespace-nowrap font-medium">
-                      {row.item_total.toFixed(2)}
+                    <div className={`text-right whitespace-nowrap font-medium ${amountClass(row.item_total)}`}>
+                      {fmtCurrency(row.item_total)}
                     </div>
-                    <div className="text-right whitespace-nowrap text-muted-foreground">
-                      {row.transaction_amount > 0 ? row.transaction_amount.toFixed(2) : '—'}
+                    <div className={`text-right whitespace-nowrap ${row.transaction_amount !== 0 ? amountClass(row.transaction_amount) : 'text-muted-foreground'}`}>
+                      {row.transaction_amount !== 0 ? fmtCurrency(row.transaction_amount) : '—'}
                     </div>
                     <div className="truncate text-muted-foreground">
                       {row.account || <span className="italic">—</span>}

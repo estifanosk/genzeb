@@ -43,7 +43,7 @@ function App() {
       case 'receipts':
         return <ReceiptsPage />
       case 'reconcile':
-        return <ReconcilePage />
+        return <ReconcilePage onNavigate={(page) => setCurrentPage(page as PageId)} />
       case 'import':
         return <ImportPage />
       case 'ask':

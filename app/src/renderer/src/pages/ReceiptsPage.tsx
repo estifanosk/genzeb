@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { RefreshCw, Receipt, ChevronDown, ChevronRight, ImageOff } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { fmtCurrency } from '../lib/utils'
 import type { ReceiptIndexRow, ReceiptDetail } from '@core/types'
 
 type ReceiptRow = ReceiptIndexRow & { linked: boolean }
@@ -114,9 +115,9 @@ function ReceiptExpandedDetail({ receipt }: { receipt: ReceiptRow }) {
                     <td className="py-1.5 pr-3">{item.description}</td>
                     <td className="py-1.5 pr-3 text-right text-muted-foreground">{item.quantity ?? '—'}</td>
                     <td className="py-1.5 pr-3 text-right text-muted-foreground">
-                      {item.unit_price !== undefined ? `$${item.unit_price.toFixed(2)}` : '—'}
+                      {item.unit_price !== undefined ? fmtCurrency(item.unit_price) : '—'}
                     </td>
-                    <td className="py-1.5 text-right font-medium">${item.total.toFixed(2)}</td>
+                    <td className="py-1.5 text-right font-medium">{fmtCurrency(item.total)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -124,10 +125,10 @@ function ReceiptExpandedDetail({ receipt }: { receipt: ReceiptRow }) {
             {(detail.tax !== undefined || detail.tip !== undefined) && (
               <div className="mt-3 pt-2 border-t border-border text-xs text-muted-foreground space-y-1">
                 {detail.tax !== undefined && (
-                  <div className="flex justify-between"><span>Tax</span><span>${detail.tax.toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span>Tax</span><span>{fmtCurrency(detail.tax)}</span></div>
                 )}
                 {detail.tip !== undefined && (
-                  <div className="flex justify-between"><span>Tip</span><span>${detail.tip.toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span>Tip</span><span>{fmtCurrency(detail.tip)}</span></div>
                 )}
               </div>
             )}
@@ -242,7 +243,7 @@ export function ReceiptsPage() {
                       {r.merchant ?? <span className="text-muted-foreground italic">Unknown</span>}
                     </td>
                     <td className="p-3 text-right whitespace-nowrap">
-                      {r.total !== undefined ? `$${r.total.toFixed(2)}` : '—'}
+                      {r.total !== undefined ? fmtCurrency(r.total) : '—'}
                     </td>
                     <td className="p-3"><OcrBadge status={r.ocr_status} /></td>
                     <td className="p-3"><LinkedBadge linked={r.linked} /></td>
