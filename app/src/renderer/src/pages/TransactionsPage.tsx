@@ -862,7 +862,7 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                         <div className="whitespace-nowrap">{fmtDate(tx.date)}</div>
                       )}
                       {effectiveVisibleColumns.merchant && (
-                        <div className="truncate" title={tx.merchant || ''}>
+                        <div className="truncate flex items-center gap-1.5" title={tx.merchant || ''}>
                           {isEditing ? (
                             <input
                               type="text"
@@ -873,7 +873,14 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                               }
                             />
                           ) : (
-                            tx.merchant || '—'
+                            <>
+                              <span className="truncate">{tx.merchant || '—'}</span>
+                              {tx.ai_edited && (
+                                <span className="shrink-0 inline-flex items-center px-1 py-0.5 rounded text-[9px] font-bold tracking-wide bg-primary/15 text-primary">
+                                  AI
+                                </span>
+                              )}
+                            </>
                           )}
                         </div>
                       )}
