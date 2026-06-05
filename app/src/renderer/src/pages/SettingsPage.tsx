@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Folder, RefreshCw, FolderOpen, FileText, Receipt, Trash2 } from 'lucide-react'
+import { Folder, RefreshCw, FolderOpen, FileText, Receipt, Trash2, Sparkles } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs'
 import { useSettingsStore } from '../stores/settings'
-import type { InboxPaths } from '@core/types/ipc'
-import type { CategoryItem, CategoryRule } from '@core/types'
+import type { InboxPaths, CategorizeTransactionsResponse } from '@core/types/ipc'
+import type { CategoryItem, CategoryRule, TransactionRow } from '@core/types'
 
 export function SettingsPage() {
   const { settings, isLoading, error, loadSettings, selectDataFolder, updateSettings } =
@@ -20,6 +20,12 @@ export function SettingsPage() {
   const [categoryError, setCategoryError] = useState<string | null>(null)
   const [isSavingCategories, setIsSavingCategories] = useState(false)
   const [isSavingRules, setIsSavingRules] = useState(false)
+  const [llmSuggestions, setLlmSuggestions] = useState<CategorizeTransactionsResponse['suggestions']>([])
+  const [llmError, setLlmError] = useState<string | null>(null)
+  const [isLlmRunning, setIsLlmRunning] = useState(false)
+  const [autoCreateRules, setAutoCreateRules] = useState(true)
+  const [selectedSuggestionIds, setSelectedSuggestionIds] = useState<Set<string>>(new Set())
+  const [llmTransactionMap, setLlmTransactionMap] = useState<Map<string, TransactionRow>>(new Map())
 
   useEffect(() => {
     loadSettings()
@@ -79,6 +85,73 @@ export function SettingsPage() {
 
   const applyRules = async () => {
     await window.api.materialize()
+  }
+
+  const runLlmCategorization = async () => {
+    setIsLlmRunning(true)
+    setLlmError(null)
+    try {
+      const res = await window.api.getTransactions({
+        filters: { uncategorized: true },
+        limit: 500,
+        offset: 0,
+        sortBy: 'date',
+        sortOrder: 'desc'
+      })
+      setLlmTransactionMap(new Map(res.transactions.map((tx) => [tx.id, tx])))
+      const txs = res.transactions.map((tx) => ({
+        id: tx.id,
+        merchant: tx.merchant,
+        description: tx.description,
+        amount: tx.amount,
+        date: tx.date
+      }))
+      const suggestions = await window.api.categorizeTransactions({ transactions: txs })
+      setLlmSuggestions(suggestions.suggestions)
+      setSelectedSuggestionIds(
+        new Set(suggestions.suggestions.filter((s) => s.category).map((s) => s.transaction_id))
+      )
+    } catch (err) {
+      setLlmError((err as Error).message || 'Failed to categorize transactions')
+    } finally {
+      setIsLlmRunning(false)
+    }
+  }
+
+  const applyLlmSuggestions = async () => {
+    if (llmSuggestions.length === 0) return
+    for (const suggestion of llmSuggestions) {
+      if (!selectedSuggestionIds.has(suggestion.transaction_id)) continue
+      if (!suggestion.category) continue
+      await window.api.appendChange({
+        transaction_id: suggestion.transaction_id,
+        change_type: 'set_category',
+        value: suggestion.category
+      })
+      if (suggestion.subcategory) {
+        await window.api.appendChange({
+          transaction_id: suggestion.transaction_id,
+          change_type: 'set_subcategory',
+          value: suggestion.subcategory
+        })
+      }
+      if (autoCreateRules) {
+        const tx = llmTransactionMap.get(suggestion.transaction_id)
+        if (tx?.merchant) {
+          await window.api.saveRule({
+            rule_id: '',
+            match_type: 'merchant_or_description_contains',
+            match_value: tx.merchant,
+            category: suggestion.category,
+            subcategory: suggestion.subcategory || undefined,
+            priority: 100,
+            enabled: true
+          })
+        }
+      }
+    }
+    await window.api.materialize()
+    setLlmSuggestions([])
   }
 
   if (isLoading) {
@@ -206,6 +279,7 @@ export function SettingsPage() {
               <TabsList>
                 <TabsTrigger value="categories">Categories</TabsTrigger>
                 <TabsTrigger value="rules">Rules</TabsTrigger>
+                <TabsTrigger value="llm">LLM Categorize</TabsTrigger>
               </TabsList>
 
               <TabsContent value="categories">
@@ -387,6 +461,97 @@ export function SettingsPage() {
                       Apply Rules Now
                     </Button>
                   </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="llm">
+                <div className="space-y-4 pt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Sends all uncategorized transactions to OpenAI and suggests categories. Review the suggestions, then apply the ones you want.
+                  </p>
+
+                  {!settings?.openAiKey && (
+                    <div className="text-sm text-muted-foreground border rounded-md p-3 bg-muted/40">
+                      Add your OpenAI API key below to enable LLM categorization.
+                    </div>
+                  )}
+
+                  {llmError && (
+                    <div className="text-sm text-destructive border border-destructive/40 rounded-md p-3">
+                      {llmError}
+                    </div>
+                  )}
+
+                  <Button
+                    onClick={runLlmCategorization}
+                    disabled={isLlmRunning || !settings?.openAiKey}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    {isLlmRunning ? 'Running…' : 'Run LLM Categorization'}
+                  </Button>
+
+                  {llmSuggestions.length > 0 && (
+                    <div className="space-y-3">
+                      <label className="text-sm text-muted-foreground flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={autoCreateRules}
+                          onChange={(e) => setAutoCreateRules(e.target.checked)}
+                        />
+                        Create rule for merchant when accepted
+                      </label>
+                      <div className="overflow-auto max-h-80 border rounded">
+                        <table className="w-full text-xs">
+                          <thead className="bg-muted sticky top-0">
+                            <tr>
+                              <th className="text-left p-2 w-8"></th>
+                              <th className="text-left p-2">Transaction</th>
+                              <th className="text-left p-2">Category</th>
+                              <th className="text-left p-2">Subcategory</th>
+                              <th className="text-right p-2">Confidence</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {llmSuggestions.map((s) => {
+                              const tx = llmTransactionMap.get(s.transaction_id)
+                              return (
+                                <tr key={s.transaction_id} className="border-t hover:bg-muted/40">
+                                  <td className="p-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedSuggestionIds.has(s.transaction_id)}
+                                      onChange={(e) => {
+                                        setSelectedSuggestionIds((prev) => {
+                                          const next = new Set(prev)
+                                          if (e.target.checked) next.add(s.transaction_id)
+                                          else next.delete(s.transaction_id)
+                                          return next
+                                        })
+                                      }}
+                                    />
+                                  </td>
+                                  <td className="p-2">
+                                    <div className="font-medium">{tx?.merchant || 'Unknown'}</div>
+                                    <div className="text-muted-foreground">{tx?.description || ''}</div>
+                                  </td>
+                                  <td className="p-2">{s.category || '—'}</td>
+                                  <td className="p-2">{s.subcategory || '—'}</td>
+                                  <td className="p-2 text-right">{s.confidence.toFixed(2)}</td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button onClick={applyLlmSuggestions}>
+                          Apply Selected ({selectedSuggestionIds.size})
+                        </Button>
+                        <Button variant="outline" onClick={() => setLlmSuggestions([])}>
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>

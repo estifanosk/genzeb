@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, Sparkles, History } from 'lucide-react'
+import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, History } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import type { AccountInfo, ReceiptDetail, TransactionRow, ChangeRow } from '@core/types'
-import type { CategorizeTransactionsResponse } from '@core/types/ipc'
 
 interface EditValues {
   category?: string
@@ -58,15 +57,6 @@ export function TransactionsPage() {
   const [receiptDetails, setReceiptDetails] = useState<Record<string, ReceiptDetail | null>>({})
   const [expandedReceiptTx, setExpandedReceiptTx] = useState<string | null>(null)
   const [changesByTx, setChangesByTx] = useState<Map<string, ChangeRow[]>>(new Map())
-  const [settingsKey, setSettingsKey] = useState<string | null>(null)
-  const [llmSuggestions, setLlmSuggestions] = useState<CategorizeTransactionsResponse['suggestions']>([])
-  const [llmError, setLlmError] = useState<string | null>(null)
-  const [isLlmRunning, setIsLlmRunning] = useState(false)
-  const [autoCreateRules, setAutoCreateRules] = useState(true)
-  const [selectedSuggestionIds, setSelectedSuggestionIds] = useState<Set<string>>(new Set())
-  const [llmTransactionMap, setLlmTransactionMap] = useState<Map<string, TransactionRow>>(
-    new Map()
-  )
 
   useEffect(() => {
     try {
@@ -99,10 +89,6 @@ export function TransactionsPage() {
     } catch {
       // Ignore malformed storage
     }
-  }, [])
-
-  useEffect(() => {
-    window.api.getSettings().then((s) => setSettingsKey(s.openAiKey || null))
   }, [])
 
   const effectiveVisibleColumns: Record<string, boolean> = {
@@ -300,77 +286,6 @@ export function TransactionsPage() {
       }
       return next
     })
-  }
-
-  const runLlmCategorization = async () => {
-    setIsLlmRunning(true)
-    setLlmError(null)
-    try {
-      const res = await window.api.getTransactions({
-        filters: { uncategorized: true },
-        limit: 500,
-        offset: 0,
-        sortBy: 'date',
-        sortOrder: 'desc'
-      })
-      setLlmTransactionMap(new Map(res.transactions.map((tx) => [tx.id, tx])))
-      const txs = res.transactions.map((tx) => ({
-        id: tx.id,
-        merchant: tx.merchant,
-        description: tx.description,
-        amount: tx.amount,
-        date: tx.date
-      }))
-      const suggestions = await window.api.categorizeTransactions({ transactions: txs })
-      setLlmSuggestions(suggestions.suggestions)
-      setSelectedSuggestionIds(
-        new Set(
-          suggestions.suggestions
-            .filter((s) => s.category)
-            .map((s) => s.transaction_id)
-        )
-      )
-    } catch (err) {
-      setLlmError((err as Error).message || 'Failed to categorize transactions')
-    } finally {
-      setIsLlmRunning(false)
-    }
-  }
-
-  const applyLlmSuggestions = async () => {
-    if (llmSuggestions.length === 0) return
-    for (const suggestion of llmSuggestions) {
-      if (!selectedSuggestionIds.has(suggestion.transaction_id)) continue
-      if (!suggestion.category) continue
-      await window.api.appendChange({
-        transaction_id: suggestion.transaction_id,
-        change_type: 'set_category',
-        value: suggestion.category
-      })
-      if (suggestion.subcategory) {
-        await window.api.appendChange({
-          transaction_id: suggestion.transaction_id,
-          change_type: 'set_subcategory',
-          value: suggestion.subcategory
-        })
-      }
-      if (autoCreateRules) {
-        const tx = llmTransactionMap.get(suggestion.transaction_id)
-        if (tx?.merchant) {
-          await window.api.saveRule({
-            rule_id: '',
-            match_type: 'merchant_or_description_contains',
-            match_value: tx.merchant,
-            category: suggestion.category,
-            subcategory: suggestion.subcategory || undefined,
-            priority: 100,
-            enabled: true
-          })
-        }
-      }
-    }
-    await window.api.materialize()
-    await loadTransactions()
   }
 
   const toggleSelectAll = (checked: boolean) => {
@@ -825,100 +740,6 @@ export function TransactionsPage() {
           </div>
         </div>
       )}
-
-      <div className="border rounded-lg p-4 mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h3 className="text-lg font-medium">LLM Categorization</h3>
-            <p className="text-xs text-muted-foreground">
-              Runs only on uncategorized transactions. Accepted suggestions become changes and optional rules.
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={runLlmCategorization}
-            disabled={isLlmRunning || !settingsKey}
-          >
-            <Sparkles className="h-4 w-4 mr-1" />
-            {isLlmRunning ? 'Running...' : 'Run LLM'}
-          </Button>
-        </div>
-
-        {!settingsKey && (
-          <div className="text-xs text-muted-foreground">
-            Add your OpenAI API key in Settings to enable categorization.
-          </div>
-        )}
-
-        {llmError && (
-          <div className="text-sm text-destructive border border-destructive/40 rounded-md p-3 mt-2">
-            {llmError}
-          </div>
-        )}
-
-        {llmSuggestions.length > 0 && (
-          <div className="mt-3 space-y-3">
-            <label className="text-xs text-muted-foreground flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={autoCreateRules}
-                onChange={(e) => setAutoCreateRules(e.target.checked)}
-              />
-              Create rule for merchant when accepted
-            </label>
-            <div className="flex gap-2">
-              <Button onClick={applyLlmSuggestions}>Apply Selected</Button>
-              <Button variant="outline" onClick={() => setLlmSuggestions([])}>
-                Clear
-              </Button>
-            </div>
-            <div className="overflow-auto max-h-72 border rounded">
-              <table className="w-full text-xs">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="text-left p-2"></th>
-                    <th className="text-left p-2">Transaction</th>
-                    <th className="text-left p-2">Suggested Category</th>
-                    <th className="text-left p-2">Suggested Subcategory</th>
-                    <th className="text-right p-2">Confidence</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {llmSuggestions.map((s) => {
-                    const tx = llmTransactionMap.get(s.transaction_id)
-                    return (
-                      <tr key={s.transaction_id} className="border-t">
-                        <td className="p-2">
-                          <input
-                            type="checkbox"
-                            checked={selectedSuggestionIds.has(s.transaction_id)}
-                            onChange={(e) => {
-                              setSelectedSuggestionIds((prev) => {
-                                const next = new Set(prev)
-                                if (e.target.checked) next.add(s.transaction_id)
-                                else next.delete(s.transaction_id)
-                                return next
-                              })
-                            }}
-                          />
-                        </td>
-                        <td className="p-2">
-                          <div className="text-xs font-medium">{tx?.merchant || 'Unknown'}</div>
-                          <div className="text-[11px] text-muted-foreground">{tx?.description || ''}</div>
-                        </td>
-                        <td className="p-2">{s.category || '—'}</td>
-                        <td className="p-2">{s.subcategory || '—'}</td>
-                        <td className="p-2 text-right">{s.confidence.toFixed(2)}</td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
 
       {error && (
         <div className="mb-4 text-sm text-destructive border border-destructive/40 rounded-md p-3">
