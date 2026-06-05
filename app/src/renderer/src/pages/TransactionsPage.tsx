@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, History } from 'lucide-react'
 import { Button } from '../components/ui/button'
-import { fmtCurrency, amountClass } from '../lib/utils'
+import { fmtCurrency, amountClass, fmtDate } from '../lib/utils'
 import type { AccountInfo, ReceiptDetail, TransactionRow, ChangeRow } from '@core/types'
 
 interface EditValues {
@@ -11,7 +11,7 @@ interface EditValues {
   notes?: string
 }
 
-export function TransactionsPage() {
+export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const storageKey = 'ledgerbox.transactions.ui'
   const defaultVisibleColumns: Record<string, boolean> = {
     date: true,
@@ -776,7 +776,12 @@ export function TransactionsPage() {
           <div className="text-center text-muted-foreground">
             <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium">No transactions yet</p>
-            <p className="text-sm mt-1">Import a CSV statement to get started</p>
+            <p className="text-sm mt-1 mb-4">Import a CSV statement to get started</p>
+            {onNavigate && (
+              <Button size="sm" onClick={() => onNavigate('import')}>
+                Import a statement
+              </Button>
+            )}
           </div>
         </div>
       ) : (
@@ -869,7 +874,7 @@ export function TransactionsPage() {
                         ) : null}
                       </div>
                       {effectiveVisibleColumns.date && (
-                        <div className="whitespace-nowrap">{tx.date}</div>
+                        <div className="whitespace-nowrap">{fmtDate(tx.date)}</div>
                       )}
                       {effectiveVisibleColumns.merchant && (
                         <div className="truncate" title={tx.merchant || ''}>

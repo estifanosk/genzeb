@@ -39,11 +39,11 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'transactions':
-        return <TransactionsPage />
+        return <TransactionsPage onNavigate={(page) => setCurrentPage(page as PageId)} />
       case 'items':
         return <ItemExplorerPage />
       case 'receipts':
-        return <ReceiptsPage />
+        return <ReceiptsPage onNavigate={(page) => setCurrentPage(page as PageId)} />
       case 'reconcile':
         return <ReconcilePage onNavigate={(page) => setCurrentPage(page as PageId)} />
       case 'import':

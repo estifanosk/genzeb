@@ -141,7 +141,7 @@ function ReceiptExpandedDetail({ receipt }: { receipt: ReceiptRow }) {
   )
 }
 
-export function ReceiptsPage() {
+export function ReceiptsPage({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const [receipts, setReceipts] = useState<ReceiptRow[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -202,7 +202,12 @@ export function ReceiptsPage() {
           <div className="text-center text-muted-foreground">
             <Receipt className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium">No receipts yet</p>
-            <p className="text-sm mt-1">Import receipts via the Import page to get started</p>
+            <p className="text-sm mt-1 mb-4">Import receipt images to get started</p>
+            {onNavigate && (
+              <Button size="sm" onClick={() => onNavigate('import')}>
+                Import a receipt
+              </Button>
+            )}
           </div>
         </div>
       )}
