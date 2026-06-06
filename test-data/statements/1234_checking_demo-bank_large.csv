@@ -1,0 +1,1028 @@
+Date,Description,Merchant,Amount
+2026-01-01,Paycheck deposit,Acme Payroll,3256.50
+2026-01-01,Coffee purchase,Blue Bottle,-7.28
+2026-01-01,Lunch,In-N-Out,-15.58
+2026-01-01,Fast food,Domino's,-23.40
+2026-01-01,Online/retail purchase,Amazon,-169.15
+2026-01-01,Miscellaneous,Library Fine,-30.81
+2026-01-02,Monthly rent,Sunset Apartments,-1850.00
+2026-01-02,Grocery purchase,Costco,-87.53
+2026-01-02,Coffee purchase,Starbucks,-11.75
+2026-01-02,Lunch,In-N-Out,-18.33
+2026-01-02,Restaurant dinner,The Burger Joint,-46.30
+2026-01-02,Online/retail purchase,Walmart,-216.10
+2026-01-02,Online/retail purchase,IKEA,-135.77
+2026-01-02,Home supplies,Bed Bath & Beyond,-25.42
+2026-01-02,Bank/ATM,ATM Withdrawal,-20.43
+2026-01-03,Netflix subscription,Netflix,-15.49
+2026-01-03,Fast food,Pizza Hut,-25.79
+2026-01-03,Online/retail purchase,TJ Maxx,-127.41
+2026-01-03,Miscellaneous,FedEx Ship,-33.66
+2026-01-04,Spotify subscription,Spotify,-10.94
+2026-01-04,Grocery purchase,Kroger,-128.95
+2026-01-04,Lunch,Panera Bread,-10.90
+2026-01-04,Fast food,Wendy's,-20.04
+2026-01-04,Rideshare trip,Lyft,-11.69
+2026-01-04,Entertainment,AMC Theatres,-31.92
+2026-01-04,Miscellaneous,City Parking Garage,-37.12
+2026-01-04,Miscellaneous,FedEx Ship,-3.51
+2026-01-05,Hulu subscription,Hulu,-12.23
+2026-01-05,Monthly gym membership,LA Fitness,-27.65
+2026-01-05,Lunch,In-N-Out,-15.69
+2026-01-05,Restaurant dinner,Red Robin,-39.37
+2026-01-05,Fast food,Chick-fil-A,-13.08
+2026-01-05,Rideshare trip,Metro Ride,-28.53
+2026-01-05,Bar / drinks,Rooftop Lounge,-59.76
+2026-01-06,Grocery purchase,Fresh Market,-70.52
+2026-01-06,Coffee purchase,Northside Coffee,-4.20
+2026-01-06,Lunch,Sweetgreen,-16.15
+2026-01-06,Rideshare trip,Uber,-14.94
+2026-01-07,iCloud Storage subscription,iCloud Storage,-10.54
+2026-01-07,Coffee purchase,Starbucks,-9.86
+2026-01-07,Lunch,Chipotle,-20.04
+2026-01-07,Fast food,Popeyes,-19.13
+2026-01-07,Rideshare trip,Bird Scooter,-37.50
+2026-01-07,Entertainment,Topgolf,-26.16
+2026-01-08,Adobe Creative subscription,Adobe Creative,-4.01
+2026-01-08,City Power payment,City Power,-80.51
+2026-01-08,Grocery purchase,Costco,-31.71
+2026-01-08,Lunch,In-N-Out,-14.02
+2026-01-08,Restaurant dinner,Chez Pierre,-22.22
+2026-01-08,Fast food,Chick-fil-A,-17.29
+2026-01-09,Coffee purchase,Blue Bottle,-6.40
+2026-01-09,Restaurant dinner,Red Robin,-81.94
+2026-01-09,Fast food,McDonald's,-14.14
+2026-01-10,Bay Area Gas payment,Bay Area Gas,-159.17
+2026-01-10,Coffee purchase,Starbucks,-10.03
+2026-01-10,Lunch,Chipotle,-11.67
+2026-01-10,Fast food,Domino's,-24.94
+2026-01-10,Online/retail purchase,Home Depot,-149.56
+2026-01-10,Insurance payment,State Farm Insurance,-98.21
+2026-01-10,Miscellaneous,Library Fine,-7.65
+2026-01-11,Grocery purchase,Trader Joe's,-111.25
+2026-01-11,Coffee purchase,Northside Coffee,-6.40
+2026-01-11,Lunch,Panera Bread,-16.57
+2026-01-11,Fast food,McDonald's,-20.20
+2026-01-11,Clothing,Old Navy,-46.30
+2026-01-11,Insurance payment,Geico Auto,-41.14
+2026-01-12,Comcast Internet payment,Comcast Internet,-103.74
+2026-01-12,Coffee purchase,Philz Coffee,-8.26
+2026-01-12,Lunch,Chipotle,-19.77
+2026-01-12,Rideshare trip,Uber,-28.35
+2026-01-12,Online/retail purchase,Target,-136.50
+2026-01-13,Coffee purchase,Northside Coffee,-10.51
+2026-01-13,Lunch,In-N-Out,-10.60
+2026-01-13,Restaurant dinner,Harbor Table,-28.90
+2026-01-13,Fast food,Pizza Hut,-14.56
+2026-01-13,Online/retail purchase,Macy's,-107.19
+2026-01-13,Bar / drinks,O'Malley's Bar,-14.71
+2026-01-13,Clothing,H&M,-81.78
+2026-01-13,Entertainment,Regal Cinemas,-55.36
+2026-01-13,Miscellaneous,Parking Meter,-12.26
+2026-01-14,AT&T Wireless payment,AT&T Wireless,-150.40
+2026-01-14,Grocery purchase,Trader Joe's,-22.03
+2026-01-14,Coffee purchase,Peet's Coffee,-8.79
+2026-01-14,Lunch,In-N-Out,-10.43
+2026-01-14,Restaurant dinner,Sakura Sushi,-61.23
+2026-01-14,Fast food,Wendy's,-24.05
+2026-01-14,Pharmacy,Walgreens,-49.12
+2026-01-14,Miscellaneous,City Parking Garage,-15.88
+2026-01-15,Paycheck deposit,Acme Payroll,3170.20
+2026-01-15,Coffee purchase,Ritual Coffee,-9.16
+2026-01-15,Lunch,Chipotle,-18.33
+2026-01-15,Restaurant dinner,Chez Pierre,-54.68
+2026-01-15,Fast food,Pizza Hut,-17.50
+2026-01-15,Clothing,Gap,-59.09
+2026-01-16,Water & Sewer Dept payment,Water & Sewer Dept,-120.05
+2026-01-16,Grocery purchase,Trader Joe's,-139.59
+2026-01-16,Coffee purchase,Northside Coffee,-4.18
+2026-01-16,Lunch,Subway,-11.93
+2026-01-16,Rideshare trip,Lyft,-22.55
+2026-01-16,Online/retail purchase,eBay,-138.04
+2026-01-17,Grocery purchase,Trader Joe's,-142.19
+2026-01-17,Lunch,Panera Bread,-9.61
+2026-01-17,Fast food,McDonald's,-25.68
+2026-01-17,Rideshare trip,Lyft,-17.92
+2026-01-17,Rideshare trip,Metro Ride,-28.01
+2026-01-17,Online/retail purchase,Target,-69.14
+2026-01-17,Pharmacy,Rite Aid,-53.23
+2026-01-18,Grocery purchase,Trader Joe's,-32.83
+2026-01-18,Coffee purchase,Peet's Coffee,-8.50
+2026-01-18,Lunch,Subway,-21.35
+2026-01-18,Gas station,Arco,-40.36
+2026-01-18,Rideshare trip,Uber,-24.72
+2026-01-18,Rideshare trip,Bird Scooter,-12.42
+2026-01-18,Home supplies,Lowe's,-63.47
+2026-01-18,Home supplies,IKEA,-114.69
+2026-01-19,Grocery purchase,Fresh Market,-109.14
+2026-01-19,Lunch,In-N-Out,-20.91
+2026-01-19,Restaurant dinner,Sakura Sushi,-60.75
+2026-01-19,Rideshare trip,Uber,-27.59
+2026-01-19,Online/retail purchase,IKEA,-193.05
+2026-01-20,Grocery purchase,Trader Joe's,-46.03
+2026-01-20,Restaurant dinner,El Rancho,-45.58
+2026-01-20,Rideshare trip,Uber,-20.19
+2026-01-20,Pharmacy,CVS Pharmacy,-54.11
+2026-01-20,Bar / drinks,Craft Beer Co.,-50.49
+2026-01-20,Home supplies,The Container Store,-86.86
+2026-01-21,Coffee purchase,Philz Coffee,-4.70
+2026-01-21,Lunch,Panera Bread,-18.83
+2026-01-21,Gas station,BP Gas,-56.44
+2026-01-22,Restaurant dinner,Chez Pierre,-23.37
+2026-01-22,Miscellaneous,Parking Meter,-40.33
+2026-01-23,Grocery purchase,Trader Joe's,-99.57
+2026-01-23,Fast food,McDonald's,-20.04
+2026-01-23,Rideshare trip,Bird Scooter,-29.50
+2026-01-23,Bar / drinks,Craft Beer Co.,-46.78
+2026-01-23,Miscellaneous,Parking Meter,-40.55
+2026-01-24,Coffee purchase,Blue Bottle,-11.92
+2026-01-24,Lunch,Subway,-10.42
+2026-01-24,Restaurant dinner,Harbor Table,-50.27
+2026-01-24,Online/retail purchase,TJ Maxx,-165.29
+2026-01-24,Miscellaneous,Library Fine,-30.22
+2026-01-25,Grocery purchase,Safeway,-99.51
+2026-01-25,Coffee purchase,Philz Coffee,-7.28
+2026-01-25,Fast food,Chick-fil-A,-21.53
+2026-01-25,Rideshare trip,Lyft,-31.62
+2026-01-25,Bank/ATM,Wire Transfer Fee,-22.12
+2026-01-25,Miscellaneous,FedEx Ship,-11.98
+2026-01-26,Lunch,Five Guys,-14.71
+2026-01-26,Restaurant dinner,Chez Pierre,-70.97
+2026-01-26,Online/retail purchase,TJ Maxx,-154.37
+2026-01-26,Online/retail purchase,Nordstrom,-158.14
+2026-01-26,Pharmacy,Rite Aid,-23.60
+2026-01-27,Grocery purchase,Costco,-26.65
+2026-01-27,Coffee purchase,Ritual Coffee,-5.95
+2026-01-27,Lunch,Panera Bread,-16.12
+2026-01-27,Pet supplies,Happy Paws Vet,-89.02
+2026-01-28,Coffee purchase,Northside Coffee,-11.42
+2026-01-28,Online/retail purchase,eBay,-200.38
+2026-01-28,Online/retail purchase,Nordstrom,-180.08
+2026-01-28,Bar / drinks,Craft Beer Co.,-25.74
+2026-01-28,Entertainment,Dave & Buster's,-30.61
+2026-01-29,Coffee purchase,Starbucks,-7.10
+2026-01-29,Lunch,Subway,-12.42
+2026-01-29,Restaurant dinner,Chez Pierre,-70.67
+2026-01-30,Coffee purchase,Philz Coffee,-6.05
+2026-01-30,Lunch,Subway,-12.13
+2026-01-30,Fast food,Wendy's,-16.44
+2026-01-30,Rideshare trip,Bird Scooter,-39.46
+2026-01-30,Online/retail purchase,Target,-89.99
+2026-01-30,Online/retail purchase,TJ Maxx,-152.83
+2026-01-31,Coffee purchase,Peet's Coffee,-11.47
+2026-01-31,Lunch,In-N-Out,-9.50
+2026-01-31,Fast food,Pizza Hut,-9.34
+2026-01-31,Online/retail purchase,Target,-107.70
+2026-02-01,Paycheck deposit,Acme Payroll,3155.52
+2026-02-01,Lunch,In-N-Out,-19.29
+2026-02-01,Restaurant dinner,Applebee's,-37.91
+2026-02-01,Fast food,Pizza Hut,-22.99
+2026-02-01,Online/retail purchase,TJ Maxx,-150.14
+2026-02-01,Pharmacy,Rite Aid,-24.79
+2026-02-01,Home supplies,Lowe's,-111.31
+2026-02-02,Monthly rent,Sunset Apartments,-1850.00
+2026-02-02,Coffee purchase,Northside Coffee,-9.88
+2026-02-02,Lunch,Subway,-11.67
+2026-02-02,Restaurant dinner,El Rancho,-34.14
+2026-02-02,Fast food,Domino's,-15.04
+2026-02-02,Rideshare trip,Lyft,-16.46
+2026-02-02,Online/retail purchase,Macy's,-71.81
+2026-02-02,Miscellaneous,USPS Postage,-42.80
+2026-02-03,Netflix subscription,Netflix,-16.51
+2026-02-03,Grocery purchase,Fresh Market,-142.86
+2026-02-03,Coffee purchase,Ritual Coffee,-9.38
+2026-02-03,Lunch,Sweetgreen,-19.91
+2026-02-03,Restaurant dinner,Olive Garden,-60.17
+2026-02-03,Fast food,Wendy's,-8.24
+2026-02-03,Online/retail purchase,Macy's,-144.37
+2026-02-03,Online/retail purchase,Best Buy,-25.42
+2026-02-03,Online/retail purchase,Amazon,-212.25
+2026-02-03,Travel expense,Marriott Hotels,-285.71
+2026-02-03,Miscellaneous,Parking Meter,-14.00
+2026-02-04,Spotify subscription,Spotify,-17.98
+2026-02-04,Coffee purchase,Ritual Coffee,-5.19
+2026-02-04,Lunch,Five Guys,-15.89
+2026-02-04,Restaurant dinner,The Burger Joint,-72.44
+2026-02-04,Online/retail purchase,eBay,-27.47
+2026-02-04,Online/retail purchase,Macy's,-185.40
+2026-02-04,Bar / drinks,Wine & Spirits Shop,-25.10
+2026-02-05,Hulu subscription,Hulu,-15.29
+2026-02-05,Monthly gym membership,Planet Fitness,-44.41
+2026-02-05,Grocery purchase,Fresh Market,-40.92
+2026-02-05,Coffee purchase,Ritual Coffee,-9.09
+2026-02-05,Lunch,Chipotle,-20.81
+2026-02-05,Rideshare trip,Bird Scooter,-18.86
+2026-02-05,Online/retail purchase,Macy's,-50.38
+2026-02-05,Bar / drinks,O'Malley's Bar,-18.22
+2026-02-05,Bank/ATM,Wire Transfer Fee,-25.51
+2026-02-06,Grocery purchase,Trader Joe's,-108.16
+2026-02-06,Coffee purchase,Peet's Coffee,-11.09
+2026-02-06,Lunch,Subway,-21.15
+2026-02-06,Fast food,McDonald's,-9.58
+2026-02-06,Gas station,Valero,-80.18
+2026-02-06,Gas station,Arco,-67.36
+2026-02-06,Rideshare trip,Bird Scooter,-26.54
+2026-02-06,Rideshare trip,Bird Scooter,-13.29
+2026-02-06,Online/retail purchase,Home Depot,-207.23
+2026-02-06,Pet supplies,PetSmart,-134.23
+2026-02-07,iCloud Storage subscription,iCloud Storage,-10.98
+2026-02-07,Grocery purchase,Fresh Market,-26.68
+2026-02-07,Coffee purchase,Peet's Coffee,-5.40
+2026-02-07,Lunch,Chipotle,-15.70
+2026-02-07,Restaurant dinner,Harbor Table,-51.30
+2026-02-07,Online/retail purchase,Best Buy,-203.72
+2026-02-08,Adobe Creative subscription,Adobe Creative,-4.85
+2026-02-08,City Power payment,City Power,-92.45
+2026-02-08,Coffee purchase,Philz Coffee,-6.13
+2026-02-09,Grocery purchase,Trader Joe's,-70.21
+2026-02-09,Coffee purchase,Peet's Coffee,-6.03
+2026-02-09,Lunch,In-N-Out,-19.54
+2026-02-09,Fast food,Wendy's,-16.63
+2026-02-09,Rideshare trip,Metro Ride,-18.93
+2026-02-09,Online/retail purchase,Macy's,-201.18
+2026-02-09,Miscellaneous,USPS Postage,-29.19
+2026-02-10,Bay Area Gas payment,Bay Area Gas,-164.17
+2026-02-10,Coffee purchase,Blue Bottle,-10.57
+2026-02-10,Lunch,In-N-Out,-10.98
+2026-02-10,Bank/ATM,Bank Fee,-13.94
+2026-02-11,Grocery purchase,Trader Joe's,-127.96
+2026-02-11,Coffee purchase,Starbucks,-9.22
+2026-02-11,Lunch,Chipotle,-17.36
+2026-02-11,Pharmacy,CVS Pharmacy,-21.90
+2026-02-12,Comcast Internet payment,Comcast Internet,-74.43
+2026-02-12,Coffee purchase,Ritual Coffee,-10.00
+2026-02-12,Lunch,Chipotle,-18.71
+2026-02-12,Fast food,McDonald's,-27.24
+2026-02-12,Rideshare trip,Metro Ride,-36.94
+2026-02-12,Rideshare trip,Bird Scooter,-39.54
+2026-02-13,Coffee purchase,Philz Coffee,-11.09
+2026-02-13,Lunch,Chipotle,-14.35
+2026-02-13,Fast food,Taco Bell,-27.51
+2026-02-13,Rideshare trip,Uber,-39.80
+2026-02-13,Clothing,Nike Store,-24.56
+2026-02-13,Miscellaneous,FedEx Ship,-23.90
+2026-02-14,AT&T Wireless payment,AT&T Wireless,-146.87
+2026-02-14,Coffee purchase,Ritual Coffee,-10.72
+2026-02-14,Miscellaneous,Parking Meter,-24.07
+2026-02-15,Paycheck deposit,Acme Payroll,3176.53
+2026-02-15,Coffee purchase,Philz Coffee,-10.10
+2026-02-15,Lunch,Subway,-15.73
+2026-02-15,Fast food,Domino's,-11.60
+2026-02-15,Online/retail purchase,eBay,-195.53
+2026-02-15,Online/retail purchase,Home Depot,-129.02
+2026-02-15,Pharmacy,Rite Aid,-20.07
+2026-02-15,Entertainment,Mini Golf World,-34.18
+2026-02-15,Miscellaneous,Library Fine,-12.84
+2026-02-15,Miscellaneous,Library Fine,-4.95
+2026-02-16,Water & Sewer Dept payment,Water & Sewer Dept,-178.00
+2026-02-16,Grocery purchase,Costco,-22.78
+2026-02-16,Lunch,In-N-Out,-9.63
+2026-02-16,Restaurant dinner,Olive Garden,-72.90
+2026-02-16,Home supplies,Ace Hardware,-78.35
+2026-02-17,Grocery purchase,Kroger,-110.96
+2026-02-17,Coffee purchase,Northside Coffee,-9.94
+2026-02-17,Lunch,Panera Bread,-9.77
+2026-02-17,Restaurant dinner,Sakura Sushi,-79.60
+2026-02-17,Fast food,Chick-fil-A,-18.90
+2026-02-17,Rideshare trip,Metro Ride,-24.26
+2026-02-17,Miscellaneous,FedEx Ship,-43.96
+2026-02-18,Restaurant dinner,Red Robin,-41.49
+2026-02-18,Fast food,Taco Bell,-15.37
+2026-02-18,Rideshare trip,Uber,-10.95
+2026-02-18,Rideshare trip,Uber,-40.50
+2026-02-18,Bar / drinks,Wine & Spirits Shop,-27.84
+2026-02-18,Entertainment,AMC Theatres,-60.34
+2026-02-19,Grocery purchase,Safeway,-86.30
+2026-02-19,Lunch,Sweetgreen,-21.54
+2026-02-19,Restaurant dinner,Olive Garden,-44.89
+2026-02-19,Fast food,Chick-fil-A,-14.77
+2026-02-19,Rideshare trip,Metro Ride,-9.04
+2026-02-19,Online/retail purchase,Best Buy,-142.62
+2026-02-19,Online/retail purchase,eBay,-141.83
+2026-02-19,Clothing,Zara,-167.62
+2026-02-19,Entertainment,Dave & Buster's,-27.66
+2026-02-20,Grocery purchase,Whole Foods,-27.29
+2026-02-20,Coffee purchase,Starbucks,-10.55
+2026-02-20,Home supplies,IKEA,-57.90
+2026-02-21,Grocery purchase,Whole Foods,-141.43
+2026-02-21,Coffee purchase,Ritual Coffee,-11.02
+2026-02-21,Restaurant dinner,Harbor Table,-36.62
+2026-02-21,Fast food,McDonald's,-17.47
+2026-02-21,Clothing,Adidas,-74.17
+2026-02-22,Lunch,Panera Bread,-16.18
+2026-02-22,Fast food,Popeyes,-11.81
+2026-02-23,Coffee purchase,Starbucks,-4.63
+2026-02-23,Lunch,In-N-Out,-14.94
+2026-02-23,Restaurant dinner,Red Robin,-35.93
+2026-02-23,Fast food,Pizza Hut,-15.67
+2026-02-23,Rideshare trip,Metro Ride,-41.90
+2026-02-23,Online/retail purchase,Walmart,-117.08
+2026-02-23,Miscellaneous,Library Fine,-26.15
+2026-02-24,Grocery purchase,Costco,-126.32
+2026-02-24,Coffee purchase,Starbucks,-4.48
+2026-02-24,Lunch,Five Guys,-21.84
+2026-02-24,Restaurant dinner,Applebee's,-50.17
+2026-02-25,Grocery purchase,Kroger,-98.03
+2026-02-25,Coffee purchase,Starbucks,-5.95
+2026-02-25,Lunch,Sweetgreen,-10.29
+2026-02-25,Fast food,Pizza Hut,-26.37
+2026-02-25,Rideshare trip,Uber,-23.84
+2026-02-26,Coffee purchase,Peet's Coffee,-4.48
+2026-02-26,Lunch,Sweetgreen,-19.94
+2026-02-26,Fast food,Chick-fil-A,-27.93
+2026-02-26,Rideshare trip,Bird Scooter,-24.52
+2026-02-26,Rideshare trip,Uber,-11.95
+2026-02-27,Lunch,In-N-Out,-9.55
+2026-02-27,Restaurant dinner,Red Robin,-58.24
+2026-02-27,Fast food,McDonald's,-25.36
+2026-02-27,Online/retail purchase,Nordstrom,-98.28
+2026-02-27,Bar / drinks,Rooftop Lounge,-41.84
+2026-02-27,Home supplies,Ace Hardware,-107.71
+2026-02-27,Clothing,Zara,-178.73
+2026-02-27,Miscellaneous,USPS Postage,-22.25
+2026-02-28,Grocery purchase,Safeway,-101.53
+2026-02-28,Coffee purchase,Ritual Coffee,-8.98
+2026-02-28,Lunch,Panera Bread,-19.26
+2026-02-28,Restaurant dinner,Applebee's,-29.80
+2026-02-28,Online/retail purchase,Target,-132.93
+2026-02-28,Travel expense,Airbnb,-356.73
+2026-02-28,Travel expense,Delta Airlines,-334.09
+2026-02-28,Miscellaneous,USPS Postage,-34.91
+2026-03-01,Paycheck deposit,Acme Payroll,3206.99
+2026-03-01,Restaurant dinner,Harbor Table,-49.05
+2026-03-01,Fast food,Chick-fil-A,-18.06
+2026-03-02,Monthly rent,Sunset Apartments,-1850.00
+2026-03-02,Grocery purchase,Whole Foods,-86.30
+2026-03-02,Coffee purchase,Starbucks,-7.57
+2026-03-02,Lunch,Five Guys,-16.17
+2026-03-02,Online/retail purchase,IKEA,-17.03
+2026-03-02,Home supplies,Home Depot,-114.73
+2026-03-02,Miscellaneous,FedEx Ship,-19.17
+2026-03-03,Netflix subscription,Netflix,-10.77
+2026-03-03,Grocery purchase,Trader Joe's,-40.15
+2026-03-03,Coffee purchase,Northside Coffee,-6.45
+2026-03-03,Lunch,Sweetgreen,-17.08
+2026-03-03,Restaurant dinner,Harbor Table,-78.99
+2026-03-03,Fast food,Domino's,-24.00
+2026-03-03,Miscellaneous,Library Fine,-20.46
+2026-03-04,Spotify subscription,Spotify,-13.62
+2026-03-04,Grocery purchase,Whole Foods,-119.04
+2026-03-04,Coffee purchase,Blue Bottle,-6.99
+2026-03-04,Lunch,Subway,-16.17
+2026-03-04,Fast food,McDonald's,-26.00
+2026-03-04,Rideshare trip,Uber,-39.97
+2026-03-04,Bar / drinks,The Tap Room,-61.24
+2026-03-04,Miscellaneous,Library Fine,-35.23
+2026-03-05,Hulu subscription,Hulu,-13.48
+2026-03-05,Monthly gym membership,Orange Theory,-34.84
+2026-03-05,Lunch,Panera Bread,-14.58
+2026-03-05,Rideshare trip,Bird Scooter,-37.55
+2026-03-05,Bar / drinks,The Tap Room,-60.22
+2026-03-05,Miscellaneous,FedEx Ship,-3.26
+2026-03-06,Coffee purchase,Blue Bottle,-8.58
+2026-03-06,Lunch,Sweetgreen,-15.35
+2026-03-06,Fast food,Chick-fil-A,-21.11
+2026-03-06,Bar / drinks,Craft Beer Co.,-12.14
+2026-03-06,Home supplies,Lowe's,-101.11
+2026-03-06,Bank/ATM,Bank Fee,-33.84
+2026-03-07,iCloud Storage subscription,iCloud Storage,-4.21
+2026-03-07,Lunch,Panera Bread,-13.95
+2026-03-07,Restaurant dinner,Sakura Sushi,-45.04
+2026-03-07,Online/retail purchase,IKEA,-204.25
+2026-03-08,Adobe Creative subscription,Adobe Creative,-10.51
+2026-03-08,City Power payment,City Power,-74.39
+2026-03-08,Grocery purchase,Trader Joe's,-130.22
+2026-03-08,Coffee purchase,Northside Coffee,-5.04
+2026-03-08,Restaurant dinner,Sakura Sushi,-44.51
+2026-03-09,Coffee purchase,Ritual Coffee,-8.74
+2026-03-09,Lunch,Five Guys,-16.27
+2026-03-09,Restaurant dinner,El Rancho,-57.79
+2026-03-10,Bay Area Gas payment,Bay Area Gas,-59.73
+2026-03-10,Coffee purchase,Peet's Coffee,-4.70
+2026-03-10,Lunch,In-N-Out,-17.55
+2026-03-10,Home supplies,Lowe's,-55.75
+2026-03-10,Insurance payment,Progressive Insurance,-211.59
+2026-03-11,Grocery purchase,Fresh Market,-80.08
+2026-03-11,Coffee purchase,Philz Coffee,-4.24
+2026-03-11,Lunch,In-N-Out,-17.65
+2026-03-11,Restaurant dinner,Red Robin,-58.32
+2026-03-11,Fast food,Domino's,-20.76
+2026-03-11,Gas station,Shell Gas,-40.19
+2026-03-11,Online/retail purchase,Walmart,-57.35
+2026-03-11,Online/retail purchase,TJ Maxx,-140.54
+2026-03-11,Pharmacy,CVS Pharmacy,-19.36
+2026-03-11,Pharmacy,Walgreens,-13.11
+2026-03-11,Bar / drinks,Craft Beer Co.,-22.32
+2026-03-11,Insurance payment,Progressive Insurance,-54.99
+2026-03-12,Comcast Internet payment,Comcast Internet,-63.34
+2026-03-12,Restaurant dinner,The Burger Joint,-57.26
+2026-03-12,Fast food,McDonald's,-27.15
+2026-03-13,Grocery purchase,Whole Foods,-95.19
+2026-03-13,Lunch,Sweetgreen,-19.36
+2026-03-13,Clothing,Nike Store,-86.56
+2026-03-14,AT&T Wireless payment,AT&T Wireless,-103.59
+2026-03-14,Grocery purchase,Trader Joe's,-28.75
+2026-03-14,Coffee purchase,Peet's Coffee,-11.21
+2026-03-14,Lunch,Subway,-14.36
+2026-03-14,Fast food,Domino's,-10.18
+2026-03-14,Online/retail purchase,Macy's,-122.15
+2026-03-15,Paycheck deposit,Acme Payroll,3146.09
+2026-03-15,Coffee purchase,Philz Coffee,-6.77
+2026-03-15,Lunch,Five Guys,-15.22
+2026-03-15,Fast food,McDonald's,-8.51
+2026-03-15,Rideshare trip,Lyft,-32.81
+2026-03-15,Medical/dental,DentalCare Plus,-232.15
+2026-03-16,Water & Sewer Dept payment,Water & Sewer Dept,-58.97
+2026-03-16,Coffee purchase,Ritual Coffee,-4.65
+2026-03-16,Lunch,Five Guys,-17.37
+2026-03-16,Restaurant dinner,Chez Pierre,-49.51
+2026-03-16,Fast food,McDonald's,-12.84
+2026-03-16,Online/retail purchase,TJ Maxx,-61.22
+2026-03-17,Grocery purchase,Fresh Market,-142.90
+2026-03-17,Coffee purchase,Starbucks,-7.74
+2026-03-17,Restaurant dinner,Red Robin,-27.25
+2026-03-17,Rideshare trip,Bird Scooter,-34.38
+2026-03-17,Online/retail purchase,Macy's,-123.07
+2026-03-17,Online/retail purchase,Amazon,-105.34
+2026-03-18,Coffee purchase,Peet's Coffee,-8.85
+2026-03-18,Lunch,Five Guys,-9.39
+2026-03-18,Rideshare trip,Metro Ride,-30.47
+2026-03-18,Online/retail purchase,Best Buy,-77.52
+2026-03-18,Online/retail purchase,Macy's,-191.83
+2026-03-18,Clothing,H&M,-96.99
+2026-03-18,Miscellaneous,City Parking Garage,-16.29
+2026-03-19,Grocery purchase,Whole Foods,-61.08
+2026-03-19,Restaurant dinner,Olive Garden,-37.69
+2026-03-19,Fast food,Domino's,-9.08
+2026-03-19,Rideshare trip,Bird Scooter,-39.75
+2026-03-19,Rideshare trip,Lyft,-9.16
+2026-03-19,Online/retail purchase,Best Buy,-197.27
+2026-03-19,Pet supplies,Happy Paws Vet,-119.24
+2026-03-20,Grocery purchase,Whole Foods,-75.01
+2026-03-20,Coffee purchase,Northside Coffee,-7.35
+2026-03-20,Fast food,Wendy's,-9.64
+2026-03-20,Gas station,Chevron,-78.97
+2026-03-20,Online/retail purchase,Target,-128.88
+2026-03-21,Grocery purchase,Safeway,-43.16
+2026-03-21,Coffee purchase,Peet's Coffee,-9.24
+2026-03-21,Fast food,Wendy's,-21.46
+2026-03-22,Coffee purchase,Starbucks,-5.36
+2026-03-22,Lunch,Five Guys,-13.25
+2026-03-22,Restaurant dinner,Applebee's,-23.97
+2026-03-22,Rideshare trip,Metro Ride,-19.31
+2026-03-23,Grocery purchase,Trader Joe's,-30.63
+2026-03-23,Coffee purchase,Philz Coffee,-10.43
+2026-03-23,Lunch,Panera Bread,-21.88
+2026-03-23,Fast food,Popeyes,-20.19
+2026-03-24,Lunch,In-N-Out,-21.05
+2026-03-24,Rideshare trip,Bird Scooter,-32.57
+2026-03-24,Bar / drinks,Wine & Spirits Shop,-60.98
+2026-03-25,Coffee purchase,Ritual Coffee,-8.86
+2026-03-25,Lunch,Subway,-15.04
+2026-03-25,Restaurant dinner,Chez Pierre,-40.99
+2026-03-26,Lunch,Five Guys,-21.93
+2026-03-26,Restaurant dinner,Olive Garden,-79.69
+2026-03-26,Fast food,Chick-fil-A,-12.58
+2026-03-26,Gas station,Chevron,-48.59
+2026-03-26,Entertainment,AMC Theatres,-53.97
+2026-03-26,Entertainment,Regal Cinemas,-25.67
+2026-03-27,Coffee purchase,Peet's Coffee,-6.35
+2026-03-27,Lunch,Five Guys,-15.61
+2026-03-27,Rideshare trip,Uber,-24.13
+2026-03-27,Rideshare trip,Lyft,-34.34
+2026-03-27,Rideshare trip,Lyft,-39.93
+2026-03-27,Online/retail purchase,IKEA,-113.95
+2026-03-27,Online/retail purchase,Walmart,-83.96
+2026-03-27,Online/retail purchase,TJ Maxx,-69.57
+2026-03-27,Miscellaneous,Library Fine,-13.48
+2026-03-28,Grocery purchase,Fresh Market,-68.71
+2026-03-28,Coffee purchase,Peet's Coffee,-11.52
+2026-03-28,Lunch,Panera Bread,-20.02
+2026-03-28,Fast food,Taco Bell,-20.55
+2026-03-28,Rideshare trip,Lyft,-24.62
+2026-03-28,Rideshare trip,Uber,-36.16
+2026-03-28,Entertainment,AMC Theatres,-40.44
+2026-03-29,Coffee purchase,Peet's Coffee,-9.23
+2026-03-29,Lunch,Subway,-13.95
+2026-03-29,Online/retail purchase,TJ Maxx,-15.84
+2026-03-29,Pharmacy,Rite Aid,-28.74
+2026-03-29,Miscellaneous,USPS Postage,-42.96
+2026-03-30,Grocery purchase,Costco,-61.85
+2026-03-30,Coffee purchase,Starbucks,-5.46
+2026-03-30,Lunch,Panera Bread,-14.43
+2026-03-30,Online/retail purchase,Target,-70.82
+2026-03-31,Coffee purchase,Starbucks,-9.62
+2026-03-31,Lunch,Five Guys,-18.93
+2026-03-31,Fast food,McDonald's,-10.56
+2026-03-31,Rideshare trip,Bird Scooter,-15.99
+2026-03-31,Home supplies,Bed Bath & Beyond,-81.19
+2026-03-31,Entertainment,Mini Golf World,-38.69
+2026-03-31,Miscellaneous,Library Fine,-34.59
+2026-04-01,Paycheck deposit,Acme Payroll,3195.43
+2026-04-01,Coffee purchase,Peet's Coffee,-7.88
+2026-04-01,Restaurant dinner,Chez Pierre,-41.19
+2026-04-01,Fast food,Taco Bell,-12.50
+2026-04-01,Rideshare trip,Lyft,-31.39
+2026-04-01,Rideshare trip,Bird Scooter,-37.00
+2026-04-01,Bar / drinks,Rooftop Lounge,-24.99
+2026-04-01,Entertainment,AMC Theatres,-55.00
+2026-04-02,Monthly rent,Sunset Apartments,-1850.00
+2026-04-02,Grocery purchase,Kroger,-76.45
+2026-04-02,Coffee purchase,Peet's Coffee,-4.08
+2026-04-02,Miscellaneous,City Parking Garage,-8.38
+2026-04-03,Netflix subscription,Netflix,-8.01
+2026-04-03,Grocery purchase,Whole Foods,-37.59
+2026-04-03,Coffee purchase,Peet's Coffee,-4.23
+2026-04-03,Lunch,Chipotle,-12.62
+2026-04-03,Restaurant dinner,Chez Pierre,-59.53
+2026-04-03,Fast food,Wendy's,-10.65
+2026-04-03,Bar / drinks,Rooftop Lounge,-12.94
+2026-04-03,Home supplies,Bed Bath & Beyond,-98.37
+2026-04-04,Spotify subscription,Spotify,-7.19
+2026-04-04,Grocery purchase,Trader Joe's,-83.98
+2026-04-04,Coffee purchase,Philz Coffee,-4.51
+2026-04-04,Lunch,Five Guys,-17.66
+2026-04-04,Gas station,Chevron,-39.97
+2026-04-04,Rideshare trip,Metro Ride,-35.06
+2026-04-04,Entertainment,Dave & Buster's,-37.30
+2026-04-05,Hulu subscription,Hulu,-12.71
+2026-04-05,Monthly gym membership,LA Fitness,-51.22
+2026-04-05,Grocery purchase,Trader Joe's,-129.43
+2026-04-05,Coffee purchase,Blue Bottle,-4.82
+2026-04-05,Lunch,Five Guys,-20.54
+2026-04-05,Rideshare trip,Bird Scooter,-25.05
+2026-04-05,Bar / drinks,The Tap Room,-51.27
+2026-04-06,Coffee purchase,Blue Bottle,-11.84
+2026-04-06,Online/retail purchase,Target,-194.90
+2026-04-07,iCloud Storage subscription,iCloud Storage,-5.63
+2026-04-07,Grocery purchase,Trader Joe's,-73.45
+2026-04-07,Lunch,Chipotle,-15.23
+2026-04-07,Online/retail purchase,IKEA,-58.61
+2026-04-07,Home supplies,Ace Hardware,-64.51
+2026-04-07,Home supplies,Bed Bath & Beyond,-18.59
+2026-04-08,Adobe Creative subscription,Adobe Creative,-6.30
+2026-04-08,City Power payment,City Power,-87.87
+2026-04-08,Coffee purchase,Peet's Coffee,-4.99
+2026-04-08,Lunch,Sweetgreen,-17.98
+2026-04-08,Fast food,Domino's,-18.65
+2026-04-08,Rideshare trip,Bird Scooter,-33.20
+2026-04-08,Online/retail purchase,Home Depot,-103.56
+2026-04-08,Online/retail purchase,TJ Maxx,-18.89
+2026-04-09,Coffee purchase,Blue Bottle,-10.49
+2026-04-09,Lunch,In-N-Out,-16.77
+2026-04-09,Online/retail purchase,TJ Maxx,-183.47
+2026-04-09,Online/retail purchase,Walmart,-96.87
+2026-04-09,Entertainment,Regal Cinemas,-15.54
+2026-04-10,Bay Area Gas payment,Bay Area Gas,-108.12
+2026-04-10,Coffee purchase,Ritual Coffee,-10.49
+2026-04-10,Lunch,Panera Bread,-9.09
+2026-04-10,Restaurant dinner,El Rancho,-83.33
+2026-04-11,Coffee purchase,Northside Coffee,-6.18
+2026-04-11,Lunch,Five Guys,-21.37
+2026-04-11,Restaurant dinner,Harbor Table,-38.77
+2026-04-11,Rideshare trip,Uber,-9.40
+2026-04-11,Online/retail purchase,Target,-131.82
+2026-04-11,Pharmacy,Walgreens,-16.77
+2026-04-12,Comcast Internet payment,Comcast Internet,-67.77
+2026-04-12,Coffee purchase,Blue Bottle,-10.07
+2026-04-12,Lunch,Subway,-15.94
+2026-04-12,Restaurant dinner,Applebee's,-65.60
+2026-04-12,Rideshare trip,Bird Scooter,-41.26
+2026-04-13,Grocery purchase,Trader Joe's,-137.41
+2026-04-13,Lunch,In-N-Out,-13.47
+2026-04-13,Fast food,McDonald's,-22.19
+2026-04-13,Online/retail purchase,Target,-120.12
+2026-04-13,Online/retail purchase,Home Depot,-164.45
+2026-04-14,AT&T Wireless payment,AT&T Wireless,-142.63
+2026-04-14,Grocery purchase,Safeway,-60.74
+2026-04-14,Lunch,Sweetgreen,-20.79
+2026-04-14,Restaurant dinner,Harbor Table,-74.24
+2026-04-14,Fast food,Chick-fil-A,-8.59
+2026-04-14,Rideshare trip,Metro Ride,-25.10
+2026-04-14,Rideshare trip,Metro Ride,-13.15
+2026-04-14,Rideshare trip,Metro Ride,-14.81
+2026-04-14,Home supplies,Bed Bath & Beyond,-76.75
+2026-04-15,Paycheck deposit,Acme Payroll,3231.85
+2026-04-15,Coffee purchase,Blue Bottle,-11.74
+2026-04-15,Lunch,Sweetgreen,-13.42
+2026-04-15,Fast food,Popeyes,-10.55
+2026-04-15,Gas station,Chevron,-56.89
+2026-04-15,Rideshare trip,Metro Ride,-21.29
+2026-04-15,Online/retail purchase,Home Depot,-107.26
+2026-04-15,Pharmacy,Rite Aid,-57.13
+2026-04-15,Medical/dental,Kaiser Permanente,-168.04
+2026-04-15,Bank/ATM,Bank Fee,-17.85
+2026-04-16,Water & Sewer Dept payment,Water & Sewer Dept,-130.92
+2026-04-16,Grocery purchase,Whole Foods,-136.82
+2026-04-16,Lunch,Five Guys,-12.56
+2026-04-16,Restaurant dinner,El Rancho,-54.70
+2026-04-16,Fast food,Domino's,-27.79
+2026-04-17,Fast food,Popeyes,-15.24
+2026-04-17,Pharmacy,Walgreens,-64.37
+2026-04-18,Coffee purchase,Peet's Coffee,-11.42
+2026-04-18,Lunch,Subway,-12.69
+2026-04-18,Restaurant dinner,Harbor Table,-44.58
+2026-04-18,Bar / drinks,Rooftop Lounge,-19.99
+2026-04-18,Bar / drinks,The Tap Room,-32.70
+2026-04-18,Entertainment,Mini Golf World,-34.63
+2026-04-19,Coffee purchase,Blue Bottle,-9.49
+2026-04-19,Lunch,Chipotle,-11.78
+2026-04-19,Restaurant dinner,Harbor Table,-49.94
+2026-04-19,Rideshare trip,Bird Scooter,-17.35
+2026-04-19,Online/retail purchase,IKEA,-121.65
+2026-04-19,Miscellaneous,Parking Meter,-20.54
+2026-04-20,Coffee purchase,Ritual Coffee,-10.19
+2026-04-20,Lunch,In-N-Out,-17.49
+2026-04-20,Restaurant dinner,The Burger Joint,-64.15
+2026-04-20,Fast food,Pizza Hut,-27.09
+2026-04-20,Online/retail purchase,Walmart,-48.08
+2026-04-20,Online/retail purchase,Amazon,-34.28
+2026-04-20,Miscellaneous,Parking Meter,-20.78
+2026-04-21,Coffee purchase,Peet's Coffee,-9.55
+2026-04-21,Fast food,McDonald's,-15.17
+2026-04-21,Online/retail purchase,Macy's,-47.33
+2026-04-21,Miscellaneous,City Parking Garage,-14.73
+2026-04-22,Grocery purchase,Safeway,-101.97
+2026-04-22,Lunch,In-N-Out,-19.15
+2026-04-22,Fast food,McDonald's,-24.62
+2026-04-22,Online/retail purchase,IKEA,-183.84
+2026-04-23,Grocery purchase,Safeway,-110.72
+2026-04-23,Coffee purchase,Peet's Coffee,-10.57
+2026-04-23,Lunch,Panera Bread,-13.75
+2026-04-23,Restaurant dinner,The Burger Joint,-25.53
+2026-04-23,Fast food,Popeyes,-8.75
+2026-04-23,Gas station,Chevron,-39.89
+2026-04-23,Online/retail purchase,Walmart,-168.90
+2026-04-23,Pet supplies,Petco,-69.25
+2026-04-24,Coffee purchase,Philz Coffee,-7.68
+2026-04-24,Lunch,Subway,-11.66
+2026-04-24,Online/retail purchase,Nordstrom,-77.87
+2026-04-24,Miscellaneous,City Parking Garage,-28.95
+2026-04-24,Miscellaneous,City Parking Garage,-7.86
+2026-04-25,Grocery purchase,Fresh Market,-71.51
+2026-04-25,Coffee purchase,Peet's Coffee,-4.20
+2026-04-25,Lunch,Chipotle,-18.43
+2026-04-25,Restaurant dinner,Olive Garden,-82.94
+2026-04-25,Fast food,Taco Bell,-13.62
+2026-04-26,Grocery purchase,Safeway,-95.46
+2026-04-26,Rideshare trip,Lyft,-25.18
+2026-04-26,Miscellaneous,Parking Meter,-33.61
+2026-04-27,Grocery purchase,Whole Foods,-113.47
+2026-04-27,Coffee purchase,Northside Coffee,-10.13
+2026-04-27,Lunch,Panera Bread,-10.99
+2026-04-27,Restaurant dinner,El Rancho,-43.86
+2026-04-27,Fast food,Taco Bell,-19.11
+2026-04-27,Clothing,Zara,-108.23
+2026-04-28,Coffee purchase,Northside Coffee,-9.18
+2026-04-28,Lunch,Panera Bread,-15.43
+2026-04-28,Restaurant dinner,Red Robin,-75.80
+2026-04-28,Bar / drinks,Rooftop Lounge,-19.90
+2026-04-28,Miscellaneous,Parking Meter,-16.00
+2026-04-29,Grocery purchase,Whole Foods,-125.84
+2026-04-29,Coffee purchase,Peet's Coffee,-9.55
+2026-04-29,Lunch,Chipotle,-19.33
+2026-04-29,Fast food,Pizza Hut,-18.98
+2026-04-29,Rideshare trip,Bird Scooter,-25.40
+2026-04-29,Rideshare trip,Metro Ride,-28.55
+2026-04-29,Clothing,Zara,-86.26
+2026-04-29,Miscellaneous,Library Fine,-8.39
+2026-04-30,Coffee purchase,Northside Coffee,-11.43
+2026-04-30,Fast food,Wendy's,-25.54
+2026-04-30,Rideshare trip,Uber,-22.31
+2026-04-30,Online/retail purchase,Walmart,-43.84
+2026-05-01,Paycheck deposit,Acme Payroll,3185.81
+2026-05-01,Coffee purchase,Peet's Coffee,-9.20
+2026-05-01,Lunch,Chipotle,-20.50
+2026-05-01,Fast food,Pizza Hut,-19.95
+2026-05-01,Online/retail purchase,IKEA,-79.22
+2026-05-01,Online/retail purchase,Walmart,-34.63
+2026-05-01,Miscellaneous,City Parking Garage,-7.75
+2026-05-02,Monthly rent,Sunset Apartments,-1850.00
+2026-05-02,Grocery purchase,Trader Joe's,-133.99
+2026-05-02,Lunch,Five Guys,-15.23
+2026-05-02,Restaurant dinner,Harbor Table,-79.43
+2026-05-02,Online/retail purchase,Amazon,-195.55
+2026-05-03,Netflix subscription,Netflix,-12.54
+2026-05-03,Grocery purchase,Safeway,-29.07
+2026-05-03,Lunch,In-N-Out,-9.15
+2026-05-03,Fast food,Taco Bell,-23.67
+2026-05-03,Miscellaneous,FedEx Ship,-28.93
+2026-05-04,Spotify subscription,Spotify,-14.86
+2026-05-04,Lunch,Sweetgreen,-19.19
+2026-05-04,Restaurant dinner,Chez Pierre,-55.35
+2026-05-04,Fast food,Taco Bell,-9.17
+2026-05-04,Online/retail purchase,Nordstrom,-195.94
+2026-05-05,Hulu subscription,Hulu,-8.38
+2026-05-05,Monthly gym membership,Planet Fitness,-37.03
+2026-05-05,Grocery purchase,Safeway,-22.38
+2026-05-05,Coffee purchase,Philz Coffee,-9.52
+2026-05-05,Lunch,Sweetgreen,-12.90
+2026-05-05,Restaurant dinner,Chez Pierre,-52.97
+2026-05-05,Rideshare trip,Bird Scooter,-23.15
+2026-05-05,Online/retail purchase,Nordstrom,-44.47
+2026-05-06,Grocery purchase,Whole Foods,-78.17
+2026-05-06,Coffee purchase,Peet's Coffee,-10.78
+2026-05-06,Lunch,Five Guys,-9.30
+2026-05-06,Restaurant dinner,The Burger Joint,-41.36
+2026-05-06,Pet supplies,Happy Paws Vet,-126.17
+2026-05-06,Miscellaneous,FedEx Ship,-26.22
+2026-05-07,iCloud Storage subscription,iCloud Storage,-10.22
+2026-05-07,Coffee purchase,Philz Coffee,-9.73
+2026-05-07,Lunch,Five Guys,-20.29
+2026-05-07,Restaurant dinner,Olive Garden,-51.58
+2026-05-07,Fast food,Domino's,-12.09
+2026-05-07,Rideshare trip,Lyft,-33.25
+2026-05-07,Bar / drinks,O'Malley's Bar,-27.62
+2026-05-07,Bank/ATM,Bank Fee,-4.80
+2026-05-08,Adobe Creative subscription,Adobe Creative,-9.19
+2026-05-08,City Power payment,City Power,-53.14
+2026-05-08,Grocery purchase,Trader Joe's,-38.82
+2026-05-08,Coffee purchase,Blue Bottle,-8.79
+2026-05-08,Lunch,Subway,-10.70
+2026-05-08,Restaurant dinner,Harbor Table,-64.06
+2026-05-09,Grocery purchase,Costco,-42.27
+2026-05-09,Lunch,Chipotle,-20.07
+2026-05-09,Fast food,Domino's,-23.14
+2026-05-09,Bank/ATM,Bank Fee,-7.48
+2026-05-09,Miscellaneous,Parking Meter,-30.92
+2026-05-10,Bay Area Gas payment,Bay Area Gas,-108.94
+2026-05-10,Grocery purchase,Costco,-27.85
+2026-05-10,Coffee purchase,Starbucks,-6.90
+2026-05-10,Lunch,In-N-Out,-19.81
+2026-05-10,Restaurant dinner,Applebee's,-71.00
+2026-05-10,Rideshare trip,Bird Scooter,-29.11
+2026-05-10,Clothing,Old Navy,-69.63
+2026-05-10,Insurance payment,Progressive Insurance,-116.60
+2026-05-10,Travel expense,Marriott Hotels,-206.66
+2026-05-11,Coffee purchase,Philz Coffee,-10.84
+2026-05-11,Insurance payment,Geico Auto,-108.68
+2026-05-11,Travel expense,Airbnb,-631.89
+2026-05-11,Miscellaneous,City Parking Garage,-24.84
+2026-05-12,Comcast Internet payment,Comcast Internet,-174.31
+2026-05-12,Grocery purchase,Fresh Market,-50.16
+2026-05-12,Lunch,In-N-Out,-15.56
+2026-05-12,Online/retail purchase,eBay,-108.46
+2026-05-12,Online/retail purchase,Target,-63.69
+2026-05-12,Miscellaneous,City Parking Garage,-19.53
+2026-05-13,Coffee purchase,Northside Coffee,-5.28
+2026-05-13,Restaurant dinner,Harbor Table,-33.72
+2026-05-13,Fast food,Domino's,-26.97
+2026-05-13,Gas station,Chevron,-39.24
+2026-05-13,Rideshare trip,Lyft,-13.71
+2026-05-13,Entertainment,Dave & Buster's,-25.98
+2026-05-13,Entertainment,Dave & Buster's,-30.57
+2026-05-13,Miscellaneous,FedEx Ship,-20.94
+2026-05-14,AT&T Wireless payment,AT&T Wireless,-93.37
+2026-05-14,Grocery purchase,Whole Foods,-23.94
+2026-05-14,Coffee purchase,Ritual Coffee,-5.83
+2026-05-14,Lunch,In-N-Out,-10.60
+2026-05-14,Restaurant dinner,El Rancho,-52.03
+2026-05-14,Fast food,Popeyes,-15.42
+2026-05-15,Paycheck deposit,Acme Payroll,3159.38
+2026-05-15,Lunch,Subway,-21.32
+2026-05-15,Fast food,Domino's,-27.61
+2026-05-15,Rideshare trip,Metro Ride,-33.73
+2026-05-15,Rideshare trip,Lyft,-40.57
+2026-05-15,Rideshare trip,Bird Scooter,-24.31
+2026-05-15,Entertainment,Regal Cinemas,-38.58
+2026-05-16,Water & Sewer Dept payment,Water & Sewer Dept,-110.19
+2026-05-16,Grocery purchase,Fresh Market,-77.86
+2026-05-16,Coffee purchase,Ritual Coffee,-9.23
+2026-05-16,Lunch,Subway,-12.05
+2026-05-16,Rideshare trip,Metro Ride,-38.63
+2026-05-16,Entertainment,Dave & Buster's,-58.75
+2026-05-17,Coffee purchase,Peet's Coffee,-5.76
+2026-05-17,Lunch,In-N-Out,-14.37
+2026-05-17,Restaurant dinner,The Burger Joint,-61.52
+2026-05-17,Clothing,Nike Store,-154.58
+2026-05-17,Miscellaneous,City Parking Garage,-22.86
+2026-05-18,Coffee purchase,Philz Coffee,-10.09
+2026-05-18,Fast food,Popeyes,-13.73
+2026-05-18,Home supplies,Bed Bath & Beyond,-33.17
+2026-05-19,Miscellaneous,City Parking Garage,-2.99
+2026-05-20,Coffee purchase,Peet's Coffee,-10.65
+2026-05-20,Lunch,Subway,-14.00
+2026-05-20,Fast food,Wendy's,-23.00
+2026-05-20,Rideshare trip,Bird Scooter,-10.09
+2026-05-20,Online/retail purchase,Macy's,-217.41
+2026-05-20,Online/retail purchase,IKEA,-205.34
+2026-05-20,Bar / drinks,Craft Beer Co.,-58.05
+2026-05-20,Bar / drinks,Wine & Spirits Shop,-30.68
+2026-05-21,Fast food,Taco Bell,-13.71
+2026-05-21,Rideshare trip,Metro Ride,-34.01
+2026-05-22,Coffee purchase,Ritual Coffee,-4.65
+2026-05-22,Restaurant dinner,Red Robin,-71.49
+2026-05-22,Fast food,Chick-fil-A,-23.46
+2026-05-22,Rideshare trip,Lyft,-38.89
+2026-05-22,Online/retail purchase,TJ Maxx,-50.67
+2026-05-22,Online/retail purchase,Target,-96.41
+2026-05-22,Home supplies,Home Depot,-77.24
+2026-05-23,Coffee purchase,Philz Coffee,-6.89
+2026-05-23,Lunch,Panera Bread,-20.17
+2026-05-23,Fast food,Pizza Hut,-27.33
+2026-05-23,Rideshare trip,Lyft,-40.19
+2026-05-23,Rideshare trip,Uber,-41.65
+2026-05-23,Online/retail purchase,Amazon,-93.80
+2026-05-24,Lunch,Five Guys,-9.57
+2026-05-24,Restaurant dinner,Chez Pierre,-24.74
+2026-05-24,Rideshare trip,Uber,-19.35
+2026-05-25,Coffee purchase,Philz Coffee,-6.02
+2026-05-25,Lunch,Sweetgreen,-19.04
+2026-05-25,Fast food,Taco Bell,-12.00
+2026-05-25,Entertainment,Mini Golf World,-38.16
+2026-05-26,Grocery purchase,Trader Joe's,-140.69
+2026-05-26,Coffee purchase,Philz Coffee,-11.18
+2026-05-26,Fast food,Popeyes,-24.63
+2026-05-26,Gas station,Arco,-52.94
+2026-05-26,Rideshare trip,Metro Ride,-22.13
+2026-05-26,Online/retail purchase,TJ Maxx,-119.59
+2026-05-26,Pharmacy,Walgreens,-44.85
+2026-05-26,Clothing,Nike Store,-119.47
+2026-05-27,Grocery purchase,Kroger,-34.81
+2026-05-27,Lunch,Chipotle,-12.12
+2026-05-27,Rideshare trip,Bird Scooter,-36.40
+2026-05-28,Grocery purchase,Trader Joe's,-126.65
+2026-05-28,Coffee purchase,Ritual Coffee,-7.08
+2026-05-28,Lunch,Five Guys,-19.08
+2026-05-28,Restaurant dinner,Red Robin,-50.33
+2026-05-28,Rideshare trip,Metro Ride,-26.26
+2026-05-28,Online/retail purchase,Macy's,-28.75
+2026-05-28,Home supplies,Ace Hardware,-88.80
+2026-05-29,Fast food,Pizza Hut,-26.77
+2026-05-29,Gas station,Chevron,-80.77
+2026-05-29,Online/retail purchase,Nordstrom,-201.55
+2026-05-30,Coffee purchase,Ritual Coffee,-5.94
+2026-05-30,Lunch,Subway,-12.71
+2026-05-30,Pharmacy,Rite Aid,-30.40
+2026-05-31,Grocery purchase,Whole Foods,-80.16
+2026-05-31,Coffee purchase,Blue Bottle,-7.42
+2026-05-31,Lunch,Panera Bread,-14.93
+2026-05-31,Restaurant dinner,Red Robin,-60.89
+2026-05-31,Fast food,Pizza Hut,-11.18
+2026-05-31,Online/retail purchase,Best Buy,-132.09
+2026-05-31,Bar / drinks,O'Malley's Bar,-36.40
+2026-06-01,Paycheck deposit,Acme Payroll,3147.69
+2026-06-01,Grocery purchase,Whole Foods,-79.61
+2026-06-01,Coffee purchase,Blue Bottle,-6.35
+2026-06-01,Restaurant dinner,Harbor Table,-81.52
+2026-06-01,Fast food,Popeyes,-27.41
+2026-06-01,Online/retail purchase,Macy's,-22.43
+2026-06-01,Online/retail purchase,eBay,-105.96
+2026-06-01,Entertainment,Dave & Buster's,-24.93
+2026-06-01,Miscellaneous,City Parking Garage,-15.87
+2026-06-02,Monthly rent,Sunset Apartments,-1850.00
+2026-06-02,Coffee purchase,Northside Coffee,-4.32
+2026-06-02,Fast food,Wendy's,-15.42
+2026-06-02,Rideshare trip,Metro Ride,-12.99
+2026-06-03,Netflix subscription,Netflix,-9.63
+2026-06-03,Lunch,Subway,-17.68
+2026-06-03,Restaurant dinner,The Burger Joint,-52.05
+2026-06-03,Rideshare trip,Lyft,-20.00
+2026-06-03,Bar / drinks,Wine & Spirits Shop,-48.80
+2026-06-04,Spotify subscription,Spotify,-8.73
+2026-06-04,Grocery purchase,Trader Joe's,-92.23
+2026-06-04,Coffee purchase,Peet's Coffee,-4.68
+2026-06-04,Lunch,In-N-Out,-9.89
+2026-06-04,Restaurant dinner,Harbor Table,-77.19
+2026-06-04,Rideshare trip,Bird Scooter,-41.81
+2026-06-04,Online/retail purchase,eBay,-24.59
+2026-06-04,Miscellaneous,City Parking Garage,-31.16
+2026-06-05,Hulu subscription,Hulu,-8.65
+2026-06-05,Monthly gym membership,Orange Theory,-32.12
+2026-06-05,Grocery purchase,Fresh Market,-19.40
+2026-06-05,Coffee purchase,Peet's Coffee,-8.68
+2026-06-05,Restaurant dinner,Red Robin,-71.66
+2026-06-05,Rideshare trip,Metro Ride,-26.36
+2026-06-05,Online/retail purchase,Target,-214.62
+2026-06-06,Coffee purchase,Philz Coffee,-10.84
+2026-06-06,Lunch,Five Guys,-20.27
+2026-06-06,Bar / drinks,The Tap Room,-47.82
+2026-06-06,Miscellaneous,City Parking Garage,-16.32
+2026-06-07,iCloud Storage subscription,iCloud Storage,-11.21
+2026-06-07,Lunch,In-N-Out,-18.43
+2026-06-07,Bar / drinks,Craft Beer Co.,-37.39
+2026-06-08,Adobe Creative subscription,Adobe Creative,-5.88
+2026-06-08,City Power payment,City Power,-51.37
+2026-06-08,Lunch,Chipotle,-9.62
+2026-06-08,Restaurant dinner,El Rancho,-26.63
+2026-06-08,Fast food,Pizza Hut,-27.96
+2026-06-08,Online/retail purchase,Best Buy,-135.25
+2026-06-08,Bar / drinks,Rooftop Lounge,-30.97
+2026-06-08,Home supplies,Lowe's,-85.75
+2026-06-09,Grocery purchase,Fresh Market,-47.63
+2026-06-09,Coffee purchase,Philz Coffee,-8.31
+2026-06-09,Fast food,Popeyes,-9.55
+2026-06-09,Rideshare trip,Lyft,-18.48
+2026-06-09,Online/retail purchase,Best Buy,-71.18
+2026-06-10,Bay Area Gas payment,Bay Area Gas,-151.71
+2026-06-10,Coffee purchase,Ritual Coffee,-9.84
+2026-06-10,Lunch,Panera Bread,-20.16
+2026-06-10,Restaurant dinner,Chez Pierre,-80.90
+2026-06-10,Fast food,Wendy's,-26.53
+2026-06-10,Rideshare trip,Bird Scooter,-39.54
+2026-06-10,Rideshare trip,Metro Ride,-22.54
+2026-06-10,Online/retail purchase,TJ Maxx,-89.89
+2026-06-10,Pharmacy,Rite Aid,-27.58
+2026-06-10,Entertainment,Topgolf,-47.75
+2026-06-10,Entertainment,Topgolf,-48.30
+2026-06-11,Grocery purchase,Costco,-69.36
+2026-06-11,Lunch,Sweetgreen,-20.41
+2026-06-11,Fast food,Chick-fil-A,-19.91
+2026-06-11,Rideshare trip,Bird Scooter,-35.46
+2026-06-11,Bar / drinks,Craft Beer Co.,-31.52
+2026-06-12,Comcast Internet payment,Comcast Internet,-159.39
+2026-06-12,Coffee purchase,Starbucks,-4.11
+2026-06-12,Lunch,Five Guys,-12.35
+2026-06-12,Restaurant dinner,Sakura Sushi,-30.49
+2026-06-12,Gas station,Shell Gas,-65.07
+2026-06-12,Rideshare trip,Uber,-15.01
+2026-06-13,Grocery purchase,Kroger,-69.44
+2026-06-13,Coffee purchase,Ritual Coffee,-4.12
+2026-06-13,Lunch,Five Guys,-18.17
+2026-06-13,Online/retail purchase,Target,-208.93
+2026-06-13,Online/retail purchase,eBay,-43.32
+2026-06-13,Bank/ATM,Wire Transfer Fee,-15.85
+2026-06-13,Miscellaneous,Library Fine,-30.29
+2026-06-14,AT&T Wireless payment,AT&T Wireless,-183.93
+2026-06-14,Grocery purchase,Safeway,-127.39
+2026-06-14,Lunch,Subway,-9.76
+2026-06-14,Restaurant dinner,Harbor Table,-32.23
+2026-06-14,Fast food,Chick-fil-A,-11.70
+2026-06-14,Online/retail purchase,Target,-54.36
+2026-06-15,Paycheck deposit,Acme Payroll,3185.68
+2026-06-15,Grocery purchase,Kroger,-139.18
+2026-06-15,Coffee purchase,Starbucks,-7.64
+2026-06-15,Restaurant dinner,Red Robin,-84.08
+2026-06-15,Fast food,Chick-fil-A,-18.24
+2026-06-15,Online/retail purchase,Macy's,-20.34
+2026-06-16,Water & Sewer Dept payment,Water & Sewer Dept,-107.68
+2026-06-16,Coffee purchase,Blue Bottle,-8.46
+2026-06-16,Lunch,Subway,-18.93
+2026-06-16,Fast food,Pizza Hut,-18.39
+2026-06-17,Grocery purchase,Costco,-32.85
+2026-06-17,Coffee purchase,Ritual Coffee,-5.37
+2026-06-17,Lunch,In-N-Out,-12.80
+2026-06-17,Fast food,McDonald's,-26.43
+2026-06-17,Rideshare trip,Metro Ride,-34.29
+2026-06-18,Coffee purchase,Peet's Coffee,-9.94
+2026-06-18,Restaurant dinner,Sakura Sushi,-34.69
+2026-06-18,Fast food,Wendy's,-27.06
+2026-06-18,Gas station,Arco,-62.75
+2026-06-18,Rideshare trip,Bird Scooter,-20.85
+2026-06-18,Pharmacy,CVS Pharmacy,-54.90
+2026-06-19,Coffee purchase,Starbucks,-7.91
+2026-06-19,Lunch,Five Guys,-9.87
+2026-06-19,Restaurant dinner,Harbor Table,-61.24
+2026-06-19,Rideshare trip,Uber,-32.21
+2026-06-20,Coffee purchase,Peet's Coffee,-5.10
+2026-06-20,Lunch,Panera Bread,-20.81
+2026-06-20,Restaurant dinner,Red Robin,-46.87
+2026-06-20,Fast food,Wendy's,-27.25
+2026-06-21,Coffee purchase,Ritual Coffee,-4.52
+2026-06-21,Lunch,Panera Bread,-18.67
+2026-06-21,Fast food,Chick-fil-A,-19.09
+2026-06-21,Rideshare trip,Bird Scooter,-9.36
+2026-06-21,Online/retail purchase,Best Buy,-31.34
+2026-06-21,Home supplies,The Container Store,-104.24
+2026-06-21,Miscellaneous,USPS Postage,-25.22
+2026-06-22,Grocery purchase,Costco,-143.45
+2026-06-22,Coffee purchase,Peet's Coffee,-10.00
+2026-06-22,Fast food,Taco Bell,-10.53
+2026-06-22,Home supplies,The Container Store,-54.65
+2026-06-23,Lunch,In-N-Out,-15.93
+2026-06-23,Fast food,Domino's,-16.84
+2026-06-23,Home supplies,Lowe's,-42.96
+2026-06-24,Coffee purchase,Starbucks,-8.73
+2026-06-24,Lunch,Five Guys,-20.12
+2026-06-24,Restaurant dinner,Chez Pierre,-69.82
+2026-06-24,Fast food,Popeyes,-9.13
+2026-06-24,Rideshare trip,Lyft,-18.21
+2026-06-24,Rideshare trip,Uber,-17.56
+2026-06-24,Online/retail purchase,Amazon,-12.87
+2026-06-24,Miscellaneous,City Parking Garage,-34.61
+2026-06-25,Grocery purchase,Safeway,-142.08
+2026-06-25,Lunch,Sweetgreen,-12.77
+2026-06-25,Fast food,Domino's,-24.78
+2026-06-26,Grocery purchase,Costco,-59.73
+2026-06-26,Lunch,Panera Bread,-17.42
+2026-06-26,Online/retail purchase,IKEA,-34.91
+2026-06-26,Clothing,Adidas,-58.13
+2026-06-26,Miscellaneous,Parking Meter,-33.55
+2026-06-27,Grocery purchase,Kroger,-70.77
+2026-06-27,Clothing,Uniqlo,-152.50
+2026-06-27,Entertainment,Dave & Buster's,-16.62
+2026-06-27,Miscellaneous,USPS Postage,-8.60
+2026-06-28,Coffee purchase,Peet's Coffee,-10.67
+2026-06-28,Lunch,Subway,-21.28
+2026-06-28,Rideshare trip,Uber,-39.96
+2026-06-29,Grocery purchase,Whole Foods,-81.17
+2026-06-29,Coffee purchase,Peet's Coffee,-10.63
+2026-06-29,Lunch,In-N-Out,-18.95
+2026-06-29,Online/retail purchase,IKEA,-90.00
+2026-06-29,Home supplies,Home Depot,-95.90
+2026-06-30,Grocery purchase,Safeway,-38.52
+2026-06-30,Coffee purchase,Philz Coffee,-6.28
+2026-06-30,Lunch,Panera Bread,-21.28
+2026-06-30,Restaurant dinner,El Rancho,-59.18
+2026-06-30,Rideshare trip,Uber,-34.86
+2026-06-30,Clothing,Adidas,-102.59
