@@ -102,32 +102,34 @@ export function ImportPage() {
     if (activeTab === 'history') loadImportLog()
   }, [activeTab, loadImportLog])
 
-  const scanInbox = useCallback(async () => {
+  const scanInbox = useCallback(async (resetFlow = true) => {
     if (!settings?.dataFolder) return
     setIsScanning(true)
     try {
       const result = await window.api.scanInbox()
       setInboxScan(result)
 
-      // Reset statements
-      setSelectedFile(null)
-      setPreviewFile(null)
-      setPreview(null)
-      setMapping(null)
-      setStats(null)
-      setPreviewError(null)
-      setStep('select')
-      setSummary(null)
+      if (resetFlow) {
+        // Reset statements
+        setSelectedFile(null)
+        setPreviewFile(null)
+        setPreview(null)
+        setMapping(null)
+        setStats(null)
+        setPreviewError(null)
+        setStep('select')
+        setSummary(null)
 
-      // Reset receipts
-      setReceiptSelectedFile(null)
-      setReceiptPreview(null)
-      setReceiptError(null)
-      setReceiptStep('select')
-      setReceiptSummary(null)
-      setReceiptImageData(null)
-      setReceiptLlmResult(null)
-      setLlmError(null)
+        // Reset receipts
+        setReceiptSelectedFile(null)
+        setReceiptPreview(null)
+        setReceiptError(null)
+        setReceiptStep('select')
+        setReceiptSummary(null)
+        setReceiptImageData(null)
+        setReceiptLlmResult(null)
+        setLlmError(null)
+      }
     } finally {
       setIsScanning(false)
     }
@@ -241,7 +243,7 @@ export function ImportPage() {
         period: account.period
       })
       setStep('summary')
-      await scanInbox()
+      await scanInbox(false)
     } catch (err) {
       setPreviewError((err as Error).message)
     } finally {
@@ -303,7 +305,7 @@ export function ImportPage() {
       await window.api.materialize()
       setReceiptSummary(result)
       setReceiptStep('summary')
-      await scanInbox()
+      await scanInbox(false)
     } catch (err) {
       setReceiptError((err as Error).message || 'Failed to import receipt')
     } finally {
