@@ -8,7 +8,7 @@ import { join } from 'path'
 
 export const DEMO_CSV_SRC = join(
   __dirname,
-  '../../test-data/statements/1234_checking_demo-bank_2026-05.csv'
+  './fixtures/1234_checking_demo-bank_2026-05.csv'
 )
 
 /** Import the demo CSV into dataFolder and materialize. Returns the number of rows imported. */

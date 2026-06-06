@@ -11,7 +11,7 @@ const dataFolder = process.argv[2]
 if (!dataFolder) throw new Error('Usage: seed-inbox.ts <dataFolder>')
 
 async function main() {
-  const csvSrc = join(__dirname, '../../test-data/statements/1234_checking_demo-bank_2026-05.csv')
+  const csvSrc = join(__dirname, './fixtures/1234_checking_demo-bank_2026-05.csv')
   const inboxDir = join(dataFolder, 'Inbox', 'statements')
   mkdirSync(inboxDir, { recursive: true })
   copyFileSync(csvSrc, join(inboxDir, '1234_checking_demo-bank_2026-05.csv'))

@@ -4,7 +4,7 @@
  * What it does
  * ------------
  * Exercises the three core pipeline stages end-to-end using a fixed 6-row
- * sample CSV statement (test-data/statements/1234_checking_demo-bank_2026-05.csv):
+ * sample CSV statement (e2e/fixtures/1234_checking_demo-bank_2026-05.csv):
  *
  *   1. Import  — parses the CSV, maps columns, deduplicates, and writes
  *                ledger.csv + import-log.csv into the data folder.
@@ -43,7 +43,7 @@ import { existsSync, mkdirSync, copyFileSync } from 'fs'
 import { join } from 'path'
 
 const DATA_FOLDER = process.argv[2] || '/tmp/genzeb-smoke'
-const TEST_CSV_ORIGINAL = join(__dirname, '../test-data/statements/1234_checking_demo-bank_2026-05.csv')
+const TEST_CSV_ORIGINAL = join(__dirname, './e2e/fixtures/1234_checking_demo-bank_2026-05.csv')
 
 async function main() {
   if (!existsSync(DATA_FOLDER)) mkdirSync(DATA_FOLDER, { recursive: true })

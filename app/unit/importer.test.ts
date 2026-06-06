@@ -5,7 +5,7 @@ import { tmpdir } from 'os'
 import { importStatementFiles } from '@core/importer/statement-importer'
 import { materializeTransactions, queryTransactions } from '@core/materializer'
 
-const DEMO_CSV_SRC = join(__dirname, '../../test-data/statements/1234_checking_demo-bank_2026-05.csv')
+const DEMO_CSV_SRC = join(__dirname, '../e2e/fixtures/1234_checking_demo-bank_2026-05.csv')
 
 let dir: string
 // The importer moves source files after import, so each test needs its own copy.
