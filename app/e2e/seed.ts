@@ -5,22 +5,13 @@
  * Usage:
  *   NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json e2e/seed.ts <dataFolder>
  */
-import { importStatementFiles } from '../../core/importer/statement-importer'
-import { materializeTransactions } from '../../core/materializer/index'
-import { mkdirSync, copyFileSync } from 'fs'
-import { join } from 'path'
+import { seedDemoCsv } from './seed-utils'
 
 const dataFolder = process.argv[2]
 if (!dataFolder) throw new Error('Usage: seed.ts <dataFolder>')
 
 async function main() {
-  const csvSrc = join(__dirname, '../../test-data/statements/1234_checking_demo-bank_2026-05.csv')
-  const csvDest = join(dataFolder, 'demo.csv')
-  mkdirSync(dataFolder, { recursive: true })
-  copyFileSync(csvSrc, csvDest)
-  const results = await importStatementFiles(dataFolder, { paths: [csvDest] })
-  const count = results.reduce((sum, r) => sum + r.rows_imported, 0)
-  materializeTransactions(dataFolder)
+  const count = await seedDemoCsv(dataFolder)
   console.log(`Seeded ${count} transactions → ${dataFolder}`)
 }
 
