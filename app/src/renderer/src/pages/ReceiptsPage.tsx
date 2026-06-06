@@ -144,18 +144,19 @@ function ReceiptExpandedDetail({ receipt }: { receipt: ReceiptRow }) {
 export function ReceiptsPage({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const [receipts, setReceipts] = useState<ReceiptRow[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [retrying, setRetrying] = useState<Record<string, boolean>>({})
+  const [rowErrors, setRowErrors] = useState<Record<string, string>>({})
 
   const load = async () => {
     setIsLoading(true)
-    setError(null)
+    setLoadError(null)
     try {
       const rows = (await window.api.getReceipts()) as ReceiptRow[]
       setReceipts(rows.sort((a, b) => (b.date ?? '').localeCompare(a.date ?? '')))
     } catch (e) {
-      setError((e as Error).message)
+      setLoadError((e as Error).message)
     } finally {
       setIsLoading(false)
     }
@@ -172,12 +173,13 @@ export function ReceiptsPage({ onNavigate }: { onNavigate?: (page: string) => vo
 
   const rerunOcr = async (receiptId: string, e: React.MouseEvent) => {
     e.stopPropagation()
+    setRowErrors((prev) => { const n = { ...prev }; delete n[receiptId]; return n })
     setRetrying((prev) => ({ ...prev, [receiptId]: true }))
     try {
       await window.api.runOcr(receiptId)
       await load()
     } catch (err) {
-      setError((err as Error).message)
+      setRowErrors((prev) => ({ ...prev, [receiptId]: (err as Error).message }))
       await load()
     } finally {
       setRetrying((prev) => ({ ...prev, [receiptId]: false }))
@@ -207,8 +209,8 @@ export function ReceiptsPage({ onNavigate }: { onNavigate?: (page: string) => vo
         </div>
       )}
 
-      {error && (
-        <div className="mb-4 p-3 rounded bg-red-500/10 text-red-400 text-sm">{error}</div>
+      {loadError && (
+        <div className="mb-4 p-3 rounded bg-red-500/10 text-red-400 text-sm">{loadError}</div>
       )}
 
       {/* Empty state */}
@@ -270,16 +272,23 @@ export function ReceiptsPage({ onNavigate }: { onNavigate?: (page: string) => vo
                     <td className="p-3"><LinkedBadge linked={r.linked} /></td>
                     <td className="p-2" onClick={(e) => e.stopPropagation()}>
                       {(r.ocr_status === 'failed' || r.ocr_status === 'pending') && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0"
-                          disabled={retrying[r.receipt_id]}
-                          onClick={(e) => rerunOcr(r.receipt_id, e)}
-                          title="Re-run OCR"
-                        >
-                          <RotateCcw className={`h-3.5 w-3.5 ${retrying[r.receipt_id] ? 'animate-spin' : ''}`} />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 shrink-0"
+                            disabled={retrying[r.receipt_id]}
+                            onClick={(e) => rerunOcr(r.receipt_id, e)}
+                            title="Re-run OCR"
+                          >
+                            <RotateCcw className={`h-3.5 w-3.5 ${retrying[r.receipt_id] ? 'animate-spin' : ''}`} />
+                          </Button>
+                          {rowErrors[r.receipt_id] && (
+                            <span className="text-[11px] text-red-400 max-w-[160px] leading-tight">
+                              {rowErrors[r.receipt_id]}
+                            </span>
+                          )}
+                        </div>
                       )}
                     </td>
                   </tr>

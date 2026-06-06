@@ -1,5 +1,6 @@
 import { cn } from '../../lib/utils'
 import {
+  LayoutDashboard,
   Receipt,
   ArrowLeftRight,
   FileText,
@@ -24,6 +25,7 @@ type NavGroup = { label?: string; items: NavItem[] }
 const navGroups: NavGroup[] = [
   {
     items: [
+      { id: 'dashboard',    label: 'Dashboard',    icon: LayoutDashboard },
       { id: 'transactions', label: 'Transactions', icon: FileText },
       { id: 'receipts',     label: 'Receipts',     icon: Receipt },
       { id: 'items',        label: 'Item Explorer', icon: List },

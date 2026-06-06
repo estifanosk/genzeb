@@ -194,8 +194,8 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
     const receipts = readReceiptIndex(settings.dataFolder)
     const receipt = receipts.find((r) => r.receipt_id === receiptId)
     if (!receipt) throw new Error(`Receipt ${receiptId} not found`)
-    const key = settings.openAiKey
-    if (!key) throw new Error('OpenAI API key not set. Add it in Settings → API Keys.')
+    const key = settings.anthropicKey || settings.openAiKey
+    if (!key) throw new Error('No API key configured. Add an Anthropic or OpenAI key in Settings → API Keys.')
     try {
       const detail = await runReceiptLlmExtract(key, receipt.file_path, receiptId)
       saveReceiptDetailFile(settings.dataFolder, detail)
@@ -227,7 +227,7 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
 
   ipcMain.handle(IPC_CHANNELS.RUN_RECEIPT_LLM, async (_, path: string) => {
     const settings = getSettings()
-    return runReceiptLlmExtract(settings.openAiKey || '', path)
+    return runReceiptLlmExtract(settings.anthropicKey || settings.openAiKey || '', path)
   })
 
   ipcMain.handle(IPC_CHANNELS.SAVE_RECEIPT_DETAIL, async (_, receiptId: string, detail) => {
@@ -366,5 +366,50 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
   ipcMain.handle(IPC_CHANNELS.CATEGORIZE_TRANSACTIONS, async (_, req) => {
     const settings = getSettings()
     return categorizeTransactionsLlm(settings.openAiKey || '', settings.dataFolder, req)
+  })
+
+  ipcMain.handle(IPC_CHANNELS.GET_DASHBOARD_STATS, () => {
+    const settings = getSettings()
+    if (!settings.dataFolder) return null
+    const { transactions } = queryTransactions(settings.dataFolder, { filters: {}, limit: 99999 })
+
+    // Build monthly buckets
+    const byMonth: Record<string, { income: number; spending: number }> = {}
+    const byCategory: Record<string, number> = {}
+
+    for (const tx of transactions) {
+      const month = tx.date.slice(0, 7)
+      if (!byMonth[month]) byMonth[month] = { income: 0, spending: 0 }
+      if (tx.amount > 0) byMonth[month].income += tx.amount
+      else byMonth[month].spending += Math.abs(tx.amount)
+
+      if (tx.category && tx.amount < 0) {
+        byCategory[tx.category] = (byCategory[tx.category] || 0) + Math.abs(tx.amount)
+      }
+    }
+
+    const months = Object.keys(byMonth).sort()
+    const currentMonth = months[months.length - 1] ?? ''
+    const cur = byMonth[currentMonth] ?? { income: 0, spending: 0 }
+
+    const categoryBreakdown = Object.entries(byCategory)
+      .map(([category, total]) => ({ category, total: Math.round(total * 100) / 100 }))
+      .sort((a, b) => b.total - a.total)
+
+    const topCategory = categoryBreakdown[0]?.category ?? null
+
+    return {
+      currentMonth,
+      monthlyIncome: Math.round(cur.income * 100) / 100,
+      monthlySpending: Math.round(cur.spending * 100) / 100,
+      topCategory,
+      monthlyTrend: months.map((m) => ({
+        month: m,
+        income: Math.round(byMonth[m].income * 100) / 100,
+        spending: Math.round(byMonth[m].spending * 100) / 100
+      })),
+      categoryBreakdown,
+      totalTransactions: transactions.length
+    }
   })
 }

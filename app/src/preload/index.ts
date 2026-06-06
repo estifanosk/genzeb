@@ -98,7 +98,10 @@ const api: GenzebAPI = {
     ipcRenderer.invoke(IPC_CHANNELS.EXPORT_FOR_LLM, filters, format),
   askLlm: (req: AskLlmRequest) => ipcRenderer.invoke(IPC_CHANNELS.ASK_LLM, req),
   categorizeTransactions: (req: CategorizeTransactionsRequest) =>
-    ipcRenderer.invoke(IPC_CHANNELS.CATEGORIZE_TRANSACTIONS, req)
+    ipcRenderer.invoke(IPC_CHANNELS.CATEGORIZE_TRANSACTIONS, req),
+
+  // Dashboard
+  getDashboardStats: () => ipcRenderer.invoke(IPC_CHANNELS.GET_DASHBOARD_STATS)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to renderer

@@ -73,68 +73,88 @@ function extractJsonText(response: any): string {
   return ''
 }
 
+async function runWithAnthropic(apiKey: string, filePath: string, id: string): Promise<ReceiptDetail> {
+  const ext = extname(filePath).toLowerCase()
+  const isSvg = ext === '.svg'
+  const { dataUri, mime } = fileToDataUri(filePath)
+  const isPdf = mime === 'application/pdf'
+  const base64Data = dataUri.split(',')[1]
+
+  const fileContent = isSvg
+    ? { type: 'text', text: `Receipt SVG (parse the <text> elements to extract data):\n${readFileSync(filePath, 'utf-8')}` }
+    : isPdf
+      ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64Data } }
+      : { type: 'image', source: { type: 'base64', media_type: mime, data: base64Data } }
+
+  const body = {
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 2048,
+    tools: [{ name: 'extract_receipt', description: 'Extract structured data from a receipt.', input_schema: buildReceiptSchema() }],
+    tool_choice: { type: 'tool', name: 'extract_receipt' },
+    messages: [{ role: 'user', content: [fileContent, { type: 'text', text: 'Extract all data from this receipt. Use null for any field you cannot clearly read.' }] }]
+  }
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  if (!res.ok) { const t = await res.text(); throw new Error(`Anthropic request failed: ${res.status} ${t}`) }
+  const data = await res.json()
+  const toolUse = data.content?.find((c: { type: string }) => c.type === 'tool_use')
+  if (!toolUse) throw new Error('Anthropic response did not include structured output')
+  const parsed = toolUse.input as ReceiptDetail
+  parsed.receipt_id = id
+  return parsed
+}
+
+async function runWithOpenAi(apiKey: string, filePath: string, id: string): Promise<ReceiptDetail> {
+  const ext = extname(filePath).toLowerCase()
+  const isSvg = ext === '.svg'
+  const { dataUri, mime } = fileToDataUri(filePath)
+  const isPdf = mime === 'application/pdf'
+
+  const inputContent = [
+    { type: 'input_text', text: 'Extract all data from this receipt. Use null for any field you cannot clearly read.' },
+    isSvg
+      ? { type: 'input_text', text: `Receipt SVG:\n${readFileSync(filePath, 'utf-8')}` }
+      : isPdf
+        ? { type: 'input_file', filename: basename(filePath), file_data: dataUri }
+        : { type: 'input_image', image_url: dataUri }
+  ]
+
+  const body = {
+    model: 'gpt-4o-mini-2024-07-18',
+    input: [{ role: 'user', content: inputContent }],
+    text: { format: { type: 'json_schema', name: 'receipt_extraction', schema: buildReceiptSchema(), strict: true } }
+  }
+
+  const res = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  if (!res.ok) { const t = await res.text(); throw new Error(`OpenAI request failed: ${res.status} ${t}`) }
+  const data = await res.json()
+  const jsonText = extractJsonText(data)
+  if (!jsonText) throw new Error('OpenAI response did not include JSON output')
+  const parsed = JSON.parse(jsonText) as ReceiptDetail
+  parsed.receipt_id = id
+  return parsed
+}
+
 export async function runReceiptLlmExtract(
   apiKey: string,
   filePath: string,
   receiptId?: string
 ): Promise<ReceiptDetail> {
   if (!apiKey) {
-    throw new Error('OpenAI API key is not configured')
+    throw new Error('No API key configured. Add an Anthropic or OpenAI key in Settings → API Keys.')
   }
-
-  const { dataUri, mime } = fileToDataUri(filePath)
-  const isPdf = mime === 'application/pdf'
   const id = receiptId || uuidv4()
-
-  const prompt = `You are a receipt data extractor. Extract fields from the receipt image or PDF.
-Return JSON that strictly matches the provided schema.
-If a field is missing, use null. If you are unsure, include a low confidence score.
-Prefer totals found on the receipt (e.g., “Total”, “Amount Paid”).
-Do not hallucinate line items; only include items clearly visible.`
-
-  const inputContent = [
-    { type: 'input_text', text: prompt },
-    isPdf
-      ? { type: 'input_file', filename: basename(filePath), file_data: dataUri }
-      : { type: 'input_image', image_url: dataUri }
-  ]
-
-  const body = {
-    model: 'gpt-4o-mini-2024-07-18',
-    input: [{ role: 'user', content: inputContent }],
-    text: {
-      format: {
-        type: 'json_schema',
-        name: 'receipt_extraction',
-        schema: buildReceiptSchema(),
-        strict: true
-      }
-    }
-  }
-
-  const res = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  })
-
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`OpenAI request failed: ${res.status} ${text}`)
-  }
-
-  const data = await res.json()
-  const jsonText = extractJsonText(data)
-  if (!jsonText) {
-    throw new Error('OpenAI response did not include JSON output')
-  }
-
-  const parsed = JSON.parse(jsonText) as ReceiptDetail
-  parsed.receipt_id = id
-  return parsed
+  return apiKey.startsWith('sk-ant-')
+    ? runWithAnthropic(apiKey, filePath, id)
+    : runWithOpenAi(apiKey, filePath, id)
 }
 
 export function saveReceiptDetail(dataFolder: string, detail: ReceiptDetail): void {
