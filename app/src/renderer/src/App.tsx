@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Sidebar } from './components/layout/Sidebar'
 import { useTheme } from './hooks/useTheme'
+import { DashboardPage } from './pages/DashboardPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 import { ItemExplorerPage } from './pages/ItemExplorerPage'
 import { ReceiptsPage } from './pages/ReceiptsPage'
@@ -11,6 +12,7 @@ import { SettingsPage } from './pages/SettingsPage'
 import { useSettingsStore } from './stores/settings'
 
 type PageId =
+  | 'dashboard'
   | 'transactions'
   | 'items'
   | 'receipts'
@@ -20,7 +22,7 @@ type PageId =
   | 'settings'
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<PageId>('transactions')
+  const [currentPage, setCurrentPage] = useState<PageId>('dashboard')
   const { loadSettings, settings } = useSettingsStore()
   const { theme, toggleTheme } = useTheme()
 
@@ -38,6 +40,8 @@ function App() {
 
   const renderPage = () => {
     switch (currentPage) {
+      case 'dashboard':
+        return <DashboardPage />
       case 'transactions':
         return <TransactionsPage onNavigate={(page) => setCurrentPage(page as PageId)} />
       case 'items':
@@ -53,7 +57,7 @@ function App() {
       case 'settings':
         return <SettingsPage />
       default:
-        return <TransactionsPage />
+        return <DashboardPage />
     }
   }
 

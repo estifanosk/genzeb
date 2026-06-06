@@ -79,7 +79,10 @@ export const IPC_CHANNELS = {
   // LLM
   EXPORT_FOR_LLM: 'llm:export',
   ASK_LLM: 'llm:ask',
-  CATEGORIZE_TRANSACTIONS: 'llm:categorize-transactions'
+  CATEGORIZE_TRANSACTIONS: 'llm:categorize-transactions',
+
+  // Dashboard
+  GET_DASHBOARD_STATS: 'dashboard:get-stats'
 } as const
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]
@@ -90,6 +93,20 @@ export interface ImportStatementsRequest {
   paths: string[]
   columnMapping?: ColumnMapping
   account: string
+}
+
+export interface DashboardStats {
+  /** Totals for the current (latest) month */
+  currentMonth: string // 'YYYY-MM'
+  monthlyIncome: number
+  monthlySpending: number
+  topCategory: string | null
+  /** Per-month totals: income and spending, sorted oldest→newest */
+  monthlyTrend: Array<{ month: string; income: number; spending: number }>
+  /** Spending by category across all data */
+  categoryBreakdown: Array<{ category: string; total: number }>
+  /** Total transactions */
+  totalTransactions: number
 }
 
 export interface QueryTransactionsRequest {
@@ -326,6 +343,9 @@ export interface GenzebAPI {
   exportForLlm(filters: ExportFilters, format: 'csv' | 'md'): Promise<string>
   askLlm(req: AskLlmRequest): Promise<string>
   categorizeTransactions(req: CategorizeTransactionsRequest): Promise<CategorizeTransactionsResponse>
+
+  // Dashboard
+  getDashboardStats(): Promise<DashboardStats>
 }
 
 // Extend Window interface
