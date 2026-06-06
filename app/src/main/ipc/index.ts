@@ -34,7 +34,8 @@ import {
 import {
   runReceiptLlmExtract,
   saveReceiptDetail as saveReceiptDetailFile,
-  readReceiptDetail
+  readReceiptDetail,
+  updateOcrStatus
 } from '@core/receipts/llm'
 import { getCategories, saveCategories, getRules, saveRule, deleteRule } from '@core/rules'
 import { categorizeTransactionsLlm } from '@core/llm/categorize'
@@ -187,8 +188,20 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
     return readReceiptDetail(settings.dataFolder, _receiptId)
   })
 
-  ipcMain.handle(IPC_CHANNELS.RUN_OCR, async (_, _receiptId: string) => {
-    // TODO: Implement in Phase 5
+  ipcMain.handle(IPC_CHANNELS.RUN_OCR, async (_, receiptId: string) => {
+    const settings = getSettings()
+    const receipts = readReceiptIndex(settings.dataFolder)
+    const receipt = receipts.find((r) => r.receipt_id === receiptId)
+    if (!receipt) throw new Error(`Receipt ${receiptId} not found`)
+    const key = settings.openAiKey
+    if (!key) throw new Error('OpenAI API key not set. Add it in Settings → API Keys.')
+    try {
+      const detail = await runReceiptLlmExtract(key, receipt.file_path, receiptId)
+      saveReceiptDetailFile(settings.dataFolder, detail)
+    } catch (e) {
+      updateOcrStatus(settings.dataFolder, receiptId, 'failed')
+      throw e
+    }
   })
 
   ipcMain.handle(
