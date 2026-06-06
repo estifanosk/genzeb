@@ -119,6 +119,8 @@ CVS Pharmacy, Walgreens
 
 Of those receipts, **~70% are linked** to their transaction (via a `link_receipt` change) and **~30% are left unlinked** — they exist in the receipts index and have full detail JSON but no transaction association. The unlinked receipts are intentional: they let the Reconcile page demo work with receipts that are waiting to be matched.
 
+In addition, **3 OCR failure fixtures** are created: 2 with `ocr_status: failed` and 1 with `ocr_status: pending`. These have a real SVG image but no detail JSON, simulating receipts where OCR never completed. They appear on the Receipts page with a retry button so the re-run OCR flow can be tested without importing real photos.
+
 ### Categories
 
 Every transaction is assigned one of: Coffee, Dining, Electronics, Entertainment, Gas, Groceries, Health, Home, Income, Insurance, Payment, Shopping, Subscriptions, Transfer, Transportation, Travel, Utilities.
@@ -199,6 +201,7 @@ If you use a custom folder, open Settings in the app and point the data folder t
 3. Import CSVs via `importStatementFiles()` — identical to the Import page flow
 4. Run `materializeTransactions()` to produce `transactions.csv` and get transaction IDs
 5. Generate SVG receipt images and detail JSON files directly into `Data/receipts/`
+5b. Create 3 OCR failure fixtures (2 × failed, 1 × pending) — SVG only, no JSON
 6. Write `link_receipt` and `set_category` change rows via `appendChangeRow()`
 7. Run `materializeTransactions()` again to apply the changes
 

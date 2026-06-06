@@ -540,6 +540,35 @@ async function main() {
   }
   console.log(`  Generated ${linkedCount + unlinkedCount} receipts  •  ${linkedCount} linked  •  ${unlinkedCount} unlinked`)
 
+  // Phase 5b: OCR failure fixtures — real SVG images, no detail JSON.
+  // 2 × failed + 1 × pending so the Retry button on the Receipts page is
+  // immediately testable after seeding (no API key needed to see the UI).
+  console.log('\n── Phase 5b: OCR failure fixtures ───────────────────────')
+  const ocrFixtures: Array<{ merchant: string; date: string; total: number; status: 'failed' | 'pending' }> = [
+    { merchant: 'Whole Foods Market', date: '2026-05-03', total: 67.42, status: 'failed' },
+    { merchant: 'Target',             date: '2026-05-11', total: 134.89, status: 'failed' },
+    { merchant: 'Starbucks',          date: '2026-05-18', total: 8.75,  status: 'pending' },
+  ]
+  for (const fixture of ocrFixtures) {
+    const receiptId = uuidv4()
+    const svgPath = join(receiptDir, `${receiptId}.svg`)
+    writeFileSync(svgPath, generateReceiptSVG(fixture.merchant, fixture.date, fixture.total, []), 'utf-8')
+    // No detail JSON — simulates OCR never completing / having failed
+    appendReceiptIndex(DATA_FOLDER, {
+      receipt_id: receiptId,
+      file_path: svgPath,
+      receipt_type: 'image',
+      merchant: fixture.merchant,
+      date: fixture.date,
+      total: fixture.total,
+      currency: 'USD',
+      source_hash: receiptId,
+      ocr_status: fixture.status,
+      created_at: new Date().toISOString()
+    })
+  }
+  console.log(`  Created 2 failed + 1 pending receipt (no detail JSON)`)
+
   // Phase 7: Assign categories
   console.log('\n── Phase 6: assign categories ───────────────────────────')
   let categorized = 0
@@ -567,7 +596,7 @@ async function main() {
   console.log('\n=== Done ===')
   console.log(`  Data folder: ${DATA_FOLDER}`)
   console.log(`  Transactions: ${final.total}`)
-  console.log(`  Receipts: ${linkedCount + unlinkedCount} (${linkedCount} linked, ${unlinkedCount} unlinked)`)
+  console.log(`  Receipts: ${linkedCount + unlinkedCount} ok (${linkedCount} linked, ${unlinkedCount} unlinked) + 2 failed + 1 pending`)
   console.log('\nReload the app with Cmd+R to see the data.')
 }
 
