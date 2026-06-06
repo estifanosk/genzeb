@@ -69,9 +69,14 @@ export function AskPage() {
     setError(null)
     setIsLoading(true)
 
+    const history = turns.flatMap(t => [
+      { role: 'user' as const, content: t.question },
+      { role: 'assistant' as const, content: t.answer },
+    ])
+
     try {
       const [answer, csv] = await Promise.all([
-        window.api.askLlm({ prompt: q, filters, provider }),
+        window.api.askLlm({ prompt: q, filters, provider, history }),
         window.api.exportForLlm(filters, 'csv'),
       ])
       const rows = csv.split('\n').length - 1 // subtract header
