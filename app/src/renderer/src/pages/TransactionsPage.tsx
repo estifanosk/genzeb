@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, History } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { fmtCurrency, amountClass, fmtDate } from '../lib/utils'
@@ -45,9 +46,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
   const [sortBy, setSortBy] = useState<keyof TransactionRow>('date')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
-  const [page, setPage] = useState(1)
-  const [pageSize] = useState(50)
-
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<EditValues>({})
   const [showBulkEdit, setShowBulkEdit] = useState(false)
@@ -59,6 +57,8 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
   const [receiptDetails, setReceiptDetails] = useState<Record<string, ReceiptDetail | null>>({})
   const [expandedReceiptTx, setExpandedReceiptTx] = useState<string | null>(null)
   const [changesByTx, setChangesByTx] = useState<Map<string, ChangeRow[]>>(new Map())
+
+  const parentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     try {
@@ -122,9 +122,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
       ? null
       : accounts.find((acct) => acct.accountNumber === selectedAccount)
 
-  const totalPages = Math.max(1, Math.ceil(total / pageSize))
-  const offset = (page - 1) * pageSize
-
   const columnList = useMemo(
     () => [
       { key: 'date', label: 'Date' },
@@ -164,8 +161,8 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
         filters,
         sortBy,
         sortOrder,
-        limit: pageSize,
-        offset
+        limit: 99999,
+        offset: 0
       })
       setTransactions(res.transactions)
       setTotal(res.total)
@@ -209,8 +206,7 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
     hasReceipt,
     uncategorized,
     sortBy,
-    sortOrder,
-    page
+    sortOrder
   ])
 
   useEffect(() => {
@@ -278,6 +274,13 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
     hasReceipt,
     uncategorized
   ])
+
+  const rowVirtualizer = useVirtualizer({
+    count: transactions.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 44,
+    overscan: 10,
+  })
 
   const toggleSelection = (id: string, checked: boolean) => {
     setSelectedIds((prev) => {
@@ -430,13 +433,9 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
       setSortBy(key)
       setSortOrder('asc')
     }
-    setPage(1)
   }
 
   const allSelected = transactions.length > 0 && selectedIds.size === transactions.length
-
-  const showingStart = total === 0 ? 0 : offset + 1
-  const showingEnd = Math.min(offset + transactions.length, total)
 
   return (
     <div className="p-6 h-full flex flex-col">
@@ -454,7 +453,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               placeholder="Search transactions..."
               value={search}
               onChange={(e) => {
-                setPage(1)
                 setSearch(e.target.value)
               }}
               className="border rounded-md px-2 text-sm h-8"
@@ -490,7 +488,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
             className="border rounded-md px-2 text-sm h-8"
             value={selectedAccount}
             onChange={(e) => {
-              setPage(1)
               setSelectedAccount(e.target.value)
             }}
           >
@@ -569,7 +566,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               className="border rounded-md px-2 text-sm w-full h-8"
               value={dateStart}
               onChange={(e) => {
-                setPage(1)
                 setDateStart(e.target.value)
               }}
             />
@@ -581,7 +577,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               className="border rounded-md px-2 text-sm w-full h-8"
               value={dateEnd}
               onChange={(e) => {
-                setPage(1)
                 setDateEnd(e.target.value)
               }}
             />
@@ -593,7 +588,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               className="border rounded-md px-2 text-sm w-full h-8"
               value={merchantContains}
               onChange={(e) => {
-                setPage(1)
                 setMerchantContains(e.target.value)
               }}
             />
@@ -606,7 +600,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               className="border rounded-md px-2 text-sm w-full h-8"
               value={amountMin}
               onChange={(e) => {
-                setPage(1)
                 setAmountMin(e.target.value)
               }}
             />
@@ -619,7 +612,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               className="border rounded-md px-2 text-sm w-full h-8"
               value={amountMax}
               onChange={(e) => {
-                setPage(1)
                 setAmountMax(e.target.value)
               }}
             />
@@ -630,7 +622,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               className="border rounded-md px-2 text-sm h-8"
               value={hasReceipt}
               onChange={(e) => {
-                setPage(1)
                 setHasReceipt(e.target.value as 'all' | 'yes' | 'no')
               }}
             >
@@ -643,7 +634,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                 type="checkbox"
                 checked={uncategorized}
                 onChange={(e) => {
-                  setPage(1)
                   setUncategorized(e.target.checked)
                 }}
               />
@@ -770,10 +760,11 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
           </div>
         </div>
       ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <div className="overflow-auto">
-            <div className="min-w-[1400px]">
-              <div className="grid grid-cols-[32px_28px_120px_6fr_6fr_140px_200px_140px_140px_2fr_80px] gap-x-3 bg-muted px-3 py-2 text-xs font-medium">
+        <div className="border rounded-lg overflow-hidden flex-1 flex flex-col min-h-0">
+          <div className="overflow-x-auto flex-1 flex flex-col min-h-0">
+            <div className="min-w-[1400px] flex-1 flex flex-col min-h-0">
+              {/* Header */}
+              <div className="grid grid-cols-[32px_28px_120px_6fr_6fr_140px_200px_140px_140px_2fr_80px] gap-x-3 bg-muted px-3 py-2 text-xs font-medium shrink-0">
                 <div className="flex items-center justify-center">
                   <input
                     type="checkbox"
@@ -820,287 +811,309 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                 {effectiveVisibleColumns.notes && <div className="whitespace-nowrap">Notes</div>}
                 <div></div>
               </div>
-              <div className="max-h-[70vh] overflow-auto">
-                {transactions.map((tx) => {
-                  const accountMeta = accounts.find((acct) => acct.accountNumber === tx.account)
-                  const isEditing = editingId === tx.id
-                  const receiptIds = tx.receipt_files
-                    ? tx.receipt_files
-                        .split(';')
-                        .map((value) => value.trim())
-                        .filter(Boolean)
-                    : []
-                  const hasReceipt = receiptIds.length > 0
-                  const isExpanded = expandedReceiptTx === tx.id
 
-                  return (
-                    <div
-                      key={tx.id}
-                      className="grid grid-cols-[32px_28px_120px_6fr_6fr_140px_200px_140px_140px_2fr_80px] gap-x-3 px-3 py-2 text-sm border-t"
-                    >
-                      <div className="flex items-center justify-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.has(tx.id)}
-                          onChange={(e) => toggleSelection(tx.id, e.target.checked)}
-                        />
-                      </div>
-                      <div className="flex items-center justify-center">
-                        {hasReceipt ? (
-                          <button
-                            className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-border text-xs text-primary hover:bg-accent"
-                            onClick={() =>
-                              setExpandedReceiptTx((prev) => (prev === tx.id ? null : tx.id))
-                            }
-                            title="Toggle receipt items"
-                          >
-                            {isExpanded ? '▾' : '▸'}
-                          </button>
-                        ) : null}
-                      </div>
-                      {effectiveVisibleColumns.date && (
-                        <div className="whitespace-nowrap">{fmtDate(tx.date)}</div>
-                      )}
-                      {effectiveVisibleColumns.merchant && (
-                        <div className="truncate flex items-center gap-1.5" title={tx.merchant || ''}>
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              className="border rounded-md px-2 text-sm w-full"
-                              value={editValues.merchant || ''}
-                              onChange={(e) =>
-                                setEditValues({ ...editValues, merchant: e.target.value })
+              {/* Virtualised body */}
+              <div
+                ref={parentRef}
+                className="flex-1 overflow-auto"
+              >
+                <div
+                  style={{
+                    height: `${rowVirtualizer.getTotalSize()}px`,
+                    position: 'relative',
+                  }}
+                >
+                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const tx = transactions[virtualRow.index]
+                    const accountMeta = accounts.find((acct) => acct.accountNumber === tx.account)
+                    const isEditing = editingId === tx.id
+                    const receiptIds = tx.receipt_files
+                      ? tx.receipt_files
+                          .split(';')
+                          .map((value) => value.trim())
+                          .filter(Boolean)
+                      : []
+                    const txHasReceipt = receiptIds.length > 0
+                    const isExpanded = expandedReceiptTx === tx.id
+
+                    return (
+                      <div
+                        key={virtualRow.key}
+                        data-index={virtualRow.index}
+                        ref={rowVirtualizer.measureElement}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                        className="grid grid-cols-[32px_28px_120px_6fr_6fr_140px_200px_140px_140px_2fr_80px] gap-x-3 px-3 py-2 text-sm border-t"
+                      >
+                        <div className="flex items-center justify-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(tx.id)}
+                            onChange={(e) => toggleSelection(tx.id, e.target.checked)}
+                          />
+                        </div>
+                        <div className="flex items-center justify-center">
+                          {txHasReceipt ? (
+                            <button
+                              className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-border text-xs text-primary hover:bg-accent"
+                              onClick={() =>
+                                setExpandedReceiptTx((prev) => (prev === tx.id ? null : tx.id))
                               }
-                            />
+                              title="Toggle receipt items"
+                            >
+                              {isExpanded ? '▾' : '▸'}
+                            </button>
+                          ) : null}
+                        </div>
+                        {effectiveVisibleColumns.date && (
+                          <div className="whitespace-nowrap">{fmtDate(tx.date)}</div>
+                        )}
+                        {effectiveVisibleColumns.merchant && (
+                          <div className="truncate flex items-center gap-1.5" title={tx.merchant || ''}>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                className="border rounded-md px-2 text-sm w-full"
+                                value={editValues.merchant || ''}
+                                onChange={(e) =>
+                                  setEditValues({ ...editValues, merchant: e.target.value })
+                                }
+                              />
+                            ) : (
+                              <>
+                                <span className="truncate">{tx.merchant || '—'}</span>
+                                {tx.ai_edited && (
+                                  <span className="shrink-0 inline-flex items-center px-1 py-0.5 rounded text-[9px] font-bold tracking-wide bg-primary/15 text-primary">
+                                    AI
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        )}
+                        {effectiveVisibleColumns.description && (
+                          <div className="truncate text-muted-foreground" title={tx.description || ''}>
+                            {tx.description || '—'}
+                          </div>
+                        )}
+                        {effectiveVisibleColumns.amount && (
+                          <div className={`text-right whitespace-nowrap font-medium ${amountClass(tx.amount)}`}>
+                            {fmtCurrency(tx.amount)}
+                          </div>
+                        )}
+                        {effectiveVisibleColumns.account && (
+                          <div className="truncate whitespace-nowrap">
+                            {tx.account}
+                            {accountMeta && (accountMeta.bankName || accountMeta.accountType) && (
+                              <span className="text-xs text-muted-foreground ml-2">
+                                {accountMeta.bankName ? accountMeta.bankName : 'Unknown Bank'}
+                                {accountMeta.accountType ? ` • ${accountMeta.accountType}` : ''}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {effectiveVisibleColumns.category && (
+                          <div className="truncate">
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                className="border rounded-md px-2 text-sm w-full"
+                                value={editValues.category || ''}
+                                onChange={(e) =>
+                                  setEditValues({ ...editValues, category: e.target.value })
+                                }
+                              />
+                            ) : (
+                              tx.category || '—'
+                            )}
+                          </div>
+                        )}
+                        {effectiveVisibleColumns.subcategory && (
+                          <div className="truncate">
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                className="border rounded-md px-2 text-sm w-full"
+                                value={editValues.subcategory || ''}
+                                onChange={(e) =>
+                                  setEditValues({ ...editValues, subcategory: e.target.value })
+                                }
+                              />
+                            ) : (
+                              tx.subcategory || '—'
+                            )}
+                          </div>
+                        )}
+                        {effectiveVisibleColumns.notes && (
+                          <div className="truncate">
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                className="border rounded-md px-2 text-sm w-full"
+                                value={editValues.notes || ''}
+                                onChange={(e) => setEditValues({ ...editValues, notes: e.target.value })}
+                              />
+                            ) : (
+                              tx.notes || '—'
+                            )}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1">
+                          {isEditing ? (
+                            <>
+                              <button
+                                onClick={() => saveEdit(tx)}
+                                className="p-1 text-green-600 hover:bg-green-50 rounded"
+                              >
+                                <Check className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={cancelEdit}
+                                className="p-1 text-red-600 hover:bg-red-50 rounded"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </>
                           ) : (
                             <>
-                              <span className="truncate">{tx.merchant || '—'}</span>
-                              {tx.ai_edited && (
-                                <span className="shrink-0 inline-flex items-center px-1 py-0.5 rounded text-[9px] font-bold tracking-wide bg-primary/15 text-primary">
-                                  AI
-                                </span>
-                              )}
+                              <button
+                                onClick={() => startEdit(tx)}
+                                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  if (confirm('Delete this transaction?')) {
+                                    await window.api.deleteTransactions([tx.id])
+                                    await loadTransactions()
+                                  }
+                                }}
+                                className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
                             </>
                           )}
                         </div>
-                      )}
-                      {effectiveVisibleColumns.description && (
-                        <div className="truncate text-muted-foreground" title={tx.description || ''}>
-                          {tx.description || '—'}
-                        </div>
-                      )}
-                      {effectiveVisibleColumns.amount && (
-                        <div className={`text-right whitespace-nowrap font-medium ${amountClass(tx.amount)}`}>
-                          {fmtCurrency(tx.amount)}
-                        </div>
-                      )}
-                      {effectiveVisibleColumns.account && (
-                        <div className="truncate whitespace-nowrap">
-                          {tx.account}
-                          {accountMeta && (accountMeta.bankName || accountMeta.accountType) && (
-                            <span className="text-xs text-muted-foreground ml-2">
-                              {accountMeta.bankName ? accountMeta.bankName : 'Unknown Bank'}
-                              {accountMeta.accountType ? ` • ${accountMeta.accountType}` : ''}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      {effectiveVisibleColumns.category && (
-                        <div className="truncate">
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              className="border rounded-md px-2 text-sm w-full"
-                              value={editValues.category || ''}
-                              onChange={(e) =>
-                                setEditValues({ ...editValues, category: e.target.value })
-                              }
-                            />
-                          ) : (
-                            tx.category || '—'
-                          )}
-                        </div>
-                      )}
-                      {effectiveVisibleColumns.subcategory && (
-                        <div className="truncate">
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              className="border rounded-md px-2 text-sm w-full"
-                              value={editValues.subcategory || ''}
-                              onChange={(e) =>
-                                setEditValues({ ...editValues, subcategory: e.target.value })
-                              }
-                            />
-                          ) : (
-                            tx.subcategory || '—'
-                          )}
-                        </div>
-                      )}
-                      {effectiveVisibleColumns.notes && (
-                        <div className="truncate">
-                          {isEditing ? (
-                            <input
-                              type="text"
-                              className="border rounded-md px-2 text-sm w-full"
-                              value={editValues.notes || ''}
-                              onChange={(e) => setEditValues({ ...editValues, notes: e.target.value })}
-                            />
-                          ) : (
-                            tx.notes || '—'
-                          )}
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1">
-                        {isEditing ? (
-                          <>
-                            <button
-                              onClick={() => saveEdit(tx)}
-                              className="p-1 text-green-600 hover:bg-green-50 rounded"
-                            >
-                              <Check className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={cancelEdit}
-                              className="p-1 text-red-600 hover:bg-red-50 rounded"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => startEdit(tx)}
-                              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={async () => {
-                                if (confirm('Delete this transaction?')) {
-                                  await window.api.deleteTransactions([tx.id])
-                                  await loadTransactions()
+                        {isExpanded && (txHasReceipt || (changesByTx.get(tx.id)?.length ?? 0) > 0) && (
+                          <div className="col-span-full mt-2 rounded-md border bg-muted/40 p-3 text-xs">
+                            {receiptIds.map((receiptId) => {
+                              const detail = receiptDetails[receiptId]
+                              return (
+                                <div key={receiptId} className="space-y-2">
+                                  <div className="font-medium">
+                                    Receipt {receiptId}
+                                    {detail?.merchant ? ` • ${detail.merchant}` : ''}
+                                    {detail?.date ? ` • ${detail.date}` : ''}
+                                    {detail?.total !== undefined ? ` • ${detail.total}` : ''}
+                                  </div>
+                                  {detail?.line_items?.length ? (
+                                    <div className="max-h-48 overflow-auto border border-border rounded bg-card text-card-foreground">
+                                      <table className="w-full text-xs">
+                                        <thead className="bg-secondary text-secondary-foreground">
+                                          <tr>
+                                            <th className="text-left p-2">Item</th>
+                                            <th className="text-left p-2">Subcategory</th>
+                                            <th className="text-right p-2">Qty</th>
+                                            <th className="text-right p-2">Unit</th>
+                                            <th className="text-right p-2">Total</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {detail.line_items.map((item, idx) => {
+                                            const tagLabel =
+                                              item.category_hint || tx.subcategory || tx.category
+                                            return (
+                                              <tr
+                                                key={`${receiptId}-${idx}`}
+                                                className="border-t border-border hover:bg-accent/60"
+                                              >
+                                                <td className="p-2">{item.description}</td>
+                                                <td className="p-2">
+                                                  <span
+                                                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${getTagStyle(
+                                                      tagLabel
+                                                    )}`}
+                                                  >
+                                                    {tagLabel || 'Uncategorized'}
+                                                  </span>
+                                                </td>
+                                                <td className="p-2 text-right">
+                                                  {item.quantity ?? '—'}
+                                                </td>
+                                                <td className="p-2 text-right">
+                                                  {item.unit_price ?? '—'}
+                                                </td>
+                                                <td className="p-2 text-right">{item.total}</td>
+                                              </tr>
+                                            )
+                                          })}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  ) : detail ? (
+                                    <div className="text-muted-foreground">
+                                      No line items extracted for this receipt.
+                                    </div>
+                                  ) : (
+                                    <div className="text-muted-foreground">
+                                      Receipt details not available.
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                            {/* Change history */}
+                            {(() => {
+                              const txChanges = changesByTx.get(tx.id) ?? []
+                              if (!txChanges.length) return null
+                              const label = (c: ChangeRow) => {
+                                switch (c.change_type) {
+                                  case 'set_category':    return `Category → ${c.value || '(cleared)'}`
+                                  case 'set_subcategory': return `Subcategory → ${c.value || '(cleared)'}`
+                                  case 'set_merchant':    return `Merchant → ${c.value || '(cleared)'}`
+                                  case 'set_notes':       return c.value ? `Note: ${c.value}` : 'Note cleared'
+                                  case 'link_receipt':    return 'Receipt linked'
+                                  case 'unlink_receipt':  return 'Receipt unlinked'
+                                  case 'split':           return 'Transaction split'
+                                  default:                return c.change_type
                                 }
-                              }}
-                              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </>
+                              }
+                              const fmt = (iso: string) => {
+                                const d = new Date(iso)
+                                return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+                                  + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+                              }
+                              return (
+                                <div className={txHasReceipt ? 'mt-3 pt-3 border-t border-border' : ''}>
+                                  <div className="flex items-center gap-1.5 mb-2 text-muted-foreground font-medium">
+                                    <History className="h-3 w-3" />
+                                    <span>History ({txChanges.length})</span>
+                                  </div>
+                                  <ol className="space-y-1.5">
+                                    {txChanges.map((c) => (
+                                      <li key={c.change_id} className="flex items-start gap-2">
+                                        <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-muted-foreground/50 shrink-0 mt-1.5" />
+                                        <span className="flex-1">{label(c)}</span>
+                                        <span className="text-muted-foreground/60 whitespace-nowrap">{fmt(c.time)}</span>
+                                      </li>
+                                    ))}
+                                  </ol>
+                                </div>
+                              )
+                            })()}
+                          </div>
                         )}
                       </div>
-                      {isExpanded && (hasReceipt || (changesByTx.get(tx.id)?.length ?? 0) > 0) && (
-                        <div className="col-span-full mt-2 rounded-md border bg-muted/40 p-3 text-xs">
-                          {receiptIds.map((receiptId) => {
-                            const detail = receiptDetails[receiptId]
-                            return (
-                              <div key={receiptId} className="space-y-2">
-                                <div className="font-medium">
-                                  Receipt {receiptId}
-                                  {detail?.merchant ? ` • ${detail.merchant}` : ''}
-                                  {detail?.date ? ` • ${detail.date}` : ''}
-                                  {detail?.total !== undefined ? ` • ${detail.total}` : ''}
-                                </div>
-                                {detail?.line_items?.length ? (
-                                  <div className="max-h-48 overflow-auto border border-border rounded bg-card text-card-foreground">
-                                    <table className="w-full text-xs">
-                                      <thead className="bg-secondary text-secondary-foreground">
-                                        <tr>
-                                          <th className="text-left p-2">Item</th>
-                                          <th className="text-left p-2">Subcategory</th>
-                                          <th className="text-right p-2">Qty</th>
-                                          <th className="text-right p-2">Unit</th>
-                                          <th className="text-right p-2">Total</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {detail.line_items.map((item, idx) => {
-                                          const tagLabel =
-                                            item.category_hint || tx.subcategory || tx.category
-                                          return (
-                                            <tr
-                                              key={`${receiptId}-${idx}`}
-                                              className="border-t border-border hover:bg-accent/60"
-                                            >
-                                              <td className="p-2">{item.description}</td>
-                                              <td className="p-2">
-                                                <span
-                                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${getTagStyle(
-                                                    tagLabel
-                                                  )}`}
-                                                >
-                                                  {tagLabel || 'Uncategorized'}
-                                                </span>
-                                              </td>
-                                              <td className="p-2 text-right">
-                                                {item.quantity ?? '—'}
-                                              </td>
-                                              <td className="p-2 text-right">
-                                                {item.unit_price ?? '—'}
-                                              </td>
-                                              <td className="p-2 text-right">{item.total}</td>
-                                            </tr>
-                                          )
-                                        })}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                ) : detail ? (
-                                  <div className="text-muted-foreground">
-                                    No line items extracted for this receipt.
-                                  </div>
-                                ) : (
-                                  <div className="text-muted-foreground">
-                                    Receipt details not available.
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          })}
-                          {/* Change history */}
-                          {(() => {
-                            const txChanges = changesByTx.get(tx.id) ?? []
-                            if (!txChanges.length) return null
-                            const label = (c: ChangeRow) => {
-                              switch (c.change_type) {
-                                case 'set_category':    return `Category → ${c.value || '(cleared)'}`
-                                case 'set_subcategory': return `Subcategory → ${c.value || '(cleared)'}`
-                                case 'set_merchant':    return `Merchant → ${c.value || '(cleared)'}`
-                                case 'set_notes':       return c.value ? `Note: ${c.value}` : 'Note cleared'
-                                case 'link_receipt':    return 'Receipt linked'
-                                case 'unlink_receipt':  return 'Receipt unlinked'
-                                case 'split':           return 'Transaction split'
-                                default:                return c.change_type
-                              }
-                            }
-                            const fmt = (iso: string) => {
-                              const d = new Date(iso)
-                              return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-                                + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
-                            }
-                            return (
-                              <div className={hasReceipt ? 'mt-3 pt-3 border-t border-border' : ''}>
-                                <div className="flex items-center gap-1.5 mb-2 text-muted-foreground font-medium">
-                                  <History className="h-3 w-3" />
-                                  <span>History ({txChanges.length})</span>
-                                </div>
-                                <ol className="space-y-1.5">
-                                  {txChanges.map((c) => (
-                                    <li key={c.change_id} className="flex items-start gap-2">
-                                      <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-muted-foreground/50 shrink-0 mt-1.5" />
-                                      <span className="flex-1">{label(c)}</span>
-                                      <span className="text-muted-foreground/60 whitespace-nowrap">{fmt(c.time)}</span>
-                                    </li>
-                                  ))}
-                                </ol>
-                              </div>
-                            )
-                          })()}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
             </div>
           </div>
@@ -1110,36 +1123,13 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
       <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
         <div>
           <span>
-            {total > 0
-              ? `Showing ${showingStart}–${showingEnd} of ${total}`
-              : 'No transactions'}
+            {total > 0 ? `${total} transaction${total === 1 ? '' : 's'}` : 'No transactions'}
           </span>
           {total > 0 && (
             <span className={`ml-4 font-medium ${amountClass(totalAmount)}`}>
               {fmtCurrency(totalAmount)}
             </span>
           )}
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            Previous
-          </Button>
-          <span>
-            Page {page} of {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages}
-          >
-            Next
-          </Button>
         </div>
       </div>
     </div>
