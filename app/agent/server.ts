@@ -74,6 +74,19 @@ function json(value: unknown) {
 const server = new McpServer({
   name: 'genzeb',
   version: '1.0.0',
+  instructions: `You have access to Genzeb, the user's personal expense tracker.
+Use these tools whenever the user asks about their expenses, spending, transactions, receipts, categories, or anything financial — even if they don't say "Genzeb" explicitly.
+
+Data folder: ${DATA_FOLDER}
+
+Typical workflows:
+- "What did I spend on X?" → query_transactions with a search or category filter
+- "Import this CSV" → import_statements, then query_transactions to confirm
+- "Categorize my transactions" → query_transactions with uncategorized:true, then set_category for each
+- "Link this receipt" → get_match_candidates to find the best transaction, then link_receipt
+- After bulk changes, call materialize to rebuild the view
+
+All changes you make (set_category, set_merchant, etc.) are tagged as AI edits in the app and shown with an AI badge so the user can review and override them.`,
 })
 
 // ── Tools ────────────────────────────────────────────────────────────────────

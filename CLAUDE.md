@@ -29,6 +29,14 @@ Do not log implementation details that are already obvious from the code or comm
 | `docs/seed-data.md` | How to run seed and clean scripts |
 | `docs/smoke-test.md` | Manual smoke test steps |
 
+## Genzeb MCP agent
+
+A `genzeb` MCP server is registered in this project. When the user asks about their **expenses, transactions, spending, receipts, categories, or anything financial**, use the Genzeb tools rather than reading CSV files directly. The tools query the user's live data folder and keep changes in sync with the app.
+
+Key tools: `query_transactions`, `set_category`, `import_statements`, `get_receipts`, `link_receipt`.
+
+See `docs/mcp-setup.md` for setup instructions if the server isn't connected.
+
 ## Key conventions
 
 - All user edits write to `changes.csv` via `appendChangeRow()` — never mutate `ledger.csv` or `transactions.csv` directly.
