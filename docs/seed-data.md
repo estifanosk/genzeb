@@ -15,6 +15,29 @@ The seed scripts generate realistic test data so you can develop and test the ap
 | `9012` | Savings | Ally | Savings transfers in, monthly interest |
 | `3456` | Credit card | Capital One | Day-to-day spending — groceries, dining, shopping, subscriptions, travel |
 
+## Large demo dataset (multi-account)
+
+**868 transactions** across 5 accounts covering 6 months (Jan–Jun 2026). Useful for testing account filters, spending trends, and large-dataset performance.
+
+### Accounts
+
+| File | Account | Type | Bank | Primary use |
+|------|---------|------|------|-------------|
+| `1234_checking_chase_2026-h1.csv` | `1234` | Checking | Chase | Paychecks, rent, CC payments, savings transfers, health |
+| `5678_checking_bofa_2026-h1.csv` | `5678` | Checking | Bank of America | Utilities, gas, insurance, car maintenance |
+| `3456_creditcard_capitalone_2026-h1.csv` | `3456` | Credit card | Capital One | Groceries, coffee, dining, rideshare, subscriptions, shopping (~95–101 tx/month) |
+| `7890_creditcard_amex_2026-h1.csv` | `7890` | Credit card | American Express | Fine dining, travel (vacation spikes in Feb & May), premium online shopping |
+| `9012_savings_ally_2026-h1.csv` | `9012` | Savings | Ally | Monthly savings transfer in + interest |
+
+### Regenerating
+
+```sh
+cd app
+NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/gen-demo-data.ts
+```
+
+Output goes to `test-data/statements/`. These files are committed to the repo so you don't need to regenerate unless you modify the generator.
+
 ### Transaction types
 
 | Type | Account | Frequency | Amount range |
