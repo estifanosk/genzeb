@@ -5,16 +5,7 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs'
 import { useSettingsStore } from '../stores/settings'
-import type {
-  InboxScanResult,
-  InboxPaths,
-  CsvPreview,
-  CsvMappingInfo,
-  CsvStats,
-  ReceiptMatchPreview,
-  IngestReceiptsResponse,
-  ReceiptMatchMetadata
-} from '@core/types/ipc'
+import type { InboxScanResult, InboxPaths, CsvPreview, CsvMappingInfo, CsvStats, ReceiptMatchPreview, IngestReceiptsResponse, ReceiptMatchMetadata } from '@core/types/ipc'
 import type { ReceiptDetail, CategoryRule } from '@core/types'
 
 function parseAccountFromFilename(filePath: string): {
@@ -102,38 +93,41 @@ export function ImportPage() {
     if (activeTab === 'history') loadImportLog()
   }, [activeTab, loadImportLog])
 
-  const scanInbox = useCallback(async (resetFlow = true) => {
-    if (!settings?.dataFolder) return
-    setIsScanning(true)
-    try {
-      const result = await window.api.scanInbox()
-      setInboxScan(result)
+  const scanInbox = useCallback(
+    async (resetFlow = true) => {
+      if (!settings?.dataFolder) return
+      setIsScanning(true)
+      try {
+        const result = await window.api.scanInbox()
+        setInboxScan(result)
 
-      if (resetFlow) {
-        // Reset statements
-        setSelectedFile(null)
-        setPreviewFile(null)
-        setPreview(null)
-        setMapping(null)
-        setStats(null)
-        setPreviewError(null)
-        setStep('select')
-        setSummary(null)
+        if (resetFlow) {
+          // Reset statements
+          setSelectedFile(null)
+          setPreviewFile(null)
+          setPreview(null)
+          setMapping(null)
+          setStats(null)
+          setPreviewError(null)
+          setStep('select')
+          setSummary(null)
 
-        // Reset receipts
-        setReceiptSelectedFile(null)
-        setReceiptPreview(null)
-        setReceiptError(null)
-        setReceiptStep('select')
-        setReceiptSummary(null)
-        setReceiptImageData(null)
-        setReceiptLlmResult(null)
-        setLlmError(null)
+          // Reset receipts
+          setReceiptSelectedFile(null)
+          setReceiptPreview(null)
+          setReceiptError(null)
+          setReceiptStep('select')
+          setReceiptSummary(null)
+          setReceiptImageData(null)
+          setReceiptLlmResult(null)
+          setLlmError(null)
+        }
+      } finally {
+        setIsScanning(false)
       }
-    } finally {
-      setIsScanning(false)
-    }
-  }, [settings?.dataFolder])
+    },
+    [settings?.dataFolder]
+  )
 
   // Load inbox paths and scan on mount
   useEffect(() => {
@@ -152,9 +146,7 @@ export function ImportPage() {
     const description = (descriptionKey ? row[descriptionKey] : '') || ''
     const merchantLower = merchant.toLowerCase()
     const descriptionLower = description.toLowerCase()
-    const ordered = [...rules]
-      .filter((rule) => rule.enabled && rule.match_value)
-      .sort((a, b) => (a.priority ?? 100) - (b.priority ?? 100))
+    const ordered = [...rules].filter((rule) => rule.enabled && rule.match_value).sort((a, b) => (a.priority ?? 100) - (b.priority ?? 100))
     const matched = ordered.find((rule) => {
       const needle = rule.match_value.toLowerCase()
       if (rule.match_type === 'merchant_contains') {
@@ -191,11 +183,7 @@ export function ImportPage() {
     setPreviewFile(path)
     setPreviewError(null)
     try {
-      const [result, mappingInfo, statsInfo] = await Promise.all([
-        window.api.getCsvPreview(path, 12),
-        window.api.getCsvMapping(path),
-        window.api.getCsvStats(path)
-      ])
+      const [result, mappingInfo, statsInfo] = await Promise.all([window.api.getCsvPreview(path, 12), window.api.getCsvMapping(path), window.api.getCsvStats(path)])
       setPreview(result)
       setMapping(mappingInfo)
       setStats(statsInfo)
@@ -287,10 +275,7 @@ export function ImportPage() {
         mode,
         dayWindow: 3,
         tolerance: 1,
-        matchTransactionId:
-          mode === 'link' && receiptPreview?.matches.length
-            ? receiptPreview.matches[0].transactionId
-            : undefined,
+        matchTransactionId: mode === 'link' && receiptPreview?.matches.length ? receiptPreview.matches[0].transactionId : undefined,
         matchMetadata: receiptLlmResult
           ? {
               date: receiptLlmResult.date ?? undefined,
@@ -343,9 +328,7 @@ export function ImportPage() {
         </div>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-muted-foreground text-center">
-              Please select a data folder in Settings first.
-            </p>
+            <p className="text-muted-foreground text-center">Please select a data folder in Settings first.</p>
           </CardContent>
         </Card>
       </div>
@@ -356,7 +339,7 @@ export function ImportPage() {
     <div className="p-6 h-full flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold">Import</h2>
-        <Button onClick={scanInbox} variant="outline" size="sm" disabled={isScanning}>
+        <Button onClick={() => scanInbox()} variant="outline" size="sm" disabled={isScanning}>
           <RefreshCw className={`mr-2 h-4 w-4 ${isScanning ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
@@ -380,32 +363,20 @@ export function ImportPage() {
                   <FileText className="h-5 w-5" />
                   Statements
                 </CardTitle>
-                <CardDescription>
-                  Bank and credit card statements (CSV, PDF)
-                </CardDescription>
+                <CardDescription>Bank and credit card statements (CSV, PDF)</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <span className="text-sm font-medium">Pending files</span>
-                  <span className="text-2xl font-bold">
-                    {inboxScan?.statements.length ?? 0}
-                  </span>
+                  <span className="text-2xl font-bold">{inboxScan?.statements.length ?? 0}</span>
                 </div>
 
                 {inboxScan && inboxScan.statements.length > 0 && (
                   <div className="space-y-2 max-h-48 overflow-auto">
                     {inboxScan.statements.map((file) => (
                       <div key={file} className="flex items-center gap-2 text-xs">
-                        <input
-                          type="radio"
-                          checked={selectedFile === file}
-                          onChange={() => setSelectedFile(file)}
-                        />
-                        <button
-                          className="truncate text-left flex-1 hover:underline"
-                          onClick={() => setSelectedFile(file)}
-                          title="Select"
-                        >
+                        <input type="radio" checked={selectedFile === file} onChange={() => setSelectedFile(file)} />
+                        <button className="truncate text-left flex-1 hover:underline" onClick={() => setSelectedFile(file)} title="Select">
                           {file.split('/').pop()}
                         </button>
                         <button
@@ -428,19 +399,12 @@ export function ImportPage() {
                     Next
                   </Button>
                   {inboxPaths && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => openFolder(inboxPaths.statements)}
-                      title="Open folder"
-                    >
+                    <Button variant="outline" size="icon" onClick={() => openFolder(inboxPaths.statements)} title="Open folder">
                       <ExternalLink className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
-                <div className="text-xs text-muted-foreground text-center">
-                  Select one file to continue
-                </div>
+                <div className="text-xs text-muted-foreground text-center">Select one file to continue</div>
               </CardContent>
             </Card>
           )}
@@ -452,9 +416,7 @@ export function ImportPage() {
                   <Eye className="h-4 w-4" />
                   Preview: {previewFile?.split('/').pop()}
                 </CardTitle>
-                <CardDescription>
-                  Review mapping and data before import
-                </CardDescription>
+                <CardDescription>Review mapping and data before import</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {mapping && (
@@ -473,13 +435,7 @@ export function ImportPage() {
                     </div>
                     <div>
                       <div className="font-medium mb-2">Ignored columns</div>
-                      {mapping.ignoredHeaders.length > 0 ? (
-                        <div className="text-xs text-muted-foreground">
-                          {mapping.ignoredHeaders.join(', ')}
-                        </div>
-                      ) : (
-                        <div className="text-xs text-muted-foreground">None</div>
-                      )}
+                      {mapping.ignoredHeaders.length > 0 ? <div className="text-xs text-muted-foreground">{mapping.ignoredHeaders.join(', ')}</div> : <div className="text-xs text-muted-foreground">None</div>}
                     </div>
                   </div>
                 )}
@@ -488,7 +444,10 @@ export function ImportPage() {
                   <div className="text-xs text-muted-foreground">
                     Rows detected: {stats.rowCount}
                     {stats.dateMin && stats.dateMax && (
-                      <span> • Date range: {stats.dateMin} to {stats.dateMax}</span>
+                      <span>
+                        {' '}
+                        • Date range: {stats.dateMin} to {stats.dateMax}
+                      </span>
                     )}
                   </div>
                 )}
@@ -521,12 +480,8 @@ export function ImportPage() {
                               const suggestion = getSuggestionForRow(row)
                               return (
                                 <>
-                                  <td className="p-2 whitespace-nowrap">
-                                    {suggestion?.category || '—'}
-                                  </td>
-                                  <td className="p-2 whitespace-nowrap">
-                                    {suggestion?.subcategory || '—'}
-                                  </td>
+                                  <td className="p-2 whitespace-nowrap">{suggestion?.category || '—'}</td>
+                                  <td className="p-2 whitespace-nowrap">{suggestion?.subcategory || '—'}</td>
                                 </>
                               )
                             })()}
@@ -564,7 +519,9 @@ export function ImportPage() {
                 <div>Skipped rows: {summary.skipped}</div>
                 <div>Duplicate files: {summary.duplicates}</div>
                 {summary.dateMin && summary.dateMax && (
-                  <div>Date range: {summary.dateMin} to {summary.dateMax}</div>
+                  <div>
+                    Date range: {summary.dateMin} to {summary.dateMax}
+                  </div>
                 )}
                 {summary.bankName && <div>Bank: {summary.bankName}</div>}
                 {summary.accountType && <div>Account type: {summary.accountType}</div>}
@@ -589,16 +546,12 @@ export function ImportPage() {
                   <Receipt className="h-5 w-5" />
                   Receipts
                 </CardTitle>
-                <CardDescription>
-                  Receipt images and documents (PNG, JPG, PDF, HTML)
-                </CardDescription>
+                <CardDescription>Receipt images and documents (PNG, JPG, PDF, HTML)</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <span className="text-sm font-medium">Pending files</span>
-                  <span className="text-2xl font-bold">
-                    {inboxScan?.receipts.length ?? 0}
-                  </span>
+                  <span className="text-2xl font-bold">{inboxScan?.receipts.length ?? 0}</span>
                 </div>
 
                 {inboxScan && inboxScan.receipts.length > 0 && (
@@ -650,19 +603,12 @@ export function ImportPage() {
                     Next
                   </Button>
                   {inboxPaths && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => openFolder(inboxPaths.receipts)}
-                      title="Open folder"
-                    >
+                    <Button variant="outline" size="icon" onClick={() => openFolder(inboxPaths.receipts)} title="Open folder">
                       <ExternalLink className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
-                <div className="text-xs text-muted-foreground text-center">
-                  Select one receipt to continue
-                </div>
+                <div className="text-xs text-muted-foreground text-center">Select one receipt to continue</div>
               </CardContent>
             </Card>
           )}
@@ -674,62 +620,29 @@ export function ImportPage() {
                   <Eye className="h-4 w-4" />
                   Receipt Preview
                 </CardTitle>
-                <CardDescription>
-                  Run extraction to check matches before import
-                </CardDescription>
+                <CardDescription>Run extraction to check matches before import</CardDescription>
               </CardHeader>
               <CardContent>
-                {receiptError && (
-                  <div className="mb-4 text-sm text-destructive border border-destructive/40 rounded-md p-3">
-                    {receiptError}
-                  </div>
-                )}
+                {receiptError && <div className="mb-4 text-sm text-destructive border border-destructive/40 rounded-md p-3">{receiptError}</div>}
                 <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6">
                   <div>
                     <div className="text-xs text-muted-foreground mb-2">Image preview</div>
-                    {receiptImageData ? (
-                      <div className="border rounded max-h-[70vh] overflow-auto">
-                        {receiptImageData.startsWith('data:application/pdf') ? (
-                          <embed
-                            src={receiptImageData}
-                            type="application/pdf"
-                            className="w-full h-[70vh]"
-                          />
-                        ) : (
-                          <img src={receiptImageData} alt="Receipt" className="w-full" />
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-xs text-muted-foreground border rounded p-3">
-                        No preview available for this file
-                      </div>
-                    )}
+                    {receiptImageData ? <div className="border rounded max-h-[70vh] overflow-auto">{receiptImageData.startsWith('data:application/pdf') ? <embed src={receiptImageData} type="application/pdf" className="w-full h-[70vh]" /> : <img src={receiptImageData} alt="Receipt" className="w-full" />}</div> : <div className="text-xs text-muted-foreground border rounded p-3">No preview available for this file</div>}
                   </div>
                   <div className="space-y-4">
                     {receiptPreview ? (
                       <div className="space-y-2 text-sm">
                         <div>
-                          <span className="font-medium">Detected date:</span>{' '}
-                          {receiptPreview.metadata.date || '—'}
+                          <span className="font-medium">Detected date:</span> {receiptPreview.metadata.date || '—'}
                         </div>
                         <div>
-                          <span className="font-medium">Detected amount:</span>{' '}
-                          {receiptPreview.metadata.amount ?? '—'}
+                          <span className="font-medium">Detected amount:</span> {receiptPreview.metadata.amount ?? '—'}
                         </div>
                         <div>
-                          <span className="font-medium">Detected merchant:</span>{' '}
-                          {receiptPreview.metadata.merchant || '—'}
+                          <span className="font-medium">Detected merchant:</span> {receiptPreview.metadata.merchant || '—'}
                         </div>
-                        {!receiptPreview.hasTransactions && (
-                          <div className="text-destructive">
-                            No statements found. Importing will add receipts as unmatched.
-                          </div>
-                        )}
-                        {receiptPreview.hasTransactions && receiptPreview.matches.length === 0 && (
-                          <div className="text-destructive">
-                            No matching transactions found within ±3 days and $1 tolerance.
-                          </div>
-                        )}
+                        {!receiptPreview.hasTransactions && <div className="text-destructive">No statements found. Importing will add receipts as unmatched.</div>}
+                        {receiptPreview.hasTransactions && receiptPreview.matches.length === 0 && <div className="text-destructive">No matching transactions found within ±3 days and $1 tolerance.</div>}
                         {receiptPreview.matches.length > 0 && (
                           <div>
                             <div className="font-medium">Potential matches:</div>
@@ -744,29 +657,18 @@ export function ImportPage() {
                         )}
                       </div>
                     ) : (
-                      <div className="text-sm text-muted-foreground">
-                        Run extraction to check matches.
-                      </div>
+                      <div className="text-sm text-muted-foreground">Run extraction to check matches.</div>
                     )}
 
                     <div className="border rounded-md p-3 text-xs">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-medium">LLM Extraction</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={runReceiptLlm}
-                          disabled={isLlmLoading || !settings?.openAiKey}
-                        >
+                        <Button variant="outline" size="sm" onClick={runReceiptLlm} disabled={isLlmLoading || !settings?.openAiKey}>
                           <Sparkles className="h-3 w-3 mr-1" />
                           {isLlmLoading ? 'Running...' : 'Run Extract'}
                         </Button>
                       </div>
-                      {!settings?.openAiKey && (
-                        <div className="text-muted-foreground">
-                          Add your OpenAI API key in Settings to enable extraction.
-                        </div>
-                      )}
+                      {!settings?.openAiKey && <div className="text-muted-foreground">Add your OpenAI API key in Settings to enable extraction.</div>}
                       {receiptLlmResult && (
                         <div className="space-y-1">
                           <div>Merchant: {receiptLlmResult.merchant ?? '—'}</div>
@@ -794,12 +696,8 @@ export function ImportPage() {
                                     {receiptLlmResult.line_items.map((item, idx) => (
                                       <tr key={idx} className="border-t">
                                         <td className="p-2">{item.description}</td>
-                                        <td className="p-2 text-right">
-                                          {item.quantity ?? '—'}
-                                        </td>
-                                        <td className="p-2 text-right">
-                                          {item.unit_price ?? '—'}
-                                        </td>
+                                        <td className="p-2 text-right">{item.quantity ?? '—'}</td>
+                                        <td className="p-2 text-right">{item.unit_price ?? '—'}</td>
                                         <td className="p-2 text-right">{item.total}</td>
                                       </tr>
                                     ))}
@@ -818,22 +716,10 @@ export function ImportPage() {
                         Back
                       </Button>
                       <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={() => onReceiptImport('unmatched')}
-                          disabled={isReceiptLoading || !receiptSelectedFile}
-                        >
+                        <Button variant="outline" onClick={() => onReceiptImport('unmatched')} disabled={isReceiptLoading || !receiptSelectedFile}>
                           Import Unmatched
                         </Button>
-                        <Button
-                          onClick={() => onReceiptImport('link')}
-                          disabled={
-                            isReceiptLoading ||
-                            !receiptSelectedFile ||
-                            !receiptPreview?.hasTransactions ||
-                            (receiptPreview?.matches.length ?? 0) === 0
-                          }
-                        >
+                        <Button onClick={() => onReceiptImport('link')} disabled={isReceiptLoading || !receiptSelectedFile || !receiptPreview?.hasTransactions || (receiptPreview?.matches.length ?? 0) === 0}>
                           Import & Link
                         </Button>
                       </div>
@@ -854,10 +740,7 @@ export function ImportPage() {
                 <div>Imported receipts: {receiptSummary.receipts.length}</div>
                 <div>Linked receipts: {receiptSummary.linked}</div>
                 <div>Unmatched receipts: {receiptSummary.unmatched}</div>
-                <div>
-                  Linked to transaction:{' '}
-                  {receiptSummary.linked > 0 ? 'Yes' : 'No'}
-                </div>
+                <div>Linked to transaction: {receiptSummary.linked > 0 ? 'Yes' : 'No'}</div>
                 {receiptSummary.receipts.length > 0 && (
                   <div className="mt-3 space-y-2">
                     <div className="font-medium">Receipt details</div>
@@ -869,9 +752,7 @@ export function ImportPage() {
                         {receipt.total !== undefined && <div>Total: {receipt.total}</div>}
                         {receiptLlmResult?.line_items?.length ? (
                           <div>
-                            <div className="font-medium mt-2">
-                              Line items ({receiptLlmResult.line_items.length})
-                            </div>
+                            <div className="font-medium mt-2">Line items ({receiptLlmResult.line_items.length})</div>
                             <div className="max-h-48 overflow-auto border rounded">
                               <table className="w-full text-xs">
                                 <thead className="bg-muted">
@@ -921,9 +802,7 @@ export function ImportPage() {
                     <History className="h-5 w-5" />
                     Import History
                   </CardTitle>
-                  <CardDescription>
-                    Every statement file that has been imported into this data folder.
-                  </CardDescription>
+                  <CardDescription>Every statement file that has been imported into this data folder.</CardDescription>
                 </div>
                 <Button variant="outline" size="sm" onClick={loadImportLog} disabled={isLoadingLog}>
                   <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingLog ? 'animate-spin' : ''}`} />
@@ -937,11 +816,7 @@ export function ImportPage() {
                   <RefreshCw className="h-4 w-4 animate-spin" /> Loading…
                 </div>
               )}
-              {!isLoadingLog && importLog.length === 0 && (
-                <p className="text-sm text-muted-foreground py-6 text-center">
-                  No imports yet. Import a CSV statement to get started.
-                </p>
-              )}
+              {!isLoadingLog && importLog.length === 0 && <p className="text-sm text-muted-foreground py-6 text-center">No imports yet. Import a CSV statement to get started.</p>}
               {!isLoadingLog && importLog.length > 0 && (
                 <div className="overflow-auto rounded border border-border">
                   <table className="w-full text-sm">
@@ -963,17 +838,16 @@ export function ImportPage() {
                           </td>
                           <td className="p-3 whitespace-nowrap text-muted-foreground">
                             {new Date(row.imported_at).toLocaleString(undefined, {
-                              month: 'short', day: 'numeric', year: 'numeric',
-                              hour: '2-digit', minute: '2-digit'
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
                             })}
                           </td>
                           <td className="p-3 uppercase text-xs text-muted-foreground">{row.file_type}</td>
                           <td className="p-3 text-right">{row.rows_imported}</td>
-                          <td className="p-3 text-right">
-                            {row.rows_skipped > 0
-                              ? <span className="text-amber-400">{row.rows_skipped}</span>
-                              : <span className="text-muted-foreground">—</span>}
-                          </td>
+                          <td className="p-3 text-right">{row.rows_skipped > 0 ? <span className="text-amber-400">{row.rows_skipped}</span> : <span className="text-muted-foreground">—</span>}</td>
                           <td className="p-3 text-muted-foreground">{row.notes || '—'}</td>
                         </tr>
                       ))}

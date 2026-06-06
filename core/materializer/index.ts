@@ -1,13 +1,8 @@
 import { readFileSync, existsSync, writeFileSync, appendFileSync } from 'fs'
 import Papa from 'papaparse'
 import { ensureDataStructure, getDataFilePath } from '../storage/paths'
-import type { LedgerRow, TransactionRow, LineItemExplorerRow } from '../types'
-import type {
-  QueryTransactionsRequest,
-  QueryTransactionsResponse,
-  QueryLineItemsRequest,
-  QueryLineItemsResponse
-} from '../types/ipc'
+import type { LedgerRow, TransactionRow, LineItemExplorerRow, SplitPayload } from '../types'
+import type { QueryTransactionsRequest, QueryTransactionsResponse, QueryLineItemsRequest, QueryLineItemsResponse } from '../types/ipc'
 import { readChanges } from '../ledger/changes'
 import { getRules } from '../rules'
 import { readReceiptDetail } from '../receipts/llm'
@@ -54,7 +49,10 @@ function readLedgerRows(ledgerPath: string): LedgerRow[] {
   if (!existsSync(ledgerPath)) return []
   const content = readFileSync(ledgerPath, 'utf-8')
   if (!content.trim()) return []
-  const parsed = Papa.parse<Record<string, string>>(content, { header: true, skipEmptyLines: true })
+  const parsed = Papa.parse<Record<string, string>>(content, {
+    header: true,
+    skipEmptyLines: true
+  })
   return parsed.data
     .filter((row) => row && row.id)
     .map((row) => ({
@@ -95,10 +93,7 @@ function ledgerToTransaction(row: LedgerRow): TransactionRow {
   }
 }
 
-function applyChanges(
-  transactions: TransactionRow[],
-  changes: ReturnType<typeof readChanges>
-): TransactionRow[] {
+function applyChanges(transactions: TransactionRow[], changes: ReturnType<typeof readChanges>): TransactionRow[] {
   if (!changes.length) return transactions
   const byId = new Map(transactions.map((tx) => [tx.id, tx]))
   const ordered = [...changes].sort((a, b) => a.time.localeCompare(b.time))
@@ -146,12 +141,46 @@ function applyChanges(
         tx.receipt_files = next.size > 0 ? Array.from(next).join(';') : undefined
         break
       }
+      case 'split': {
+        let parsed: { splits?: SplitPayload[] }
+        try {
+          parsed = JSON.parse(change.value) as { splits?: SplitPayload[] }
+        } catch {
+          break
+        }
+        const splits = Array.isArray(parsed.splits) ? parsed.splits : []
+        if (splits.length < 2) break
+
+        const validSplits = splits.filter((split) => split.id && Number.isFinite(split.amount) && split.amount !== 0)
+        if (validSplits.length !== splits.length) break
+
+        const cents = (value: number) => Math.round(value * 100)
+        const splitTotal = validSplits.reduce((sum, split) => sum + cents(split.amount), 0)
+        if (splitTotal !== cents(tx.amount)) break
+
+        byId.delete(tx.id)
+        for (const split of validSplits) {
+          const receiptFiles = split.receipt_id ? split.receipt_id : tx.receipt_files
+          byId.set(`${tx.id}:split:${split.id}`, {
+            ...tx,
+            id: `${tx.id}:split:${split.id}`,
+            parent_id: tx.id,
+            amount: split.amount,
+            category: split.category || tx.category,
+            subcategory: split.subcategory || tx.subcategory,
+            notes: split.notes || tx.notes,
+            receipt_files: receiptFiles,
+            line_items: split.line_item_id ? JSON.stringify([split.line_item_id]) : tx.line_items
+          })
+        }
+        break
+      }
       default:
         break
     }
   }
 
-  return transactions
+  return Array.from(byId.values())
 }
 
 function applyCategoryRules(transactions: TransactionRow[], dataFolder: string): TransactionRow[] {
@@ -211,31 +240,7 @@ export function materializeTransactions(dataFolder: string): void {
     writeFileSync(transactionsPath, '', 'utf-8')
   }
 
-  appendCsvRows(
-    transactionsPath,
-    [
-      'id',
-      'parent_id',
-      'account',
-      'date',
-      'post_date',
-      'description',
-      'merchant',
-      'amount',
-      'currency',
-      'category',
-      'subcategory',
-      'notes',
-      'receipt_files',
-      'line_items',
-      'source_file',
-      'source_hash',
-      'import_time',
-      'confidence',
-      'ai_edited'
-    ],
-    transactionRows
-  )
+  appendCsvRows(transactionsPath, ['id', 'parent_id', 'account', 'date', 'post_date', 'description', 'merchant', 'amount', 'currency', 'category', 'subcategory', 'notes', 'receipt_files', 'line_items', 'source_file', 'source_hash', 'import_time', 'confidence', 'ai_edited'], transactionRows)
 }
 
 function readTransactionRows(dataFolder: string): TransactionRow[] {
@@ -246,11 +251,17 @@ function readTransactionRows(dataFolder: string): TransactionRow[] {
   if (!existsSync(transactionsPath)) return []
   const content = readFileSync(transactionsPath, 'utf-8')
   if (!content.trim()) return []
-  let parsed = Papa.parse<Record<string, string>>(content, { header: true, skipEmptyLines: true })
+  let parsed = Papa.parse<Record<string, string>>(content, {
+    header: true,
+    skipEmptyLines: true
+  })
   if (!parsed.meta.fields || !parsed.meta.fields.includes('id')) {
     materializeTransactions(dataFolder)
     const refreshed = readFileSync(transactionsPath, 'utf-8')
-    parsed = Papa.parse<Record<string, string>>(refreshed, { header: true, skipEmptyLines: true })
+    parsed = Papa.parse<Record<string, string>>(refreshed, {
+      header: true,
+      skipEmptyLines: true
+    })
   }
   return parsed.data
     .filter((row) => row && row.id)
@@ -327,10 +338,7 @@ function applySorting(rows: TransactionRow[], req: QueryTransactionsRequest): Tr
   return sortOrder === 'desc' ? sorted.reverse() : sorted
 }
 
-export function queryTransactions(
-  dataFolder: string,
-  req: QueryTransactionsRequest
-): QueryTransactionsResponse {
+export function queryTransactions(dataFolder: string, req: QueryTransactionsRequest): QueryTransactionsResponse {
   if (!dataFolder) {
     throw new Error('Data folder is not configured')
   }
@@ -351,10 +359,7 @@ export function queryTransactions(
   }
 }
 
-export function queryLineItems(
-  dataFolder: string,
-  req: QueryLineItemsRequest
-): QueryLineItemsResponse {
+export function queryLineItems(dataFolder: string, req: QueryLineItemsRequest): QueryLineItemsResponse {
   if (!dataFolder) {
     throw new Error('Data folder is not configured')
   }
@@ -425,7 +430,10 @@ export function queryLineItems(
   const coveredReceiptIds = new Set(
     rows.flatMap((tx) =>
       tx.receipt_files
-        ? tx.receipt_files.split(';').map((s) => s.trim()).filter(Boolean)
+        ? tx.receipt_files
+            .split(';')
+            .map((s) => s.trim())
+            .filter(Boolean)
         : []
     )
   )
@@ -478,10 +486,8 @@ export function queryLineItems(
       if (filters.dateRange.end && row.date > filters.dateRange.end) return false
     }
     if (filters.amountRange) {
-      if (filters.amountRange.min !== undefined && row.item_total < filters.amountRange.min)
-        return false
-      if (filters.amountRange.max !== undefined && row.item_total > filters.amountRange.max)
-        return false
+      if (filters.amountRange.min !== undefined && row.item_total < filters.amountRange.min) return false
+      if (filters.amountRange.max !== undefined && row.item_total > filters.amountRange.max) return false
     }
     return true
   })
@@ -489,26 +495,8 @@ export function queryLineItems(
   const sortBy = req.sortBy ?? 'date'
   const sortOrder = req.sortOrder ?? 'desc'
   const sorted = [...filtered].sort((a, b) => {
-    const av =
-      sortBy === 'total'
-        ? a.item_total
-        : sortBy === 'item'
-          ? a.item
-          : sortBy === 'category'
-            ? a.item_category || ''
-            : sortBy === 'merchant'
-              ? a.merchant
-              : a.date
-    const bv =
-      sortBy === 'total'
-        ? b.item_total
-        : sortBy === 'item'
-          ? b.item
-          : sortBy === 'category'
-            ? b.item_category || ''
-            : sortBy === 'merchant'
-              ? b.merchant
-              : b.date
+    const av = sortBy === 'total' ? a.item_total : sortBy === 'item' ? a.item : sortBy === 'category' ? a.item_category || '' : sortBy === 'merchant' ? a.merchant : a.date
+    const bv = sortBy === 'total' ? b.item_total : sortBy === 'item' ? b.item : sortBy === 'category' ? b.item_category || '' : sortBy === 'merchant' ? b.merchant : b.date
     if (typeof av === 'number' && typeof bv === 'number') return av - bv
     return String(av ?? '').localeCompare(String(bv ?? ''))
   })
