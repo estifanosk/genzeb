@@ -8,6 +8,7 @@ import {
   getInboxPaths
 } from './file-system'
 import { getSettings, updateSettings, loadSettings } from './settings'
+import { buildTransactionCsv } from './transaction-csv'
 import {
   importStatementFiles,
   readImportLog,
@@ -303,17 +304,8 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
     const settings = getSettings()
     if (!settings.dataFolder) return ''
     const res = queryTransactions(settings.dataFolder, { filters, limit: 500, offset: 0, sortBy: 'date', sortOrder: 'desc' })
-    const rows = res.transactions
-    if (!rows.length) return ''
-    const headers = ['date', 'merchant', 'description', 'amount', 'category', 'subcategory', 'account', 'notes']
-    const lines = [headers.join(',')]
-    for (const tx of rows) {
-      lines.push(headers.map(h => {
-        const val = String((tx as unknown as Record<string, unknown>)[h] ?? '')
-        return val.includes(',') || val.includes('"') ? `"${val.replace(/"/g, '""')}"` : val
-      }).join(','))
-    }
-    return lines.join('\n')
+    if (!res.transactions.length) return ''
+    return buildTransactionCsv(res.transactions)
   })
 
   ipcMain.handle(IPC_CHANNELS.ASK_LLM, async (_, req) => {
@@ -321,18 +313,9 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
     const { prompt, filters, provider } = req
 
     const res = queryTransactions(settings.dataFolder, { filters, limit: 500, offset: 0, sortBy: 'date', sortOrder: 'desc' })
-    const rows = res.transactions
-    const headers = ['date', 'merchant', 'description', 'amount', 'category', 'subcategory', 'account', 'notes']
-    const csvLines = [headers.join(',')]
-    for (const tx of rows) {
-      csvLines.push(headers.map(h => {
-        const val = String((tx as unknown as Record<string, unknown>)[h] ?? '')
-        return val.includes(',') || val.includes('"') ? `"${val.replace(/"/g, '""')}"` : val
-      }).join(','))
-    }
-    const csv = csvLines.join('\n')
+    const csv = buildTransactionCsv(res.transactions)
 
-    const systemPrompt = `You are a personal finance assistant. Answer the user's question based on their transaction data below. Be concise. Use markdown for tables and bold key numbers.\n\n<transactions total="${res.total}" shown="${rows.length}">\n${csv}\n</transactions>`
+    const systemPrompt = `You are a personal finance assistant. Answer the user's question based on their transaction data below. Be concise. Use markdown for tables and bold key numbers.\n\n<transactions total="${res.total}" shown="${res.transactions.length}">\n${csv}\n</transactions>`
 
     if (provider === 'anthropic') {
       const key = settings.anthropicKey
