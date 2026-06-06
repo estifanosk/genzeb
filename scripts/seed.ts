@@ -2,11 +2,12 @@
  * Genzeb Seed Script
  *
  * Generates realistic test data for manual testing and development:
- *   - 4 accounts: 2 checking, 1 savings, 1 credit card
- *   - ~3 months of transactions (~200 rows)
+ *   - 5 accounts: 2 checking, 1 savings, 2 credit cards (Capital One daily + Amex travel/dining)
+ *   - 6 months of transactions (Jan–Jun 2026, ~600 rows)
  *   - SVG receipt images for ~10% of transactions
  *   - Receipt detail JSON with line items (simulates LLM OCR output)
  *   - Category assignments for all transactions
+ *   - 2 failed + 1 pending OCR receipt fixtures
  *
  * Phases
  * ------
@@ -15,6 +16,7 @@
  *   3. Import CSVs into the data folder via core importer
  *   4. Initial materialize → get transaction IDs
  *   5. Generate SVG receipt images + detail JSON for ~10% of transactions
+ *   5b. OCR failure fixtures (2 failed + 1 pending)
  *   6. Write receipt index entries and link to transactions via changes
  *   7. Assign categories to all transactions via changes
  *   8. Final materialize to apply all changes
@@ -68,8 +70,8 @@ function sample<T>(arr: T[], n: number): T[] {
 
 // ── date helpers ────────────────────────────────────────────────────────────────
 
-const END_DATE = new Date('2026-05-31')
-const START_DATE = new Date('2026-03-01')
+const END_DATE = new Date('2026-06-30')
+const START_DATE = new Date('2026-01-01')
 
 function addDays(d: Date, n: number): Date {
   const r = new Date(d)
@@ -96,10 +98,11 @@ function monthRange(start: Date, end: Date): Date[] {
 // ── accounts ────────────────────────────────────────────────────────────────────
 
 const ACCOUNTS = [
-  { number: '1234', type: 'checking', bank: 'chase',        label: 'Chase Checking' },
-  { number: '5678', type: 'checking', bank: 'bankofamerica', label: 'BofA Checking' },
-  { number: '9012', type: 'savings',  bank: 'ally',          label: 'Ally Savings' },
-  { number: '3456', type: 'creditcard', bank: 'capitalone',  label: 'Capital One CC' },
+  { number: '1234', type: 'checking',   bank: 'chase',        label: 'Chase Checking' },
+  { number: '5678', type: 'checking',   bank: 'bankofamerica', label: 'BofA Checking' },
+  { number: '9012', type: 'savings',    bank: 'ally',          label: 'Ally Savings' },
+  { number: '3456', type: 'creditcard', bank: 'capitalone',   label: 'Capital One CC' },
+  { number: '7890', type: 'creditcard', bank: 'amex',         label: 'Amex CC' },
 ]
 
 // ── merchant data ───────────────────────────────────────────────────────────────
@@ -167,6 +170,33 @@ const HEALTH: Array<[string, string, string[], [number, number]]> = [
   ['Walgreens', 'Health', ['Melatonin 5mg 60ct','Zinc 50mg 100ct','Hand Sanitizer 12oz','Face Moisturizer SPF 30','Sunscreen SPF 50','Probiotic 30ct'], [8, 70]],
 ]
 
+const FINE_DINING: Array<[string, string, string[], [number, number]]> = [
+  ['Le Bernardin', 'Dining', ['Tasting Menu','Wine Pairing','Dessert Course','Amuse-Bouche'], [80, 280]],
+  ['Nobu', 'Dining', ['Omakase Set','Black Cod Miso','Yellowtail Jalapeño','Sake Flight'], [70, 250]],
+  ['The French Laundry', 'Dining', ['Prix Fixe Dinner','Champagne Toast','Cheese Course'], [200, 400]],
+  ['Chez Panisse', 'Dining', ['Seasonal Tasting Menu','Wine by Glass','Cheese Plate'], [65, 220]],
+  ['Atelier Crenn', 'Dining', ['Poetic Culinaria Menu','Sommelier Pairing','Petit Fours'], [120, 350]],
+]
+
+const AIRLINES: Array<[string, string, [number, number]]> = [
+  ['Delta Airlines', 'Travel', [180, 850]],
+  ['United Airlines', 'Travel', [160, 780]],
+  ['Alaska Airlines', 'Travel', [120, 620]],
+  ['American Airlines', 'Travel', [150, 720]],
+]
+
+const HOTELS: Array<[string, string, [number, number]]> = [
+  ['Marriott Hotels', 'Travel', [180, 480]],
+  ['Hilton Hotels', 'Travel', [160, 420]],
+  ['Hyatt', 'Travel', [200, 550]],
+  ['Airbnb', 'Travel', [120, 480]],
+]
+
+const RIDESHARE: Array<[string, string, [number, number]]> = [
+  ['Uber', 'Transportation', [8, 45]],
+  ['Lyft', 'Transportation', [7, 42]],
+]
+
 // ── line item builder ───────────────────────────────────────────────────────────
 
 type LineItemData = { description: string; quantity: number; unit_price: number; total: number; category_hint: string }
@@ -199,7 +229,7 @@ type TxRow = {
 
 function buildRows(): TxRow[] {
   const rows: TxRow[] = []
-  const ch1 = '1234', ch2 = '5678', sav = '9012', cc = '3456'
+  const ch1 = '1234', ch2 = '5678', sav = '9012', cc = '3456', amex = '7890'
 
   function push(account: string, date: Date, description: string, merchant: string, amount: number, category: string, lineItems: LineItemData[] = []) {
     rows.push({ account, date: fmtDate(date), description, merchant, amount, category, lineItems })
@@ -225,15 +255,21 @@ function buildRows(): TxRow[] {
     }
   }
 
-  // Monthly CC payment
+  // Monthly CC payments from Chase checking
   for (const m of monthRange(START_DATE, END_DATE)) {
     const d = new Date(m.getFullYear(), m.getMonth(), 20)
     if (d >= START_DATE && d <= END_DATE) {
-      const amt = randFloat(800, 2200)
-      push(ch1, d, 'Capital One Credit Card Payment', 'Capital One', -amt, 'Payment')
-      push(cc,  d, 'Payment Received - Thank You', 'Capital One', amt, 'Payment')
+      const capAmt = randFloat(800, 2200)
+      push(ch1, d, 'Capital One Credit Card Payment', 'Capital One', -capAmt, 'Payment')
+      push(cc,  d, 'Payment Received - Thank You', 'Capital One', capAmt, 'Payment')
+      const amexAmt = randFloat(600, 1800)
+      push(ch1, new Date(m.getFullYear(), m.getMonth(), 22), 'Amex Credit Card Payment', 'American Express', -amexAmt, 'Payment')
+      push(amex, new Date(m.getFullYear(), m.getMonth(), 22), 'Payment Received - Thank You', 'American Express', amexAmt, 'Payment')
     }
   }
+
+  // Amex annual fee (January)
+  push(amex, new Date('2026-01-03'), 'Annual card membership fee', 'American Express', -695, 'Subscriptions')
 
   // Monthly utilities (checking2)
   for (const m of monthRange(START_DATE, END_DATE)) {
@@ -291,24 +327,83 @@ function buildRows(): TxRow[] {
     cur = addDays(cur, randInt(10, 14))
   }
 
-  // Shopping ~15 transactions (CC) with line items
-  for (let i = 0; i < 15; i++) {
+  // Coffee ~4x/week (CC)
+  cur = new Date(START_DATE)
+  while (cur <= END_DATE) {
+    const count = randInt(3, 5)
+    for (let i = 0; i < count; i++) {
+      const d = addDays(cur, randInt(0, 6))
+      if (d > END_DATE) continue
+      push(cc, d, 'Starbucks', 'Starbucks', -randFloat(5, 18), 'Coffee')
+    }
+    cur = addDays(cur, 7)
+  }
+
+  // Rideshare ~3x/week (CC)
+  cur = new Date(START_DATE)
+  while (cur <= END_DATE) {
+    const count = randInt(2, 4)
+    for (let i = 0; i < count; i++) {
+      const d = addDays(cur, randInt(0, 6))
+      if (d > END_DATE) continue
+      const [name, category, [lo, hi]] = pick(RIDESHARE)
+      push(cc, d, name, name, -randFloat(lo, hi), category)
+    }
+    cur = addDays(cur, 7)
+  }
+
+  // Shopping ~40 transactions (CC) with line items
+  for (let i = 0; i < 40; i++) {
     const [name, category, templates, [lo, hi]] = pick(SHOPPING)
     const amt = randFloat(lo, hi)
     push(cc, randDate(), name, name, -amt, category, makeLineItems(templates, amt, category))
   }
 
-  // Travel ~4 transactions (CC)
+  // Rideshare/travel ~4 transactions (CC — Uber/Lyft long trips)
   for (let i = 0; i < 4; i++) {
     const [name, category, [lo, hi]] = pick(TRAVEL)
     push(cc, randDate(), name, name, -randFloat(lo, hi), category)
   }
 
-  // Health / pharmacy ~8 transactions (checking1)
-  for (let i = 0; i < 8; i++) {
+  // Health / pharmacy ~15 transactions (checking1)
+  for (let i = 0; i < 15; i++) {
     const [name, category, templates, [lo, hi]] = pick(HEALTH)
     const amt = randFloat(lo, hi)
     push(ch1, randDate(), name, name, -amt, category, makeLineItems(templates, amt, category))
+  }
+
+  // Amex: fine dining ~15 transactions
+  for (let i = 0; i < 15; i++) {
+    const [name, category, templates, [lo, hi]] = pick(FINE_DINING)
+    const amt = randFloat(lo, hi)
+    push(amex, randDate(), name, name, -amt, category, makeLineItems(templates, amt, category))
+  }
+
+  // Amex: vacation travel — Feb and May
+  const febStart = new Date('2026-02-10'), febEnd = new Date('2026-02-17')
+  const mayStart = new Date('2026-05-21'), mayEnd = new Date('2026-05-28')
+  for (const [vStart, vEnd] of [[febStart, febEnd], [mayStart, mayEnd]] as [Date, Date][]) {
+    const [airline, , [alo, ahi]] = pick(AIRLINES)
+    push(amex, randDate(vStart, vEnd), 'Flight', airline, -randFloat(alo, ahi), 'Travel')
+    const [hotel, , [hlo, hhi]] = pick(HOTELS)
+    push(amex, randDate(vStart, vEnd), 'Hotel stay', hotel, -randFloat(hlo, hhi), 'Travel')
+    for (let i = 0; i < randInt(2, 3); i++) {
+      const [name, category, templates, [lo, hi]] = pick(FINE_DINING)
+      const amt = randFloat(lo, hi)
+      push(amex, randDate(vStart, vEnd), 'Travel dining', name, -amt, category, makeLineItems(templates, amt, category))
+    }
+  }
+  // Occasional flight other months
+  for (let i = 0; i < 3; i++) {
+    const [airline, , [alo, ahi]] = pick(AIRLINES)
+    push(amex, randDate(), 'Flight', airline, -randFloat(alo, ahi), 'Travel')
+  }
+
+  // Amex: premium online shopping ~36 transactions
+  for (let i = 0; i < 36; i++) {
+    const [name, category, templates, [lo, hi]] = pick(SHOPPING)
+    const amt = randFloat(lo, hi)
+    push(amex, randDate(), name, name, -amt, category, makeLineItems(templates, amt, category))
   }
 
   // Savings interest monthly
@@ -597,7 +692,7 @@ async function main() {
   console.log(`  Data folder: ${DATA_FOLDER}`)
   console.log(`  Transactions: ${final.total}`)
   console.log(`  Receipts: ${linkedCount + unlinkedCount} ok (${linkedCount} linked, ${unlinkedCount} unlinked) + 2 failed + 1 pending`)
-  console.log('\nReload the app with Cmd+R to see the data.')
+  console.log('\nReload the app with Cmd+R (macOS) or Ctrl+R (Windows/Linux) to see the data.')
 }
 
 main().catch(err => { console.error('\nFAILED:', err.message); console.error(err.stack); process.exit(1) })
