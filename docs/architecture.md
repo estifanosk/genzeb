@@ -179,68 +179,69 @@ There are ~40 registered channels covering: file system, import, ledger changes,
 
 ### Import
 
-| Feature | Status | Where | What's missing |
-|---|---|---|---|
-| CSV statement import — column auto-map, dedup, ledger.csv | ✅ Done | Import → Statements tab | — |
-| Receipt ingestion — select, preview, LLM OCR, auto-link to transaction | ✅ Done | Import → Receipts tab | — |
-| Import history log — per-file record of every import run | ✅ Done | Import → History tab | — |
+| Feature                                                                | Status  | Where                   | What's missing |
+| ---------------------------------------------------------------------- | ------- | ----------------------- | -------------- |
+| CSV statement import — column auto-map, dedup, ledger.csv              | ✅ Done | Import → Statements tab | —              |
+| Receipt ingestion — select, preview, LLM OCR, auto-link to transaction | ✅ Done | Import → Receipts tab   | —              |
+| Import history log — per-file record of every import run               | ✅ Done | Import → History tab    | —              |
 
 ### Transactions
 
-| Feature | Status | Where | What's missing |
-|---|---|---|---|
-| Transaction table with filters, sort, pagination | ✅ Done | Transactions page | — |
-| Inline edit — merchant, category, subcategory, notes | ✅ Done | Transactions page | — |
-| Bulk edit across selected rows | ✅ Done | Transactions page | — |
-| Column picker | ✅ Done | Transactions page | — |
-| Receipt expand — linked receipt image + line items | ✅ Done | Transactions page | — |
-| Change history — per-transaction audit trail | ✅ Done | Transactions page (expand) | — |
-| Transaction splits | ⚠️ Partial | — | Core + materializer handle it; no split button in the UI |
+| Feature                                              | Status  | Where                      | What's missing |
+| ---------------------------------------------------- | ------- | -------------------------- | -------------- |
+| Transaction table with filters, sort, pagination     | ✅ Done | Transactions page          | —              |
+| Inline edit — merchant, category, subcategory, notes | ✅ Done | Transactions page          | —              |
+| Bulk edit across selected rows                       | ✅ Done | Transactions page          | —              |
+| Column picker                                        | ✅ Done | Transactions page          | —              |
+| Receipt expand — linked receipt image + line items   | ✅ Done | Transactions page          | —              |
+| Change history — per-transaction audit trail         | ✅ Done | Transactions page (expand) | —              |
+| Transaction splits                                   | ✅ Done | Transactions page          | —              |
 
 ### Receipts & line items
 
-| Feature | Status | Where | What's missing |
-|---|---|---|---|
-| Receipt browser — thumbnails, OCR status, linked/unlinked badges | ✅ Done | Receipts page | — |
-| Receipt expand — full image + line items | ✅ Done | Receipts page | — |
-| Item Explorer — all line items including unlinked receipts | ✅ Done | Item Explorer page | — |
-| Linked/unlinked filter + status badge in Item Explorer | ✅ Done | Item Explorer page | — |
-| Re-run OCR on a failed receipt | ❌ Stub | — | `RUN_OCR` IPC handler is a no-op |
+| Feature                                                          | Status  | Where              | What's missing |
+| ---------------------------------------------------------------- | ------- | ------------------ | -------------- |
+| Receipt browser — thumbnails, OCR status, linked/unlinked badges | ✅ Done | Receipts page      | —              |
+| Receipt expand — full image + line items                         | ✅ Done | Receipts page      | —              |
+| Item Explorer — all line items including unlinked receipts       | ✅ Done | Item Explorer page | —              |
+| Linked/unlinked filter + status badge in Item Explorer           | ✅ Done | Item Explorer page | —              |
+| Re-run OCR on a failed or pending receipt                        | ✅ Done | Receipts page      | —              |
 
 ### Reconcile
 
-| Feature | Status | Where | What's missing |
-|---|---|---|---|
-| Match suggestions — score unlinked receipts against transactions | ❌ Stub | Reconcile page | `GET_MATCH_SUGGESTIONS` returns `[]`; scoring logic exists in `core/receipts/importer.ts` (`computeMatches`) but isn't wired to the UI |
-| Manual receipt linking | ❌ Stub | Reconcile page | `LINK_RECEIPT` is a no-op |
-| Receipt unlinking | ❌ Stub | Reconcile page | `UNLINK_RECEIPT` is a no-op |
-| Links audit trail | ❌ Stub | — | `GET_LINKS` returns `[]` |
+| Feature                                                         | Status  | Where                        | What's missing                                                                                                    |
+| --------------------------------------------------------------- | ------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Match candidates — score unlinked receipts against transactions | ✅ Done | Reconcile page               | Uses receipt-centric `GET_CANDIDATES_FOR_RECEIPT`; legacy `GET_MATCH_SUGGESTIONS` remains unused and returns `[]` |
+| Manual receipt linking                                          | ✅ Done | Reconcile page               | —                                                                                                                 |
+| Receipt unlinking                                               | ✅ Done | Reconcile page               | —                                                                                                                 |
+| Links audit trail                                               | ✅ Done | Reconcile page / `links.csv` | —                                                                                                                 |
 
 ### Ask AI
 
-| Feature | Status | Where | What's missing |
-|---|---|---|---|
-| Export transactions for LLM (CSV / Markdown) | ❌ Stub | — | `EXPORT_FOR_LLM` returns `''` |
-| In-app LLM Q&A over filtered transactions | ❌ Stub | Ask AI page | `ASK_LLM` returns `''` |
+| Feature                                   | Status  | Where       | What's missing                                                              |
+| ----------------------------------------- | ------- | ----------- | --------------------------------------------------------------------------- |
+| Export transactions for LLM (CSV)         | ✅ Done | Ask AI page | Markdown format parameter exists but currently returns CSV                  |
+| In-app LLM Q&A over filtered transactions | ✅ Done | Ask AI page | Multi-turn history is supported; transaction CSV is still re-sent each turn |
 
 ### Settings & categorization
 
-| Feature | Status | Where | What's missing |
-|---|---|---|---|
-| Data folder selection | ✅ Done | Settings | — |
-| Inbox folder paths | ✅ Done | Settings | — |
-| API keys (OpenAI, Anthropic) | ✅ Done | Settings | — |
-| Category list editor | ✅ Done | Settings → Categories tab | — |
-| Auto-categorization rules editor | ✅ Done | Settings → Rules tab | — |
-| LLM bulk categorization | ✅ Done | Settings → LLM Categorize tab | — |
+| Feature                          | Status  | Where                         | What's missing |
+| -------------------------------- | ------- | ----------------------------- | -------------- |
+| Data folder selection            | ✅ Done | Settings                      | —              |
+| Inbox folder paths               | ✅ Done | Settings                      | —              |
+| API keys (OpenAI, Anthropic)     | ✅ Done | Settings                      | —              |
+| Category list editor             | ✅ Done | Settings → Categories tab     | —              |
+| Auto-categorization rules editor | ✅ Done | Settings → Rules tab          | —              |
+| LLM bulk categorization          | ✅ Done | Settings → LLM Categorize tab | —              |
 
 ### Dev / test
 
-| Feature | Status | Where | What's missing |
-|---|---|---|---|
-| Seed script — realistic transactions, receipts, categories | ✅ Done | `scripts/seed.ts` | — |
-| Clean + reseed script | ✅ Done | `scripts/clean.ts` | — |
-| Core pipeline smoke test | ✅ Done | `app/smoke-test.ts` | UI-level (Playwright) test not built |
+| Feature                                                    | Status  | Where               | What's missing                            |
+| ---------------------------------------------------------- | ------- | ------------------- | ----------------------------------------- |
+| Seed script — realistic transactions, receipts, categories | ✅ Done | `scripts/seed.ts`   | —                                         |
+| Clean + reseed script                                      | ✅ Done | `scripts/clean.ts`  | —                                         |
+| Core pipeline smoke test                                   | ✅ Done | `app/smoke-test.ts` | —                                         |
+| Playwright E2E suite                                       | ✅ Done | `app/e2e/tests/`    | Add focused coverage as new features land |
 
 ---
 

@@ -1,28 +1,40 @@
 import { test, expect } from '../fixtures'
 
 test.describe('Transaction search filter', () => {
+  test.beforeEach(async ({ seededWindow: w }) => {
+    await w.getByRole('button', { name: 'Transactions' }).click()
+  })
+
   test('search narrows results to matching merchant', async ({ seededWindow: w }) => {
-    await w.getByText('Showing 1–6 of 6').waitFor()
+    await w.getByText('6 records').waitFor()
     await w.getByPlaceholder('Search transactions...').fill('acme')
-    await expect(w.getByText('Showing 1–1 of 1')).toBeVisible({ timeout: 8_000 })
+    await expect(w.getByText('1 record')).toBeVisible({
+      timeout: 8_000
+    })
   })
 
   test('clearing search restores full list', async ({ seededWindow: w }) => {
-    await w.getByText('Showing 1–6 of 6').waitFor()
+    await w.getByText('6 records').waitFor()
     await w.getByPlaceholder('Search transactions...').fill('acme')
-    await w.getByText('Showing 1–1 of 1').waitFor({ timeout: 8_000 })
+    await w.getByText('1 record').waitFor({ timeout: 8_000 })
     await w.getByPlaceholder('Search transactions...').fill('')
-    await expect(w.getByText('Showing 1–6 of 6')).toBeVisible({ timeout: 8_000 })
+    await expect(w.getByText('6 records')).toBeVisible({
+      timeout: 8_000
+    })
   })
 })
 
 test.describe('Transaction inline edit', () => {
+  test.beforeEach(async ({ seededWindow: w }) => {
+    await w.getByRole('button', { name: 'Transactions' }).click()
+  })
+
   test('edit button opens inputs and saves category change', async ({ seededWindow: w }) => {
-    await w.getByText('Showing 1–6 of 6').waitFor()
+    await w.getByText('6 records').waitFor()
 
     // Narrow to one row so we have a stable target
     await w.getByPlaceholder('Search transactions...').fill('acme')
-    await w.getByText('Showing 1–1 of 1').waitFor({ timeout: 8_000 })
+    await w.getByText('1 record').waitFor({ timeout: 8_000 })
 
     // Edit2 in v0.564 maps to the "pen" lucide icon
     const editBtn = w.locator('button:has(svg.lucide-pen)').first()
@@ -40,5 +52,36 @@ test.describe('Transaction inline edit', () => {
 
     // Category value is now visible in the row
     await expect(w.getByText('Groceries')).toBeVisible({ timeout: 8_000 })
+  })
+})
+
+test.describe('Transaction split', () => {
+  test.beforeEach(async ({ seededWindow: w }) => {
+    await w.getByRole('button', { name: 'Transactions' }).click()
+  })
+
+  test('splits a transaction into child rows', async ({ seededWindow: w }) => {
+    await w.getByText('6 records').waitFor()
+
+    await w.getByPlaceholder('Search transactions...').fill('Harbor Table')
+    await w.getByText('1 record').waitFor({ timeout: 8_000 })
+
+    await w.locator('button:has(svg.lucide-scissors)').first().click()
+    await expect(w.getByRole('heading', { name: 'Split transaction' })).toBeVisible()
+
+    await w.getByLabel('Split 1 amount').fill('-20.00')
+    await w.getByLabel('Split 1 category').fill('Dining')
+    await w.getByLabel('Split 1 notes').fill('meal')
+    await w.getByLabel('Split 2 amount').fill('-26.12')
+    await w.getByLabel('Split 2 category').fill('Tips')
+    await w.getByLabel('Split 2 notes').fill('tip and tax')
+
+    await w.getByRole('button', { name: 'Save split' }).click()
+
+    await expect(w.getByText('2 records')).toBeVisible({
+      timeout: 8_000
+    })
+    await expect(w.getByText('Dining')).toBeVisible()
+    await expect(w.getByText('Tips')).toBeVisible()
   })
 })

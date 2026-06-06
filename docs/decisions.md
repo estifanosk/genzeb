@@ -7,26 +7,32 @@ A running journal of design and product decisions. Each entry is dated so contex
 ## 2026-02-14 — Initial direction
 
 **Goals**
+
 - Personal desktop app for one user, not a team tool.
 - Local-first: all data on the user's file system, no cloud dependency.
 - No bank aggregation (Plaid/Finicity) — rely entirely on file imports.
 - Primary workflow: import → categorize → reconcile → review.
 
 **Platform**
+
 - Electron desktop app (macOS first).
 
 **Import formats**
+
 - MVP: CSV statements only. PDF parsing deferred.
 - OFX/QFX considered and dropped — CSV covers all major banks via export.
 
 **Receipts**
+
 - Desktop file import/scanning preferred over a mobile companion to avoid storing personal data on a third-party server.
 
 **AI**
+
 - Cloud LLM APIs (OpenAI/Anthropic) preferred over local models — avoids large on-device installs.
 - All LLM features are opt-in via user-supplied API key. No data sent without explicit action.
 
 **Data model decided**
+
 - Append-only `ledger.csv` as the raw import log — never mutated.
 - `changes.csv` as the edit log — all user edits (category, merchant, notes, splits, receipt links) append here.
 - `transactions.csv` as the materialised view — rebuilt from ledger + changes on demand.
@@ -39,31 +45,40 @@ Full schema recorded below for reference.
 <summary>Schema v1 (2026-02-14)</summary>
 
 **ledger.csv** — append-only raw import log
+
 - id (UUID), account, date (YYYY-MM-DD), post_date, description_raw, merchant_raw, amount (signed decimal), currency, source_file, source_hash, import_time
 
 **changes.csv** — edit log
+
 - change_id, transaction_id, change_type (`set_category | set_merchant | set_notes | set_subcategory | split | link_receipt | unlink_receipt`), field, value (text or JSON), time
 
 **transactions.csv** — materialised export view
+
 - id, parent_id, account, date, post_date, description, merchant, amount, currency, category, subcategory, notes, receipt_files (semicolon-separated), line_items (JSON), source_file, source_hash, import_time, confidence
 
 **import-log.csv** — one row per imported file
+
 - import_id, source_file, source_hash, file_type, imported_at, rows_imported, rows_skipped, notes
 
 **receipts/index.csv** — receipt metadata
+
 - receipt_id, file_path, receipt_type, merchant, date, total, currency, source_hash, ocr_status (pending | ok | failed), created_at
 
 **receipts/{receipt_id}.json** — OCR detail
+
 - receipt_id, file_path, merchant, date, total, currency, tax, tip, confidence, line_items[], raw_text
 
 **matches/links.csv** — transaction ↔ receipt links
+
 - link_id, transaction_id, receipt_id, line_item_id, amount, confidence, notes
 
 **rules/categories.csv**
+
 - rule_id, match_type, match_value, category, subcategory, priority, enabled
 </details>
 
 **LLM Q&A**
+
 - Requested: in-app LLM query panel. User asks a question, app builds a filtered export (CSV/Markdown), sends to selected provider with the user's API key. Data minimisation + opt-in mandatory.
 
 ---
@@ -153,3 +168,21 @@ AI-authored changes are tagged with `agent: 'claude'` (or whichever model) in `c
 Implemented the Reconcile page to show unlinked receipts on the left and candidate transactions on the right, rather than the reverse.
 
 **Reason:** receipts are the actionable backlog — the user knows which receipts need a home. Transactions are the reference. The existing `computeMatches` scoring function already runs in the receipt → transactions direction (given a receipt's date/amount/merchant, find matching transactions), so no inversion was needed.
+
+---
+
+## 2026-06-06 — Backlog reflects current open work only
+
+Cleaned the backlog to remove items that are already implemented and moved stale status details into the architecture feature table. The backlog should stay focused on actionable remaining work, not historical phase notes or completed features.
+
+---
+
+## 2026-06-06 — Transaction splits materialize as child rows
+
+Split changes now replace the parent transaction in the materialized view with child rows that keep `parent_id` pointing at the original ledger transaction. This preserves the immutable ledger row while making each split queryable, editable, and categorizable like a normal transaction.
+
+---
+
+## 2026-06-06 — E2E seed runner is an explicit dev dependency
+
+Added `tsx` as an app dev dependency because the Playwright seed fixtures execute TypeScript seed scripts through `npx tsx`. Keeping it installed locally makes e2e runs deterministic and avoids registry lookups during test execution.

@@ -1,12 +1,13 @@
 import { test, expect } from '../fixtures'
 
 test.describe('App launch', () => {
-  test('renders sidebar and default Transactions page', async ({ window }) => {
+  test('renders sidebar and default Dashboard page', async ({ window }) => {
     await expect(window.locator('nav')).toBeVisible()
-    await expect(window.getByRole('heading', { name: 'Transactions' })).toBeVisible()
+    await expect(window.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
   })
 
   test('shows empty state with Import CTA when no data', async ({ window }) => {
+    await window.getByRole('button', { name: 'Transactions' }).click()
     await expect(window.getByText('No transactions yet')).toBeVisible()
     await expect(window.getByRole('button', { name: 'Import a statement' })).toBeVisible()
   })

@@ -1,15 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, History } from 'lucide-react'
+import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, History, Scissors, Plus, MinusCircle } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { fmtCurrency, amountClass, fmtDate } from '../lib/utils'
-import type { AccountInfo, ReceiptDetail, TransactionRow, ChangeRow } from '@core/types'
+import type { AccountInfo, ReceiptDetail, TransactionRow, ChangeRow, SplitPayload } from '@core/types'
 
 interface EditValues {
   category?: string
   subcategory?: string
   merchant?: string
   notes?: string
+}
+
+interface SplitDraftRow {
+  id: string
+  amount: string
+  category: string
+  subcategory: string
+  notes: string
 }
 
 export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) => void }) {
@@ -48,12 +56,14 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<EditValues>({})
+  const [splitTarget, setSplitTarget] = useState<TransactionRow | null>(null)
+  const [splitRows, setSplitRows] = useState<SplitDraftRow[]>([])
+  const [splitError, setSplitError] = useState<string | null>(null)
   const [showBulkEdit, setShowBulkEdit] = useState(false)
   const [bulkEditValues, setBulkEditValues] = useState<EditValues>({})
 
   const [showColumnManager, setShowColumnManager] = useState(false)
-  const [visibleColumns, setVisibleColumns] =
-    useState<Record<string, boolean>>(defaultVisibleColumns)
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(defaultVisibleColumns)
   const [receiptDetails, setReceiptDetails] = useState<Record<string, ReceiptDetail | null>>({})
   const [expandedReceiptTx, setExpandedReceiptTx] = useState<string | null>(null)
   const [changesByTx, setChangesByTx] = useState<Map<string, ChangeRow[]>>(new Map())
@@ -99,14 +109,7 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
     description: true
   }
 
-  const tagStyles = [
-    'bg-amber-100 text-amber-900',
-    'bg-emerald-100 text-emerald-900',
-    'bg-sky-100 text-sky-900',
-    'bg-rose-100 text-rose-900',
-    'bg-lime-100 text-lime-900',
-    'bg-indigo-100 text-indigo-900'
-  ]
+  const tagStyles = ['bg-amber-100 text-amber-900', 'bg-emerald-100 text-emerald-900', 'bg-sky-100 text-sky-900', 'bg-rose-100 text-rose-900', 'bg-lime-100 text-lime-900', 'bg-indigo-100 text-indigo-900']
 
   const getTagStyle = (label?: string) => {
     if (!label) return 'bg-slate-100 text-slate-700'
@@ -117,10 +120,14 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
     return tagStyles[hash]
   }
 
-  const selectedAccountMeta =
-    selectedAccount === 'all'
-      ? null
-      : accounts.find((acct) => acct.accountNumber === selectedAccount)
+  const selectedAccountMeta = selectedAccount === 'all' ? null : accounts.find((acct) => acct.accountNumber === selectedAccount)
+
+  const makeSplitId = () => (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`)
+
+  const roundCents = (value: number) => Math.round(value * 100)
+
+  const splitRowsTotal = splitRows.reduce((sum, row) => sum + (Number(row.amount) || 0), 0)
+  const splitDifference = splitTarget ? roundCents(splitTarget.amount) - roundCents(splitRowsTotal) : 0
 
   const columnList = useMemo(
     () => [
@@ -191,23 +198,13 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
     }
   }
 
-  useEffect(() => { loadChanges() }, [])
+  useEffect(() => {
+    loadChanges()
+  }, [])
 
   useEffect(() => {
     loadTransactions()
-  }, [
-    search,
-    selectedAccount,
-    dateStart,
-    dateEnd,
-    amountMin,
-    amountMax,
-    merchantContains,
-    hasReceipt,
-    uncategorized,
-    sortBy,
-    sortOrder
-  ])
+  }, [search, selectedAccount, dateStart, dateEnd, amountMin, amountMax, merchantContains, hasReceipt, uncategorized, sortBy, sortOrder])
 
   useEffect(() => {
     const ids = new Set<string>()
@@ -262,24 +259,13 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
       uncategorized
     }
     window.localStorage.setItem(storageKey, JSON.stringify(payload))
-  }, [
-    visibleColumns,
-    search,
-    selectedAccount,
-    dateStart,
-    dateEnd,
-    amountMin,
-    amountMax,
-    merchantContains,
-    hasReceipt,
-    uncategorized
-  ])
+  }, [visibleColumns, search, selectedAccount, dateStart, dateEnd, amountMin, amountMax, merchantContains, hasReceipt, uncategorized])
 
   const rowVirtualizer = useVirtualizer({
     count: transactions.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 44,
-    overscan: 10,
+    overscan: 10
   })
 
   const toggleSelection = (id: string, checked: boolean) => {
@@ -316,7 +302,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
     }
   }
 
-
   const startEdit = (tx: TransactionRow) => {
     setEditingId(tx.id)
     setEditValues({
@@ -332,15 +317,116 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
     setEditValues({})
   }
 
+  const startSplit = (tx: TransactionRow) => {
+    const halfCents = Math.trunc(roundCents(tx.amount) / 2)
+    const first = halfCents / 100
+    const second = (roundCents(tx.amount) - halfCents) / 100
+    setSplitTarget(tx)
+    setSplitRows([
+      {
+        id: makeSplitId(),
+        amount: first.toFixed(2),
+        category: tx.category ?? '',
+        subcategory: tx.subcategory ?? '',
+        notes: tx.notes ?? ''
+      },
+      {
+        id: makeSplitId(),
+        amount: second.toFixed(2),
+        category: tx.category ?? '',
+        subcategory: tx.subcategory ?? '',
+        notes: tx.notes ?? ''
+      }
+    ])
+    setSplitError(null)
+  }
+
+  const updateSplitRow = (id: string, patch: Partial<SplitDraftRow>) => {
+    setSplitRows((rows) => rows.map((row) => (row.id === id ? { ...row, ...patch } : row)))
+  }
+
+  const addSplitRow = () => {
+    setSplitRows((rows) => [
+      ...rows,
+      {
+        id: makeSplitId(),
+        amount: '0.00',
+        category: splitTarget?.category ?? '',
+        subcategory: splitTarget?.subcategory ?? '',
+        notes: ''
+      }
+    ])
+  }
+
+  const removeSplitRow = (id: string) => {
+    setSplitRows((rows) => rows.filter((row) => row.id !== id))
+  }
+
+  const closeSplit = () => {
+    setSplitTarget(null)
+    setSplitRows([])
+    setSplitError(null)
+  }
+
+  const saveSplit = async () => {
+    if (!splitTarget) return
+    if (splitRows.length < 2) {
+      setSplitError('A split needs at least two rows.')
+      return
+    }
+
+    const payloadRows: SplitPayload[] = []
+    for (const row of splitRows) {
+      const amount = Number(row.amount)
+      if (!Number.isFinite(amount) || amount === 0) {
+        setSplitError('Each split row needs a non-zero amount.')
+        return
+      }
+      payloadRows.push({
+        id: row.id,
+        amount,
+        category: row.category.trim() || undefined,
+        subcategory: row.subcategory.trim() || undefined,
+        notes: row.notes.trim() || undefined
+      })
+    }
+
+    const totalCents = payloadRows.reduce((sum, row) => sum + roundCents(row.amount), 0)
+    if (totalCents !== roundCents(splitTarget.amount)) {
+      setSplitError(`Split total must equal ${fmtCurrency(splitTarget.amount)}.`)
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      await window.api.appendChange({
+        transaction_id: splitTarget.id,
+        change_type: 'split',
+        value: JSON.stringify({ splits: payloadRows })
+      })
+      closeSplit()
+      await loadTransactions()
+    } catch (err) {
+      setSplitError((err as Error).message)
+      setIsLoading(false)
+    }
+  }
+
   const saveEdit = async (tx: TransactionRow) => {
     if (!editingId) return
-    const changes = [] as Array<{ type: 'set_category' | 'set_subcategory' | 'set_merchant' | 'set_notes'; value: string }>
+    const changes = [] as Array<{
+      type: 'set_category' | 'set_subcategory' | 'set_merchant' | 'set_notes'
+      value: string
+    }>
 
     if ((editValues.category ?? '') !== (tx.category ?? '')) {
       changes.push({ type: 'set_category', value: editValues.category ?? '' })
     }
     if ((editValues.subcategory ?? '') !== (tx.subcategory ?? '')) {
-      changes.push({ type: 'set_subcategory', value: editValues.subcategory ?? '' })
+      changes.push({
+        type: 'set_subcategory',
+        value: editValues.subcategory ?? ''
+      })
     }
     if ((editValues.merchant ?? '') !== (tx.merchant ?? '')) {
       changes.push({ type: 'set_merchant', value: editValues.merchant ?? '' })
@@ -458,29 +544,15 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               className="border rounded-md px-2 text-sm h-8"
             />
           </div>
-          <Button
-            variant={showFilters ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setShowFilters((prev) => !prev)}
-          >
+          <Button variant={showFilters ? 'default' : 'outline'} size="sm" onClick={() => setShowFilters((prev) => !prev)}>
             <Filter className="h-4 w-4 mr-1" />
             Filters
             {(() => {
-              const count = [dateStart, dateEnd, amountMin, amountMax, merchantContains]
-                .filter(Boolean).length +
-                (selectedAccount !== 'all' ? 1 : 0) +
-                (hasReceipt !== 'all' ? 1 : 0) +
-                (uncategorized ? 1 : 0)
-              return count > 0
-                ? <span className="ml-1.5 bg-primary-foreground text-primary text-[10px] font-bold rounded-full px-1.5 py-0.5">{count}</span>
-                : null
+              const count = [dateStart, dateEnd, amountMin, amountMax, merchantContains].filter(Boolean).length + (selectedAccount !== 'all' ? 1 : 0) + (hasReceipt !== 'all' ? 1 : 0) + (uncategorized ? 1 : 0)
+              return count > 0 ? <span className="ml-1.5 bg-primary-foreground text-primary text-[10px] font-bold rounded-full px-1.5 py-0.5">{count}</span> : null
             })()}
           </Button>
-          <Button
-            variant={showColumnManager ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setShowColumnManager((prev) => !prev)}
-          >
+          <Button variant={showColumnManager ? 'default' : 'outline'} size="sm" onClick={() => setShowColumnManager((prev) => !prev)}>
             <Columns className="h-4 w-4 mr-1" />
             Columns
           </Button>
@@ -501,29 +573,24 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
           {selectedAccountMeta && (
             <div className="text-xs text-muted-foreground px-2 py-1 border rounded-md">
               <div>
-                <span className="font-medium text-foreground">Bank:</span>{' '}
-                {selectedAccountMeta.bankName || 'Unknown'}
+                <span className="font-medium text-foreground">Bank:</span> {selectedAccountMeta.bankName || 'Unknown'}
               </div>
               <div>
-                <span className="font-medium text-foreground">Type:</span>{' '}
-                {selectedAccountMeta.accountType || 'Unknown'}
+                <span className="font-medium text-foreground">Type:</span> {selectedAccountMeta.accountType || 'Unknown'}
               </div>
               {selectedAccountMeta.period && (
                 <div>
-                  <span className="font-medium text-foreground">Period:</span>{' '}
-                  {selectedAccountMeta.period}
+                  <span className="font-medium text-foreground">Period:</span> {selectedAccountMeta.period}
                 </div>
               )}
               {selectedAccountMeta.lastImportedAt && (
                 <div>
-                  <span className="font-medium text-foreground">Last import:</span>{' '}
-                  {new Date(selectedAccountMeta.lastImportedAt).toLocaleString()}
+                  <span className="font-medium text-foreground">Last import:</span> {new Date(selectedAccountMeta.lastImportedAt).toLocaleString()}
                 </div>
               )}
               {selectedAccountMeta.sourceFiles?.length > 0 && (
                 <div>
-                  <span className="font-medium text-foreground">Files:</span>{' '}
-                  {selectedAccountMeta.sourceFiles.length}
+                  <span className="font-medium text-foreground">Files:</span> {selectedAccountMeta.sourceFiles.length}
                 </div>
               )}
             </div>
@@ -531,20 +598,11 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
           {selectedIds.size > 0 && (
             <>
               <span className="text-xs text-muted-foreground">{selectedIds.size} selected</span>
-              <Button
-                onClick={() => setShowBulkEdit(true)}
-                variant="outline"
-                size="sm"
-              >
+              <Button onClick={() => setShowBulkEdit(true)} variant="outline" size="sm">
                 <Edit2 className="h-4 w-4 mr-1" />
                 Bulk Edit
               </Button>
-              <Button
-                onClick={removeSelected}
-                variant="outline"
-                size="sm"
-                disabled={isLoading}
-              >
+              <Button onClick={removeSelected} variant="outline" size="sm" disabled={isLoading}>
                 <Trash2 className="h-4 w-4 mr-1" />
                 Remove Selected
               </Button>
@@ -683,7 +741,12 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                 type="text"
                 className="border rounded-md px-2 text-sm w-full h-8"
                 value={bulkEditValues.category || ''}
-                onChange={(e) => setBulkEditValues({ ...bulkEditValues, category: e.target.value })}
+                onChange={(e) =>
+                  setBulkEditValues({
+                    ...bulkEditValues,
+                    category: e.target.value
+                  })
+                }
               />
             </div>
             <div>
@@ -693,7 +756,10 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                 className="border rounded-md px-2 text-sm w-full h-8"
                 value={bulkEditValues.subcategory || ''}
                 onChange={(e) =>
-                  setBulkEditValues({ ...bulkEditValues, subcategory: e.target.value })
+                  setBulkEditValues({
+                    ...bulkEditValues,
+                    subcategory: e.target.value
+                  })
                 }
               />
             </div>
@@ -703,7 +769,12 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                 type="text"
                 className="border rounded-md px-2 text-sm w-full h-8"
                 value={bulkEditValues.merchant || ''}
-                onChange={(e) => setBulkEditValues({ ...bulkEditValues, merchant: e.target.value })}
+                onChange={(e) =>
+                  setBulkEditValues({
+                    ...bulkEditValues,
+                    merchant: e.target.value
+                  })
+                }
               />
             </div>
             <div>
@@ -712,7 +783,12 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                 type="text"
                 className="border rounded-md px-2 text-sm w-full h-8"
                 value={bulkEditValues.notes || ''}
-                onChange={(e) => setBulkEditValues({ ...bulkEditValues, notes: e.target.value })}
+                onChange={(e) =>
+                  setBulkEditValues({
+                    ...bulkEditValues,
+                    notes: e.target.value
+                  })
+                }
               />
             </div>
           </div>
@@ -727,17 +803,14 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               Cancel
             </Button>
             <Button onClick={handleBulkEdit}>
-              Update {selectedIds.size} Transaction{selectedIds.size === 1 ? '' : 's'}
+              Update {selectedIds.size} Transaction
+              {selectedIds.size === 1 ? '' : 's'}
             </Button>
           </div>
         </div>
       )}
 
-      {error && (
-        <div className="mb-4 text-sm text-destructive border border-destructive/40 rounded-md p-3">
-          {error}
-        </div>
-      )}
+      {error && <div className="mb-4 text-sm text-destructive border border-destructive/40 rounded-md p-3">{error}</div>}
 
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center border-2 border-dashed rounded-lg">
@@ -766,11 +839,7 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               {/* Header */}
               <div className="grid grid-cols-[32px_28px_120px_6fr_6fr_140px_200px_140px_140px_2fr_80px] gap-x-3 bg-muted px-3 py-2 text-xs font-medium shrink-0">
                 <div className="flex items-center justify-center">
-                  <input
-                    type="checkbox"
-                    checked={allSelected}
-                    onChange={(e) => toggleSelectAll(e.target.checked)}
-                  />
+                  <input type="checkbox" checked={allSelected} onChange={(e) => toggleSelectAll(e.target.checked)} />
                 </div>
                 <div></div>
                 {effectiveVisibleColumns.date && (
@@ -813,14 +882,11 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               </div>
 
               {/* Virtualised body */}
-              <div
-                ref={parentRef}
-                className="flex-1 overflow-auto"
-              >
+              <div ref={parentRef} className="flex-1 overflow-auto">
                 <div
                   style={{
                     height: `${rowVirtualizer.getTotalSize()}px`,
-                    position: 'relative',
+                    position: 'relative'
                   }}
                 >
                   {rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -835,6 +901,7 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                       : []
                     const txHasReceipt = receiptIds.length > 0
                     const isExpanded = expandedReceiptTx === tx.id
+                    const isSplitChild = !!tx.parent_id
 
                     return (
                       <div
@@ -846,32 +913,25 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                           top: 0,
                           left: 0,
                           width: '100%',
-                          transform: `translateY(${virtualRow.start}px)`,
+                          transform: `translateY(${virtualRow.start}px)`
                         }}
                         className="grid grid-cols-[32px_28px_120px_6fr_6fr_140px_200px_140px_140px_2fr_80px] gap-x-3 px-3 py-2 text-sm border-t"
                       >
                         <div className="flex items-center justify-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.has(tx.id)}
-                            onChange={(e) => toggleSelection(tx.id, e.target.checked)}
-                          />
+                          <input type="checkbox" checked={selectedIds.has(tx.id)} onChange={(e) => toggleSelection(tx.id, e.target.checked)} />
                         </div>
                         <div className="flex items-center justify-center">
                           {txHasReceipt ? (
-                            <button
-                              className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-border text-xs text-primary hover:bg-accent"
-                              onClick={() =>
-                                setExpandedReceiptTx((prev) => (prev === tx.id ? null : tx.id))
-                              }
-                              title="Toggle receipt items"
-                            >
+                            <button className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-border text-xs text-primary hover:bg-accent" onClick={() => setExpandedReceiptTx((prev) => (prev === tx.id ? null : tx.id))} title="Toggle receipt items">
                               {isExpanded ? '▾' : '▸'}
                             </button>
                           ) : null}
                         </div>
                         {effectiveVisibleColumns.date && (
-                          <div className="whitespace-nowrap">{fmtDate(tx.date)}</div>
+                          <div className="whitespace-nowrap">
+                            {fmtDate(tx.date)}
+                            {isSplitChild && <span className="ml-2 text-[10px] uppercase tracking-wide text-muted-foreground">Split</span>}
+                          </div>
                         )}
                         {effectiveVisibleColumns.merchant && (
                           <div className="truncate flex items-center gap-1.5" title={tx.merchant || ''}>
@@ -881,17 +941,17 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                                 className="border rounded-md px-2 text-sm w-full"
                                 value={editValues.merchant || ''}
                                 onChange={(e) =>
-                                  setEditValues({ ...editValues, merchant: e.target.value })
+                                  setEditValues({
+                                    ...editValues,
+                                    merchant: e.target.value
+                                  })
                                 }
                               />
                             ) : (
                               <>
+                                {isSplitChild && <span className="shrink-0 text-muted-foreground">↳</span>}
                                 <span className="truncate">{tx.merchant || '—'}</span>
-                                {tx.ai_edited && (
-                                  <span className="shrink-0 inline-flex items-center px-1 py-0.5 rounded text-[9px] font-bold tracking-wide bg-primary/15 text-primary">
-                                    AI
-                                  </span>
-                                )}
+                                {tx.ai_edited && <span className="shrink-0 inline-flex items-center px-1 py-0.5 rounded text-[9px] font-bold tracking-wide bg-primary/15 text-primary">AI</span>}
                               </>
                             )}
                           </div>
@@ -901,11 +961,7 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                             {tx.description || '—'}
                           </div>
                         )}
-                        {effectiveVisibleColumns.amount && (
-                          <div className={`text-right whitespace-nowrap font-medium ${amountClass(tx.amount)}`}>
-                            {fmtCurrency(tx.amount)}
-                          </div>
-                        )}
+                        {effectiveVisibleColumns.amount && <div className={`text-right whitespace-nowrap font-medium ${amountClass(tx.amount)}`}>{fmtCurrency(tx.amount)}</div>}
                         {effectiveVisibleColumns.account && (
                           <div className="truncate whitespace-nowrap">
                             {tx.account}
@@ -925,7 +981,10 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                                 className="border rounded-md px-2 text-sm w-full"
                                 value={editValues.category || ''}
                                 onChange={(e) =>
-                                  setEditValues({ ...editValues, category: e.target.value })
+                                  setEditValues({
+                                    ...editValues,
+                                    category: e.target.value
+                                  })
                                 }
                               />
                             ) : (
@@ -941,7 +1000,10 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                                 className="border rounded-md px-2 text-sm w-full"
                                 value={editValues.subcategory || ''}
                                 onChange={(e) =>
-                                  setEditValues({ ...editValues, subcategory: e.target.value })
+                                  setEditValues({
+                                    ...editValues,
+                                    subcategory: e.target.value
+                                  })
                                 }
                               />
                             ) : (
@@ -956,7 +1018,12 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                                 type="text"
                                 className="border rounded-md px-2 text-sm w-full"
                                 value={editValues.notes || ''}
-                                onChange={(e) => setEditValues({ ...editValues, notes: e.target.value })}
+                                onChange={(e) =>
+                                  setEditValues({
+                                    ...editValues,
+                                    notes: e.target.value
+                                  })
+                                }
                               />
                             ) : (
                               tx.notes || '—'
@@ -966,27 +1033,23 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                         <div className="flex items-center gap-1">
                           {isEditing ? (
                             <>
-                              <button
-                                onClick={() => saveEdit(tx)}
-                                className="p-1 text-green-600 hover:bg-green-50 rounded"
-                              >
+                              <button onClick={() => saveEdit(tx)} className="p-1 text-green-600 hover:bg-green-50 rounded">
                                 <Check className="h-4 w-4" />
                               </button>
-                              <button
-                                onClick={cancelEdit}
-                                className="p-1 text-red-600 hover:bg-red-50 rounded"
-                              >
+                              <button onClick={cancelEdit} className="p-1 text-red-600 hover:bg-red-50 rounded">
                                 <X className="h-4 w-4" />
                               </button>
                             </>
                           ) : (
                             <>
-                              <button
-                                onClick={() => startEdit(tx)}
-                                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
-                              >
+                              <button onClick={() => startEdit(tx)} className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded" title="Edit transaction">
                                 <Edit2 className="h-4 w-4" />
                               </button>
+                              {!isSplitChild && (
+                                <button onClick={() => startSplit(tx)} className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded" title="Split transaction">
+                                  <Scissors className="h-4 w-4" />
+                                </button>
+                              )}
                               <button
                                 onClick={async () => {
                                   if (confirm('Delete this transaction?')) {
@@ -995,6 +1058,7 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                                   }
                                 }}
                                 className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                                title="Delete transaction"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -1027,29 +1091,15 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                                         </thead>
                                         <tbody>
                                           {detail.line_items.map((item, idx) => {
-                                            const tagLabel =
-                                              item.category_hint || tx.subcategory || tx.category
+                                            const tagLabel = item.category_hint || tx.subcategory || tx.category
                                             return (
-                                              <tr
-                                                key={`${receiptId}-${idx}`}
-                                                className="border-t border-border hover:bg-accent/60"
-                                              >
+                                              <tr key={`${receiptId}-${idx}`} className="border-t border-border hover:bg-accent/60">
                                                 <td className="p-2">{item.description}</td>
                                                 <td className="p-2">
-                                                  <span
-                                                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${getTagStyle(
-                                                      tagLabel
-                                                    )}`}
-                                                  >
-                                                    {tagLabel || 'Uncategorized'}
-                                                  </span>
+                                                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${getTagStyle(tagLabel)}`}>{tagLabel || 'Uncategorized'}</span>
                                                 </td>
-                                                <td className="p-2 text-right">
-                                                  {item.quantity ?? '—'}
-                                                </td>
-                                                <td className="p-2 text-right">
-                                                  {item.unit_price ?? '—'}
-                                                </td>
+                                                <td className="p-2 text-right">{item.quantity ?? '—'}</td>
+                                                <td className="p-2 text-right">{item.unit_price ?? '—'}</td>
                                                 <td className="p-2 text-right">{item.total}</td>
                                               </tr>
                                             )
@@ -1058,13 +1108,9 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                                       </table>
                                     </div>
                                   ) : detail ? (
-                                    <div className="text-muted-foreground">
-                                      No line items extracted for this receipt.
-                                    </div>
+                                    <div className="text-muted-foreground">No line items extracted for this receipt.</div>
                                   ) : (
-                                    <div className="text-muted-foreground">
-                                      Receipt details not available.
-                                    </div>
+                                    <div className="text-muted-foreground">Receipt details not available.</div>
                                   )}
                                 </div>
                               )
@@ -1075,20 +1121,38 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                               if (!txChanges.length) return null
                               const label = (c: ChangeRow) => {
                                 switch (c.change_type) {
-                                  case 'set_category':    return `Category → ${c.value || '(cleared)'}`
-                                  case 'set_subcategory': return `Subcategory → ${c.value || '(cleared)'}`
-                                  case 'set_merchant':    return `Merchant → ${c.value || '(cleared)'}`
-                                  case 'set_notes':       return c.value ? `Note: ${c.value}` : 'Note cleared'
-                                  case 'link_receipt':    return 'Receipt linked'
-                                  case 'unlink_receipt':  return 'Receipt unlinked'
-                                  case 'split':           return 'Transaction split'
-                                  default:                return c.change_type
+                                  case 'set_category':
+                                    return `Category → ${c.value || '(cleared)'}`
+                                  case 'set_subcategory':
+                                    return `Subcategory → ${c.value || '(cleared)'}`
+                                  case 'set_merchant':
+                                    return `Merchant → ${c.value || '(cleared)'}`
+                                  case 'set_notes':
+                                    return c.value ? `Note: ${c.value}` : 'Note cleared'
+                                  case 'link_receipt':
+                                    return 'Receipt linked'
+                                  case 'unlink_receipt':
+                                    return 'Receipt unlinked'
+                                  case 'split':
+                                    return 'Transaction split'
+                                  default:
+                                    return c.change_type
                                 }
                               }
                               const fmt = (iso: string) => {
                                 const d = new Date(iso)
-                                return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-                                  + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+                                return (
+                                  d.toLocaleDateString(undefined, {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                  }) +
+                                  ' ' +
+                                  d.toLocaleTimeString(undefined, {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })
+                                )
                               }
                               return (
                                 <div className={txHasReceipt ? 'mt-3 pt-3 border-t border-border' : ''}>
@@ -1120,16 +1184,76 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
         </div>
       )}
 
+      {splitTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-4xl rounded-lg border border-border bg-background shadow-xl">
+            <div className="flex items-start justify-between border-b border-border px-5 py-4">
+              <div className="min-w-0">
+                <h3 className="text-lg font-semibold">Split transaction</h3>
+                <p className="mt-1 truncate text-sm text-muted-foreground">
+                  {splitTarget.merchant || splitTarget.description || 'Transaction'} · {fmtCurrency(splitTarget.amount)}
+                </p>
+              </div>
+              <button className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground" onClick={closeSplit} title="Close">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto px-5 py-4">
+              <div className="grid grid-cols-[120px_1fr_1fr_2fr_32px] gap-2 text-xs font-medium text-muted-foreground">
+                <div>Amount</div>
+                <div>Category</div>
+                <div>Subcategory</div>
+                <div>Notes</div>
+                <div />
+              </div>
+
+              <div className="mt-2 space-y-2">
+                {splitRows.map((row, index) => (
+                  <div key={row.id} className="grid grid-cols-[120px_1fr_1fr_2fr_32px] gap-2">
+                    <input type="number" step="0.01" className="h-9 rounded-md border bg-background px-2 text-sm" value={row.amount} onChange={(e) => updateSplitRow(row.id, { amount: e.target.value })} aria-label={`Split ${index + 1} amount`} />
+                    <input type="text" className="h-9 rounded-md border bg-background px-2 text-sm" value={row.category} onChange={(e) => updateSplitRow(row.id, { category: e.target.value })} aria-label={`Split ${index + 1} category`} />
+                    <input type="text" className="h-9 rounded-md border bg-background px-2 text-sm" value={row.subcategory} onChange={(e) => updateSplitRow(row.id, { subcategory: e.target.value })} aria-label={`Split ${index + 1} subcategory`} />
+                    <input type="text" className="h-9 rounded-md border bg-background px-2 text-sm" value={row.notes} onChange={(e) => updateSplitRow(row.id, { notes: e.target.value })} aria-label={`Split ${index + 1} notes`} />
+                    <button className="flex h-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-red-500 disabled:opacity-40" onClick={() => removeSplitRow(row.id)} disabled={splitRows.length <= 2} title="Remove split row">
+                      <MinusCircle className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <Button variant="outline" size="sm" onClick={addSplitRow}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add row
+                </Button>
+                <div className="flex items-center gap-4 text-sm">
+                  <span className="text-muted-foreground">
+                    Split total: <span className={amountClass(splitRowsTotal)}>{fmtCurrency(splitRowsTotal)}</span>
+                  </span>
+                  <span className={splitDifference === 0 ? 'text-green-500' : 'text-yellow-500'}>Difference: {fmtCurrency(splitDifference / 100)}</span>
+                </div>
+              </div>
+
+              {splitError && <div className="mt-3 rounded-md bg-red-500/10 p-3 text-sm text-red-400">{splitError}</div>}
+            </div>
+
+            <div className="flex justify-end gap-2 border-t border-border px-5 py-4">
+              <Button variant="outline" onClick={closeSplit}>
+                Cancel
+              </Button>
+              <Button onClick={saveSplit} disabled={isLoading || splitDifference !== 0}>
+                Save split
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
         <div>
-          <span>
-            {total > 0 ? `${total} transaction${total === 1 ? '' : 's'}` : 'No transactions'}
-          </span>
-          {total > 0 && (
-            <span className={`ml-4 font-medium ${amountClass(totalAmount)}`}>
-              {fmtCurrency(totalAmount)}
-            </span>
-          )}
+          <span>{total > 0 ? `${total} transaction${total === 1 ? '' : 's'}` : 'No transactions'}</span>
+          {total > 0 && <span className={`ml-4 font-medium ${amountClass(totalAmount)}`}>{fmtCurrency(totalAmount)}</span>}
         </div>
       </div>
     </div>
