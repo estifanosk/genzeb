@@ -318,7 +318,7 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
 
   ipcMain.handle(IPC_CHANNELS.ASK_LLM, async (_, req) => {
     const settings = getSettings()
-    const { prompt, filters, provider } = req
+    const { prompt, filters, provider, history = [] } = req
 
     const res = queryTransactions(settings.dataFolder, { filters, limit: 500, offset: 0, sortBy: 'date', sortOrder: 'desc' })
     const rows = res.transactions
@@ -344,7 +344,7 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
           model: 'claude-sonnet-4-6',
           max_tokens: 1024,
           system: systemPrompt,
-          messages: [{ role: 'user', content: prompt }]
+          messages: [...history, { role: 'user', content: prompt }]
         })
       })
       if (!r.ok) throw new Error(`Anthropic error ${r.status}: ${await r.text()}`)
@@ -358,7 +358,7 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
         headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }]
+          messages: [{ role: 'system', content: systemPrompt }, ...history, { role: 'user', content: prompt }]
         })
       })
       if (!r.ok) throw new Error(`OpenAI error ${r.status}: ${await r.text()}`)

@@ -158,10 +158,16 @@ export interface LinkReceiptRequest {
   notes?: string
 }
 
+export interface AskLlmMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 export interface AskLlmRequest {
   prompt: string
   filters: ExportFilters
   provider: 'openai' | 'anthropic'
+  history?: AskLlmMessage[]
 }
 
 export interface MatchSuggestion {
