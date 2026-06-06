@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { RefreshCw, Receipt, ChevronDown, ChevronRight, ImageOff } from 'lucide-react'
+import { RefreshCw, Receipt, ChevronDown, ChevronRight, ImageOff, RotateCcw } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { fmtCurrency } from '../lib/utils'
 import type { ReceiptIndexRow, ReceiptDetail } from '@core/types'
@@ -146,6 +146,7 @@ export function ReceiptsPage({ onNavigate }: { onNavigate?: (page: string) => vo
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [retrying, setRetrying] = useState<Record<string, boolean>>({})
 
   const load = async () => {
     setIsLoading(true)
@@ -168,6 +169,20 @@ export function ReceiptsPage({ onNavigate }: { onNavigate?: (page: string) => vo
   const ocrPct = total > 0 ? Math.round((ocrOk / total) * 100) : 0
 
   const toggleExpand = (id: string) => setExpanded((prev) => (prev === id ? null : id))
+
+  const rerunOcr = async (receiptId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setRetrying((prev) => ({ ...prev, [receiptId]: true }))
+    try {
+      await window.api.runOcr(receiptId)
+      await load()
+    } catch (err) {
+      setError((err as Error).message)
+      await load()
+    } finally {
+      setRetrying((prev) => ({ ...prev, [receiptId]: false }))
+    }
+  }
 
   return (
     <div className="p-6 h-full flex flex-col">
@@ -225,6 +240,7 @@ export function ReceiptsPage({ onNavigate }: { onNavigate?: (page: string) => vo
                 <th className="text-right p-3 font-medium">Total</th>
                 <th className="text-left p-3 font-medium">OCR</th>
                 <th className="text-left p-3 font-medium">Status</th>
+                <th className="w-10 p-3" />
               </tr>
             </thead>
             <tbody>
@@ -252,10 +268,24 @@ export function ReceiptsPage({ onNavigate }: { onNavigate?: (page: string) => vo
                     </td>
                     <td className="p-3"><OcrBadge status={r.ocr_status} /></td>
                     <td className="p-3"><LinkedBadge linked={r.linked} /></td>
+                    <td className="p-2" onClick={(e) => e.stopPropagation()}>
+                      {(r.ocr_status === 'failed' || r.ocr_status === 'pending') && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0"
+                          disabled={retrying[r.receipt_id]}
+                          onClick={(e) => rerunOcr(r.receipt_id, e)}
+                          title="Re-run OCR"
+                        >
+                          <RotateCcw className={`h-3.5 w-3.5 ${retrying[r.receipt_id] ? 'animate-spin' : ''}`} />
+                        </Button>
+                      )}
+                    </td>
                   </tr>
                   {expanded === r.receipt_id && (
                     <tr key={`${r.receipt_id}-detail`} className="border-b border-border">
-                      <td colSpan={7} className="p-0">
+                      <td colSpan={8} className="p-0">
                         <ReceiptExpandedDetail receipt={r} />
                       </td>
                     </tr>

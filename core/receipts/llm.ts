@@ -156,7 +156,8 @@ export function saveReceiptDetail(dataFolder: string, detail: ReceiptDetail): vo
       merchant: detail.merchant ?? row.merchant,
       date: detail.date ?? row.date,
       total: detail.total !== undefined && detail.total !== null ? String(detail.total) : row.total,
-      currency: detail.currency ?? row.currency
+      currency: detail.currency ?? row.currency,
+      ocr_status: 'ok'
     }
   })
 
@@ -182,6 +183,34 @@ export function saveReceiptDetail(dataFolder: string, detail: ReceiptDetail): vo
         return `"${String(value).replace(/"/g, '""')}"`
       }
       return String(value)
+    })
+    lines.push(values.join(','))
+  }
+  writeFileSync(indexPath, `${lines.join('\n')}\n`, 'utf-8')
+}
+
+export function updateOcrStatus(
+  dataFolder: string,
+  receiptId: string,
+  status: 'ok' | 'failed' | 'pending'
+): void {
+  const indexPath = getDataFilePath(dataFolder, 'RECEIPTS_INDEX')
+  if (!existsSync(indexPath)) return
+  const content = readFileSync(indexPath, 'utf-8')
+  const parsed = Papa.parse<Record<string, string>>(content, { header: true, skipEmptyLines: true })
+  const rows = parsed.data.map((row) =>
+    row.receipt_id === receiptId ? { ...row, ocr_status: status } : row
+  )
+  const headers = parsed.meta.fields || [
+    'receipt_id', 'file_path', 'receipt_type', 'merchant', 'date', 'total',
+    'currency', 'source_hash', 'ocr_status', 'created_at'
+  ]
+  const lines = [headers.join(',')]
+  for (const row of rows) {
+    const values = headers.map((h) => {
+      const value = row[h] ?? ''
+      return String(value).includes(',') || String(value).includes('"') || String(value).includes('\n')
+        ? `"${String(value).replace(/"/g, '""')}"` : String(value)
     })
     lines.push(values.join(','))
   }
