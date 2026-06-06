@@ -100,6 +100,38 @@ Of those receipts, **~70% are linked** to their transaction (via a `link_receipt
 
 Every transaction is assigned one of: Coffee, Dining, Electronics, Entertainment, Gas, Groceries, Health, Home, Income, Insurance, Payment, Shopping, Subscriptions, Transfer, Transportation, Travel, Utilities.
 
+## Large demo CSV (statement import testing)
+
+`test-data/statements/1234_checking_demo-bank_large.csv` is a single-account
+checking statement that spans **Jan–Jun 2026** with ~170 transactions per month
+(1027 total). It is useful for testing pagination, search, and Ask AI with a
+realistic volume of data without needing the full seed script.
+
+### Import it
+
+Drag the file into the app's Import → Statements inbox and click Import, or
+run the seed script (below) which imports the small 6-row fixture instead.
+
+### Regenerate
+
+The file is deterministic (seeded RNG), but if you want to tweak distributions
+or add new merchant categories:
+
+**macOS / Linux:**
+```sh
+npx tsx scripts/gen-demo-data.ts
+```
+
+**Windows (PowerShell):**
+```powershell
+npx tsx scripts\gen-demo-data.ts
+```
+
+This overwrites `test-data/statements/1234_checking_demo-bank_large.csv` in
+place. The generator lives at `scripts/gen-demo-data.ts`.
+
+---
+
 ## Prerequisites
 
 Install dependencies from `app/` first:
