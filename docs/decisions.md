@@ -180,3 +180,9 @@ Cleaned the backlog to remove items that are already implemented and moved stale
 ## 2026-06-06 — Transaction splits materialize as child rows
 
 Split changes now replace the parent transaction in the materialized view with child rows that keep `parent_id` pointing at the original ledger transaction. This preserves the immutable ledger row while making each split queryable, editable, and categorizable like a normal transaction.
+
+---
+
+## 2026-06-06 — E2E seed runner is an explicit dev dependency
+
+Added `tsx` as an app dev dependency because the Playwright seed fixtures execute TypeScript seed scripts through `npx tsx`. Keeping it installed locally makes e2e runs deterministic and avoids registry lookups during test execution.

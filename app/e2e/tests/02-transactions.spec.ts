@@ -1,12 +1,16 @@
 import { test, expect } from '../fixtures'
 
 test.describe('Transactions page (seeded data)', () => {
+  test.beforeEach(async ({ seededWindow }) => {
+    await seededWindow.getByRole('button', { name: 'Transactions' }).click()
+  })
+
   test('shows 6 transaction rows after seeding', async ({ seededWindow }) => {
-    await expect(seededWindow.getByText('Showing 1–6 of 6')).toBeVisible()
+    await expect(seededWindow.getByText('6 records')).toBeVisible()
   })
 
   test('amounts are formatted with $ prefix', async ({ seededWindow }) => {
-    await seededWindow.getByText('Showing 1–6 of 6').waitFor()
+    await seededWindow.getByText('6 records').waitFor()
     const amounts = seededWindow.locator('.text-red-400, .text-green-400')
     await expect(amounts.first()).toBeVisible()
     const text = await amounts.first().innerText()
@@ -15,7 +19,7 @@ test.describe('Transactions page (seeded data)', () => {
   })
 
   test('filter by date range with no results shows empty state', async ({ seededWindow }) => {
-    await seededWindow.getByText('Showing 1–6 of 6').waitFor()
+    await seededWindow.getByText('6 records').waitFor()
 
     await seededWindow.getByRole('button', { name: /Filters/ }).click()
 
@@ -28,7 +32,7 @@ test.describe('Transactions page (seeded data)', () => {
   })
 
   test('footer shows total amount', async ({ seededWindow }) => {
-    await seededWindow.getByText('Showing 1–6 of 6').waitFor()
+    await seededWindow.getByText('6 records').waitFor()
     // Footer total — amount formatted with $
     const footer = seededWindow.locator('text=/\\$/')
     await expect(footer.first()).toBeVisible()
