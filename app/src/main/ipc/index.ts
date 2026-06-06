@@ -374,41 +374,163 @@ export function registerAllHandlers(_ipcMain: IpcMain): void {
     const { transactions } = queryTransactions(settings.dataFolder, { filters: {}, limit: 99999 })
 
     // Build monthly buckets
-    const byMonth: Record<string, { income: number; spending: number }> = {}
+    const byMonth: Record<string, { income: number; spending: number; count: number }> = {}
     const byCategory: Record<string, number> = {}
+    const currentMonthByCategory: Record<string, number> = {}
+    const byMerchant: Record<string, { total: number; count: number; months: Set<string> }> = {}
+    const byAccount: Record<string, { income: number; spending: number; count: number }> = {}
+    let allTimeIncome = 0
+    let allTimeSpending = 0
+    let uncategorizedCount = 0
+    let uncategorizedSpending = 0
+    let transactionsWithReceipts = 0
+    let aiEditedCount = 0
+    let dateMin: string | null = null
+    let dateMax: string | null = null
 
     for (const tx of transactions) {
       const month = tx.date.slice(0, 7)
-      if (!byMonth[month]) byMonth[month] = { income: 0, spending: 0 }
-      if (tx.amount > 0) byMonth[month].income += tx.amount
-      else byMonth[month].spending += Math.abs(tx.amount)
+      if (!byMonth[month]) byMonth[month] = { income: 0, spending: 0, count: 0 }
+      byMonth[month].count += 1
+      if (!dateMin || tx.date < dateMin) dateMin = tx.date
+      if (!dateMax || tx.date > dateMax) dateMax = tx.date
+
+      if (tx.amount > 0) {
+        byMonth[month].income += tx.amount
+        allTimeIncome += tx.amount
+      } else {
+        const spend = Math.abs(tx.amount)
+        byMonth[month].spending += spend
+        allTimeSpending += spend
+      }
+
+      const account = tx.account || 'Unknown'
+      if (!byAccount[account]) byAccount[account] = { income: 0, spending: 0, count: 0 }
+      byAccount[account].count += 1
+      if (tx.amount > 0) byAccount[account].income += tx.amount
+      else byAccount[account].spending += Math.abs(tx.amount)
+
+      if (tx.receipt_files?.trim()) transactionsWithReceipts += 1
+      if (tx.ai_edited) aiEditedCount += 1
 
       if (tx.category && tx.amount < 0) {
         byCategory[tx.category] = (byCategory[tx.category] || 0) + Math.abs(tx.amount)
+      }
+      if (!tx.category && tx.amount < 0) {
+        uncategorizedCount += 1
+        uncategorizedSpending += Math.abs(tx.amount)
+      }
+
+      if (tx.amount < 0) {
+        const merchant = (tx.merchant || tx.description || 'Unknown').trim()
+        if (!byMerchant[merchant]) byMerchant[merchant] = { total: 0, count: 0, months: new Set<string>() }
+        byMerchant[merchant].total += Math.abs(tx.amount)
+        byMerchant[merchant].count += 1
+        byMerchant[merchant].months.add(month)
       }
     }
 
     const months = Object.keys(byMonth).sort()
     const currentMonth = months[months.length - 1] ?? ''
-    const cur = byMonth[currentMonth] ?? { income: 0, spending: 0 }
+    const previousMonth = months.length > 1 ? months[months.length - 2] : null
+    const cur = byMonth[currentMonth] ?? { income: 0, spending: 0, count: 0 }
+    const prev = previousMonth ? byMonth[previousMonth] : { income: 0, spending: 0, count: 0 }
+
+    if (currentMonth) {
+      for (const tx of transactions) {
+        if (tx.date.slice(0, 7) !== currentMonth || !tx.category || tx.amount >= 0) continue
+        currentMonthByCategory[tx.category] = (currentMonthByCategory[tx.category] || 0) + Math.abs(tx.amount)
+      }
+    }
 
     const categoryBreakdown = Object.entries(byCategory)
       .map(([category, total]) => ({ category, total: Math.round(total * 100) / 100 }))
       .sort((a, b) => b.total - a.total)
 
     const topCategory = categoryBreakdown[0]?.category ?? null
+    const round = (n: number) => Math.round(n * 100) / 100
+    const pctDelta = (current: number, previous: number) => {
+      if (previous === 0) return null
+      return round(((current - previous) / previous) * 100)
+    }
+    const daysInCurrentMonth = currentMonth
+      ? new Date(Number(currentMonth.slice(0, 4)), Number(currentMonth.slice(5, 7)), 0).getDate()
+      : 0
 
     return {
       currentMonth,
-      monthlyIncome: Math.round(cur.income * 100) / 100,
-      monthlySpending: Math.round(cur.spending * 100) / 100,
+      monthlyIncome: round(cur.income),
+      monthlySpending: round(cur.spending),
+      monthlyNet: round(cur.income - cur.spending),
+      previousMonth,
+      previousMonthIncome: round(prev.income),
+      previousMonthSpending: round(prev.spending),
+      previousMonthNet: round(prev.income - prev.spending),
+      monthOverMonthSpendingPct: pctDelta(cur.spending, prev.spending),
+      monthOverMonthIncomePct: pctDelta(cur.income, prev.income),
+      allTimeIncome: round(allTimeIncome),
+      allTimeSpending: round(allTimeSpending),
+      allTimeNet: round(allTimeIncome - allTimeSpending),
+      transactionCountThisMonth: cur.count,
+      averageTransactionAmount: round(transactions.reduce((sum, tx) => sum + tx.amount, 0) / Math.max(transactions.length, 1)),
+      averageMonthlySpending: round(allTimeSpending / Math.max(months.length, 1)),
+      averageDailySpendingThisMonth: round(cur.spending / Math.max(daysInCurrentMonth, 1)),
       topCategory,
       monthlyTrend: months.map((m) => ({
         month: m,
-        income: Math.round(byMonth[m].income * 100) / 100,
-        spending: Math.round(byMonth[m].spending * 100) / 100
+        income: round(byMonth[m].income),
+        spending: round(byMonth[m].spending)
       })),
       categoryBreakdown,
+      currentMonthCategoryBreakdown: Object.entries(currentMonthByCategory)
+        .map(([category, total]) => ({ category, total: round(total) }))
+        .sort((a, b) => b.total - a.total),
+      topMerchants: Object.entries(byMerchant)
+        .map(([merchant, data]) => ({ merchant, total: round(data.total), count: data.count }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 8),
+      accountBreakdown: Object.entries(byAccount)
+        .map(([account, data]) => ({
+          account,
+          income: round(data.income),
+          spending: round(data.spending),
+          net: round(data.income - data.spending),
+          count: data.count
+        }))
+        .sort((a, b) => b.spending - a.spending),
+      largestExpenses: transactions
+        .filter((tx) => tx.amount < 0)
+        .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount))
+        .slice(0, 8)
+        .map((tx) => ({
+          id: tx.id,
+          date: tx.date,
+          merchant: tx.merchant || tx.description || 'Unknown',
+          amount: round(Math.abs(tx.amount)),
+          category: tx.category
+        })),
+      recentTransactions: [...transactions]
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .slice(0, 8)
+        .map((tx) => ({
+          id: tx.id,
+          date: tx.date,
+          merchant: tx.merchant || tx.description || 'Unknown',
+          amount: round(tx.amount),
+          category: tx.category
+        })),
+      recurringMerchants: Object.entries(byMerchant)
+        .map(([merchant, data]) => ({ merchant, total: round(data.total), count: data.count, months: data.months.size }))
+        .filter((row) => row.count >= 2 && row.months >= 2)
+        .sort((a, b) => b.months - a.months || b.total - a.total)
+        .slice(0, 8),
+      uncategorizedCount,
+      uncategorizedSpending: round(uncategorizedSpending),
+      transactionsWithReceipts,
+      receiptCoveragePct: round((transactionsWithReceipts / Math.max(transactions.length, 1)) * 100),
+      aiEditedCount,
+      dateMin,
+      dateMax,
       totalTransactions: transactions.length
     }
   })

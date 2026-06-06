@@ -62,9 +62,9 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen min-h-0 min-w-0 bg-background">
       <Sidebar currentPage={currentPage} onNavigate={(page) => setCurrentPage(page as PageId)} theme={theme} onToggleTheme={toggleTheme} />
-      <main className="flex-1 overflow-auto">{renderPage()}</main>
+      <main className="min-h-0 min-w-0 flex-1 overflow-hidden">{renderPage()}</main>
     </div>
   )
 }
