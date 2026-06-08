@@ -2,7 +2,10 @@ import { useEffect, useState, useCallback } from 'react'
 import { FileText, Receipt, RefreshCw, ExternalLink, Eye, Sparkles, History } from 'lucide-react'
 import type { ImportLogRow } from '@core/types'
 import { Button } from '../components/ui/button'
+import { Badge } from '../components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { PageHeader, PageShell } from '../components/ui/page'
+import { EmptyState } from '../components/ui/state'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs'
 import { useSettingsStore } from '../stores/settings'
 import type { InboxScanResult, InboxPaths, CsvPreview, CsvMappingInfo, CsvStats, ReceiptMatchPreview, IngestReceiptsResponse, ReceiptMatchMetadata } from '@core/types/ipc'
@@ -322,28 +325,31 @@ export function ImportPage() {
 
   if (!settings?.dataFolder) {
     return (
-      <div className="p-6 h-full flex flex-col">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Import</h2>
-        </div>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-muted-foreground text-center">Please select a data folder in Settings first.</p>
-          </CardContent>
-        </Card>
-      </div>
+      <PageShell>
+        <PageHeader title="Import" description="Import statements and receipts from your local inbox folders." />
+        <EmptyState title="Data folder required" description="Please select a data folder in Settings first." />
+      </PageShell>
     )
   }
 
   return (
-    <div className="p-6 h-full flex flex-col">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Import</h2>
+    <PageShell className="overflow-auto">
+      <PageHeader
+        title="Import"
+        description="Review pending inbox files, import statements, process receipts, and inspect import history."
+        meta={
+          <>
+            <Badge variant="neutral">{inboxScan?.statements.length ?? 0} statements</Badge>
+            <Badge variant="neutral">{inboxScan?.receipts.length ?? 0} receipts</Badge>
+          </>
+        }
+        actions={
         <Button onClick={() => scanInbox()} variant="outline" size="sm" disabled={isScanning}>
-          <RefreshCw className={`mr-2 h-4 w-4 ${isScanning ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${isScanning ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
-      </div>
+        }
+      />
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabKey)}>
         <TabsList>
@@ -859,6 +865,6 @@ export function ImportPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageShell>
   )
 }

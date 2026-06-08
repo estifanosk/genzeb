@@ -186,3 +186,15 @@ Split changes now replace the parent transaction in the materialized view with c
 ## 2026-06-06 — E2E seed runner is an explicit dev dependency
 
 Added `tsx` as an app dev dependency because the Playwright seed fixtures execute TypeScript seed scripts through `npx tsx`. Keeping it installed locally makes e2e runs deterministic and avoids registry lookups during test execution.
+
+## 2026-06-06 — Transactions owns both scroll axes
+
+Changed the Transactions table to use a single table viewport for vertical and horizontal scrolling, with the visible-column grid generated from the active columns. This avoids nested scroll containers and prevents hidden columns from shifting cells into the wrong tracks, which made fullscreen transactions look cropped or cut off.
+
+## 2026-06-06 — UI polish through shared primitives
+
+Polished the renderer by adding shared page headers, panels, badges, form controls, and state components rather than redesigning each page independently. This keeps the existing workflows stable while making Dashboard, Transactions, Receipts, Reconcile, Item Explorer, Import, Ask AI, and Settings feel like one coherent desktop app.
+
+## 2026-06-06 — Dashboard favors dense operational insight
+
+Expanded the Dashboard with derived metrics for cash flow, month-over-month movement, receipt coverage, uncategorized spending, top merchants, account totals, recurring-looking merchants, largest expenses, and recent activity. The goal is to make the first screen a useful financial command center while keeping all metrics computed from existing local transaction data.

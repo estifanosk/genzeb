@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react'
 import { RefreshCw, Receipt, ChevronDown, ChevronRight, ImageOff, RotateCcw } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { Badge } from '../components/ui/badge'
+import { PageHeader, PageShell } from '../components/ui/page'
+import { EmptyState, InlineAlert } from '../components/ui/state'
 import { fmtCurrency } from '../lib/utils'
 import type { ReceiptIndexRow, ReceiptDetail } from '@core/types'
 
 type ReceiptRow = ReceiptIndexRow & { linked: boolean }
 
 function OcrBadge({ status }: { status: ReceiptIndexRow['ocr_status'] }) {
-  if (status === 'ok') return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-green-500/15 text-green-400">OCR OK</span>
-  if (status === 'failed') return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-500/15 text-red-400">Failed</span>
-  return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-yellow-500/15 text-yellow-400">Pending</span>
+  if (status === 'ok') return <Badge variant="success">OCR OK</Badge>
+  if (status === 'failed') return <Badge variant="danger">Failed</Badge>
+  return <Badge variant="warning">Pending</Badge>
 }
 
 function LinkedBadge({ linked }: { linked: boolean }) {
-  if (linked) return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-500/15 text-blue-400">Linked</span>
-  return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-muted text-muted-foreground">Unlinked</span>
+  if (linked) return <Badge variant="info">Linked</Badge>
+  return <Badge>Unlinked</Badge>
 }
 
 // Small thumbnail shown in the table row
@@ -187,53 +190,49 @@ export function ReceiptsPage({ onNavigate }: { onNavigate?: (page: string) => vo
   }
 
   return (
-    <div className="p-6 h-full flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Receipts</h2>
-        <Button variant="outline" size="sm" onClick={load} disabled={isLoading}>
-          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-      </div>
-
-      {/* Stats */}
-      {total > 0 && (
-        <div className="flex gap-6 mb-4 text-sm">
-          <span className="text-muted-foreground">{total} receipt{total !== 1 ? 's' : ''}</span>
-          <span className="text-blue-400">{linked} linked</span>
-          <span className="text-muted-foreground">{total - linked} unlinked</span>
-          <span className={ocrPct === 100 ? 'text-green-400' : ocrPct > 0 ? 'text-yellow-400' : 'text-muted-foreground'}>
-            {ocrPct}% OCR success
-          </span>
-        </div>
-      )}
+    <PageShell>
+      <PageHeader
+        title="Receipts"
+        description="Review imported receipts, OCR status, and extracted line items."
+        meta={total > 0 && (
+          <>
+            <Badge variant="neutral">{total} receipt{total !== 1 ? 's' : ''}</Badge>
+            <Badge variant="info">{linked} linked</Badge>
+            <Badge>{total - linked} unlinked</Badge>
+            <Badge variant={ocrPct === 100 ? 'success' : ocrPct > 0 ? 'warning' : 'default'}>{ocrPct}% OCR success</Badge>
+          </>
+        )}
+        actions={
+          <Button variant="outline" size="sm" onClick={load} disabled={isLoading}>
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        }
+      />
 
       {loadError && (
-        <div className="mb-4 p-3 rounded bg-red-500/10 text-red-400 text-sm">{loadError}</div>
+        <InlineAlert className="mb-4">{loadError}</InlineAlert>
       )}
 
       {/* Empty state */}
       {!isLoading && total === 0 && (
-        <div className="flex-1 flex items-center justify-center border-2 border-dashed rounded-lg">
-          <div className="text-center text-muted-foreground">
-            <Receipt className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium">No receipts yet</p>
-            <p className="text-sm mt-1 mb-4">Import receipt images to get started</p>
-            {onNavigate && (
-              <Button size="sm" onClick={() => onNavigate('import')}>
-                Import a receipt
-              </Button>
-            )}
-          </div>
-        </div>
+        <EmptyState
+          icon={Receipt}
+          title="No receipts yet"
+          description="Import receipt images to get started."
+          action={onNavigate && (
+            <Button size="sm" onClick={() => onNavigate('import')}>
+              Import a receipt
+            </Button>
+          )}
+        />
       )}
 
       {/* Table */}
       {total > 0 && (
-        <div className="flex-1 overflow-auto rounded-lg border border-border">
+        <div className="min-h-0 flex-1 overflow-auto rounded-lg border border-border bg-card">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-secondary text-secondary-foreground border-b border-border">
+            <thead className="sticky top-0 bg-muted text-muted-foreground border-b border-border">
               <tr>
                 <th className="w-6 p-3" />
                 <th className="w-16 p-3" /> {/* thumbnail column */}
@@ -305,6 +304,6 @@ export function ReceiptsPage({ onNavigate }: { onNavigate?: (page: string) => vo
           </table>
         </div>
       )}
-    </div>
+    </PageShell>
   )
 }
