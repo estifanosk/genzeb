@@ -100,11 +100,38 @@ export interface DashboardStats {
   currentMonth: string // 'YYYY-MM'
   monthlyIncome: number
   monthlySpending: number
+  monthlyNet: number
+  previousMonth: string | null
+  previousMonthIncome: number
+  previousMonthSpending: number
+  previousMonthNet: number
+  monthOverMonthSpendingPct: number | null
+  monthOverMonthIncomePct: number | null
+  allTimeIncome: number
+  allTimeSpending: number
+  allTimeNet: number
+  transactionCountThisMonth: number
+  averageTransactionAmount: number
+  averageMonthlySpending: number
+  averageDailySpendingThisMonth: number
   topCategory: string | null
   /** Per-month totals: income and spending, sorted oldest→newest */
   monthlyTrend: Array<{ month: string; income: number; spending: number }>
   /** Spending by category across all data */
   categoryBreakdown: Array<{ category: string; total: number }>
+  currentMonthCategoryBreakdown: Array<{ category: string; total: number }>
+  topMerchants: Array<{ merchant: string; total: number; count: number }>
+  accountBreakdown: Array<{ account: string; income: number; spending: number; net: number; count: number }>
+  largestExpenses: Array<{ id: string; date: string; merchant: string; amount: number; category?: string }>
+  recentTransactions: Array<{ id: string; date: string; merchant: string; amount: number; category?: string }>
+  recurringMerchants: Array<{ merchant: string; total: number; count: number; months: number }>
+  uncategorizedCount: number
+  uncategorizedSpending: number
+  transactionsWithReceipts: number
+  receiptCoveragePct: number
+  aiEditedCount: number
+  dateMin: string | null
+  dateMax: string | null
   /** Total transactions */
   totalTransactions: number
 }
