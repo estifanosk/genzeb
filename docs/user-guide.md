@@ -2,7 +2,9 @@
 
 Genzeb is a local-first desktop app for tracking personal expenses. Your data lives entirely on your own machine as plain CSV files — no accounts, no cloud sync, no subscription required.
 
-All edits are recorded in an append-only ledger, so nothing is ever deleted and you have a full audit trail of every change.
+### Append-only data model
+
+Every edit you make is recorded as a new row in `changes.csv` — nothing is ever overwritten or deleted from the raw ledger. Your current transaction view is always rebuilt by replaying the original ledger against the change log. This makes your data fully auditable: you can see exactly what changed, when, and whether it was edited by you or by an AI agent. If something goes wrong, the original import is always intact.
 
 ### Three ways to use it
 
