@@ -1,6 +1,8 @@
 # Genzeb User Guide
 
-Genzeb is a local-first desktop app for tracking personal expenses. Your data lives entirely on your own machine as plain CSV files — no accounts, no cloud sync, no subscription required. All edits are recorded in an append-only ledger, so nothing is ever deleted and you have a full audit trail of every change.
+Genzeb is a local-first desktop app for tracking personal expenses. Your data lives entirely on your own machine as plain CSV files — no accounts, no cloud sync, no subscription required.
+
+All edits are recorded in an append-only ledger, so nothing is ever deleted and you have a full audit trail of every change.
 
 ### Three ways to use it
 
