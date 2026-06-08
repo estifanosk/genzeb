@@ -3,6 +3,9 @@ import { Folder, RefreshCw, FolderOpen, FileText, Receipt, Trash2, Sparkles, Ale
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
+import { Badge } from '../components/ui/badge'
+import { PageHeader, PageShell } from '../components/ui/page'
+import { InlineAlert } from '../components/ui/state'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs'
 import { useSettingsStore } from '../stores/settings'
 import type { InboxPaths, CategorizeTransactionsResponse } from '@core/types/ipc'
@@ -63,7 +66,7 @@ function ApiKeysCard({
           <Button onClick={handleSave} size="sm" disabled={!dirty && !saved}>
             Save
           </Button>
-          {saved && <span className="text-xs text-green-400">Saved ✓</span>}
+          {saved && <Badge variant="success">Saved</Badge>}
         </div>
       </CardContent>
     </Card>
@@ -267,7 +270,7 @@ export function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex h-full items-center justify-center">
         <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     )
@@ -275,20 +278,25 @@ export function SettingsPage() {
 
   if (error) {
     return (
-      <div className="p-6">
+      <PageShell>
         <Card className="border-destructive">
           <CardHeader>
             <CardTitle className="text-destructive">Error</CardTitle>
             <CardDescription>{error}</CardDescription>
           </CardHeader>
         </Card>
-      </div>
+      </PageShell>
     )
   }
 
   return (
-    <div className="p-6 max-w-4xl">
-      <h2 className="text-2xl font-bold mb-6">Settings</h2>
+    <PageShell className="overflow-auto">
+      <div className="max-w-5xl">
+        <PageHeader
+          title="Settings"
+          description="Configure local data storage, categories, rules, API keys, and maintenance actions."
+          meta={settings?.dataFolder && <Badge variant="success">Data folder configured</Badge>}
+        />
 
       <div className="space-y-6">
         {/* Data Folder */}
@@ -396,9 +404,7 @@ export function SettingsPage() {
               <TabsContent value="categories">
                 <div className="space-y-3 pt-4">
                   {categoryError && (
-                    <div className="text-sm text-destructive border border-destructive/40 rounded-md p-3">
-                      {categoryError}
-                    </div>
+                    <InlineAlert>{categoryError}</InlineAlert>
                   )}
                   <div className="grid grid-cols-[2fr_2fr_40px] gap-2 text-xs font-medium text-muted-foreground">
                     <div>Category</div>
@@ -449,9 +455,7 @@ export function SettingsPage() {
               <TabsContent value="rules">
                 <div className="space-y-3 pt-4">
                   {rulesError && (
-                    <div className="text-sm text-destructive border border-destructive/40 rounded-md p-3">
-                      {rulesError}
-                    </div>
+                    <InlineAlert>{rulesError}</InlineAlert>
                   )}
                   <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_80px_40px] gap-2 text-xs font-medium text-muted-foreground">
                     <div>Match</div>
@@ -581,15 +585,11 @@ export function SettingsPage() {
                   </p>
 
                   {!settings?.openAiKey && (
-                    <div className="text-sm text-muted-foreground border rounded-md p-3 bg-muted/40">
-                      Add your OpenAI API key below to enable LLM categorization.
-                    </div>
+                    <InlineAlert variant="info">Add your OpenAI API key below to enable LLM categorization.</InlineAlert>
                   )}
 
                   {llmError && (
-                    <div className="text-sm text-destructive border border-destructive/40 rounded-md p-3">
-                      {llmError}
-                    </div>
+                    <InlineAlert>{llmError}</InlineAlert>
                   )}
 
                   <Button
@@ -612,7 +612,7 @@ export function SettingsPage() {
                       </label>
                       <div className="overflow-auto max-h-80 border rounded">
                         <table className="w-full text-xs">
-                          <thead className="bg-muted sticky top-0">
+                          <thead className="bg-muted sticky top-0 text-muted-foreground">
                             <tr>
                               <th className="text-left p-2 w-8"></th>
                               <th className="text-left p-2">Transaction</th>
@@ -710,6 +710,7 @@ export function SettingsPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </PageShell>
   )
 }

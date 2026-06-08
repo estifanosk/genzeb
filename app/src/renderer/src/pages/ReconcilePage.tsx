@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeftRight, RefreshCw, Link2, Unlink, CheckCircle2, ImageOff } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { Badge } from '../components/ui/badge'
+import { PageHeader, PageShell } from '../components/ui/page'
+import { EmptyState, InlineAlert, LoadingState } from '../components/ui/state'
 import { fmtCurrency, amountClass, fmtDate } from '../lib/utils'
 import type { ReceiptIndexRow } from '@core/types'
 import type { TransactionCandidate } from '@core/types/ipc'
@@ -21,12 +24,8 @@ function ReceiptThumb({ filePath }: { filePath: string }) {
 
 function ScoreBadge({ score }: { score: number }) {
   const pct = Math.round(score * 100)
-  const color = pct >= 85 ? 'text-green-400 bg-green-500/10' : pct >= 60 ? 'text-yellow-400 bg-yellow-500/10' : 'text-muted-foreground bg-muted'
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${color}`}>
-      {pct}% match
-    </span>
-  )
+  const variant = pct >= 85 ? 'success' : pct >= 60 ? 'warning' : 'default'
+  return <Badge variant={variant}>{pct}% match</Badge>
 }
 
 export function ReconcilePage({ onNavigate }: { onNavigate?: (page: string) => void }) {
@@ -107,55 +106,43 @@ export function ReconcilePage({ onNavigate }: { onNavigate?: (page: string) => v
   const linked = receipts.filter((r) => r.linked)
 
   return (
-    <div className="p-6 h-full flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="text-2xl font-bold">Reconcile</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">Match unlinked receipts to transactions</p>
-        </div>
-        <div className="flex items-center gap-3 text-sm">
-          {!isLoading && (
-            <>
-              <span className="text-yellow-400">{unlinked.length} unlinked</span>
-              <span className="text-green-400">{linked.length} linked</span>
-            </>
-          )}
+    <PageShell>
+      <PageHeader
+        title="Reconcile"
+        description="Match unlinked receipts to likely transactions."
+        meta={!isLoading && (
+          <>
+            <Badge variant="warning">{unlinked.length} unlinked</Badge>
+            <Badge variant="success">{linked.length} linked</Badge>
+          </>
+        )}
+        actions={
           <Button variant="outline" size="sm" onClick={load} disabled={isLoading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-        </div>
-      </div>
+        }
+      />
 
-      {error && <div className="mb-4 p-3 rounded bg-red-500/10 text-red-400 text-sm">{error}</div>}
+      {error && <InlineAlert className="mb-4">{error}</InlineAlert>}
 
       {isLoading ? (
-        <div className="flex-1 flex items-center justify-center border-2 border-dashed rounded-lg">
-          <div className="text-center text-muted-foreground">
-            <RefreshCw className="h-8 w-8 mx-auto mb-3 animate-spin opacity-60" />
-            <p className="text-sm">Loading receipts...</p>
-          </div>
-        </div>
+        <LoadingState label="Loading receipts..." />
       ) : receipts.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center border-2 border-dashed rounded-lg">
-          <div className="text-center text-muted-foreground">
-            <ArrowLeftRight className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium">No receipts yet</p>
-            <p className="text-sm mt-1 mb-4">Import receipts to start reconciling</p>
-            {onNavigate && (
-              <Button size="sm" onClick={() => onNavigate('import')}>Import a receipt</Button>
-            )}
-          </div>
-        </div>
+        <EmptyState
+          icon={ArrowLeftRight}
+          title="No receipts yet"
+          description="Import receipts to start reconciling."
+          action={onNavigate && <Button size="sm" onClick={() => onNavigate('import')}>Import a receipt</Button>}
+        />
       ) : (
         <div className="flex-1 flex gap-4 min-h-0">
           {/* Left: receipt list */}
-          <div className="w-64 shrink-0 flex flex-col border rounded-lg overflow-hidden">
+          <div className="w-72 shrink-0 flex flex-col border rounded-lg overflow-hidden bg-card">
             <div className="overflow-y-auto flex-1">
               {unlinked.length > 0 && (
                 <>
-                  <p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 bg-muted/40 border-b border-border sticky top-0">
+                  <p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground bg-muted border-b border-border sticky top-0">
                     Unlinked ({unlinked.length})
                   </p>
                   {unlinked.map((r) => (
@@ -183,7 +170,7 @@ export function ReconcilePage({ onNavigate }: { onNavigate?: (page: string) => v
 
               {linked.length > 0 && (
                 <>
-                  <p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 bg-muted/40 border-b border-border sticky top-0">
+                  <p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground bg-muted border-b border-border sticky top-0">
                     Linked ({linked.length})
                   </p>
                   {linked.map((r) => (
@@ -213,7 +200,7 @@ export function ReconcilePage({ onNavigate }: { onNavigate?: (page: string) => v
           </div>
 
           {/* Right: detail + candidates */}
-          <div className="flex-1 flex flex-col border rounded-lg overflow-hidden">
+          <div className="flex-1 flex flex-col border rounded-lg overflow-hidden bg-card">
             {!selected ? (
               <div className="flex-1 flex items-center justify-center text-muted-foreground">
                 <div className="text-center">
@@ -234,8 +221,8 @@ export function ReconcilePage({ onNavigate }: { onNavigate?: (page: string) => v
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       {selected.linked
-                        ? <span className="inline-flex items-center gap-1 text-xs text-green-400"><CheckCircle2 className="h-3 w-3" /> Linked</span>
-                        : <span className="inline-flex items-center gap-1 text-xs text-yellow-400"><Link2 className="h-3 w-3" /> Unlinked</span>
+                        ? <Badge variant="success"><CheckCircle2 className="h-3 w-3" /> Linked</Badge>
+                        : <Badge variant="warning"><Link2 className="h-3 w-3" /> Unlinked</Badge>
                       }
                     </div>
                   </div>
@@ -316,6 +303,6 @@ export function ReconcilePage({ onNavigate }: { onNavigate?: (page: string) => v
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   )
 }

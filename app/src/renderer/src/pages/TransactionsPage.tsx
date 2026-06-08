@@ -2,6 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { FileText, RefreshCw, Filter, Columns, Edit2, Check, X, Trash2, History, Scissors, Plus, MinusCircle } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { Badge } from '../components/ui/badge'
+import { Input } from '../components/ui/input'
+import { PageHeader, PageShell, Panel } from '../components/ui/page'
+import { Select } from '../components/ui/select'
+import { EmptyState, InlineAlert, LoadingState } from '../components/ui/state'
 import { fmtCurrency, amountClass, fmtDate } from '../lib/utils'
 import type { AccountInfo, ReceiptDetail, TransactionRow, ChangeRow, SplitPayload } from '@core/types'
 
@@ -522,106 +527,110 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
   }
 
   const allSelected = transactions.length > 0 && selectedIds.size === transactions.length
+  const tableColumns = [
+    { key: 'date', label: 'Date', sortKey: 'date' as keyof TransactionRow, track: '120px', minWidth: 120 },
+    { key: 'merchant', label: 'Merchant', sortKey: 'merchant' as keyof TransactionRow, track: 'minmax(220px, 6fr)', minWidth: 220 },
+    { key: 'description', label: 'Description', sortKey: 'description' as keyof TransactionRow, track: 'minmax(260px, 6fr)', minWidth: 260 },
+    { key: 'amount', label: 'Amount', sortKey: 'amount' as keyof TransactionRow, track: '140px', minWidth: 140, align: 'right' },
+    { key: 'account', label: 'Account', sortKey: 'account' as keyof TransactionRow, track: '200px', minWidth: 200 },
+    { key: 'category', label: 'Category', sortKey: 'category' as keyof TransactionRow, track: '140px', minWidth: 140 },
+    { key: 'subcategory', label: 'Subcategory', sortKey: 'subcategory' as keyof TransactionRow, track: '140px', minWidth: 140 },
+    { key: 'notes', label: 'Notes', track: 'minmax(180px, 2fr)', minWidth: 180 }
+  ].filter((column) => effectiveVisibleColumns[column.key])
+  const tableGridTemplate = ['32px', '28px', ...tableColumns.map((column) => column.track), '80px'].join(' ')
+  const tableMinWidth = Math.max(
+    760,
+    32 + 28 + 80 + tableColumns.reduce((sum, column) => sum + column.minWidth, 0) + (tableColumns.length + 2) * 12 + 24
+  )
+  const activeFilterCount = [dateStart, dateEnd, amountMin, amountMax, merchantContains].filter(Boolean).length + (selectedAccount !== 'all' ? 1 : 0) + (hasReceipt !== 'all' ? 1 : 0) + (uncategorized ? 1 : 0)
 
   return (
-    <div className="p-6 h-full flex flex-col">
-      <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
-        <div>
-          <h2 className="text-2xl font-bold">Transactions</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {total} record{total === 1 ? '' : 's'}
-          </p>
-        </div>
-        <div className="flex gap-2 items-start flex-wrap">
-          <div className="relative">
-            <input
+    <PageShell>
+      <PageHeader
+        title="Transactions"
+        description="Search, filter, edit, split, and review imported activity."
+        meta={
+          <>
+            <Badge variant="neutral">{total} record{total === 1 ? '' : 's'}</Badge>
+            <Badge variant={totalAmount >= 0 ? 'success' : 'danger'}>{fmtCurrency(totalAmount)} filtered total</Badge>
+            {selectedIds.size > 0 && <Badge variant="info">{selectedIds.size} selected</Badge>}
+          </>
+        }
+        actions={
+          <>
+            <Input
               type="text"
               placeholder="Search transactions..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
               }}
-              className="border rounded-md px-2 text-sm h-8"
+              className="h-8 w-56"
             />
-          </div>
-          <Button variant={showFilters ? 'default' : 'outline'} size="sm" onClick={() => setShowFilters((prev) => !prev)}>
-            <Filter className="h-4 w-4 mr-1" />
-            Filters
-            {(() => {
-              const count = [dateStart, dateEnd, amountMin, amountMax, merchantContains].filter(Boolean).length + (selectedAccount !== 'all' ? 1 : 0) + (hasReceipt !== 'all' ? 1 : 0) + (uncategorized ? 1 : 0)
-              return count > 0 ? <span className="ml-1.5 bg-primary-foreground text-primary text-[10px] font-bold rounded-full px-1.5 py-0.5">{count}</span> : null
-            })()}
-          </Button>
-          <Button variant={showColumnManager ? 'default' : 'outline'} size="sm" onClick={() => setShowColumnManager((prev) => !prev)}>
-            <Columns className="h-4 w-4 mr-1" />
-            Columns
-          </Button>
-          <select
-            className="border rounded-md px-2 text-sm h-8"
-            value={selectedAccount}
-            onChange={(e) => {
-              setSelectedAccount(e.target.value)
-            }}
-          >
-            <option value="all">All Accounts</option>
-            {accounts.map((acct) => (
-              <option key={acct.accountNumber} value={acct.accountNumber}>
-                {acct.accountNumber}
-              </option>
-            ))}
-          </select>
-          {selectedAccountMeta && (
-            <div className="text-xs text-muted-foreground px-2 py-1 border rounded-md">
-              <div>
-                <span className="font-medium text-foreground">Bank:</span> {selectedAccountMeta.bankName || 'Unknown'}
-              </div>
-              <div>
-                <span className="font-medium text-foreground">Type:</span> {selectedAccountMeta.accountType || 'Unknown'}
-              </div>
-              {selectedAccountMeta.period && (
-                <div>
-                  <span className="font-medium text-foreground">Period:</span> {selectedAccountMeta.period}
-                </div>
-              )}
-              {selectedAccountMeta.lastImportedAt && (
-                <div>
-                  <span className="font-medium text-foreground">Last import:</span> {new Date(selectedAccountMeta.lastImportedAt).toLocaleString()}
-                </div>
-              )}
-              {selectedAccountMeta.sourceFiles?.length > 0 && (
-                <div>
-                  <span className="font-medium text-foreground">Files:</span> {selectedAccountMeta.sourceFiles.length}
-                </div>
-              )}
-            </div>
-          )}
-          {selectedIds.size > 0 && (
-            <>
-              <span className="text-xs text-muted-foreground">{selectedIds.size} selected</span>
-              <Button onClick={() => setShowBulkEdit(true)} variant="outline" size="sm">
-                <Edit2 className="h-4 w-4 mr-1" />
-                Bulk Edit
-              </Button>
-              <Button onClick={removeSelected} variant="outline" size="sm" disabled={isLoading}>
-                <Trash2 className="h-4 w-4 mr-1" />
-                Remove Selected
-              </Button>
-            </>
-          )}
-          <Button onClick={loadTransactions} variant="outline" size="sm" disabled={isLoading}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+            <Button variant={showFilters ? 'default' : 'outline'} size="sm" onClick={() => setShowFilters((prev) => !prev)}>
+              <Filter className="h-4 w-4" />
+              Filters
+              {activeFilterCount > 0 && <Badge variant={showFilters ? 'neutral' : 'info'} className="ml-1">{activeFilterCount}</Badge>}
+            </Button>
+            <Button variant={showColumnManager ? 'default' : 'outline'} size="sm" onClick={() => setShowColumnManager((prev) => !prev)}>
+              <Columns className="h-4 w-4" />
+              Columns
+            </Button>
+            <Select
+              className="h-8"
+              value={selectedAccount}
+              onChange={(e) => {
+                setSelectedAccount(e.target.value)
+              }}
+            >
+              <option value="all">All accounts</option>
+              {accounts.map((acct) => (
+                <option key={acct.accountNumber} value={acct.accountNumber}>
+                  {acct.accountNumber}
+                </option>
+              ))}
+            </Select>
+            <Button onClick={loadTransactions} variant="outline" size="sm" disabled={isLoading}>
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </>
+        }
+      />
+
+      {selectedAccountMeta && (
+        <div className="mb-4 flex flex-wrap gap-2 text-xs">
+          <Badge variant="neutral">Bank: {selectedAccountMeta.bankName || 'Unknown'}</Badge>
+          <Badge variant="neutral">Type: {selectedAccountMeta.accountType || 'Unknown'}</Badge>
+          {selectedAccountMeta.period && <Badge variant="neutral">Period: {selectedAccountMeta.period}</Badge>}
+          {selectedAccountMeta.lastImportedAt && <Badge variant="neutral">Last import: {new Date(selectedAccountMeta.lastImportedAt).toLocaleString()}</Badge>}
+          {selectedAccountMeta.sourceFiles?.length > 0 && <Badge variant="neutral">Files: {selectedAccountMeta.sourceFiles.length}</Badge>}
         </div>
-      </div>
+      )}
+
+      {selectedIds.size > 0 && (
+        <Panel className="mb-4 flex flex-wrap items-center justify-between gap-3 p-3">
+          <span className="text-sm text-muted-foreground">{selectedIds.size} selected</span>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => setShowBulkEdit(true)} variant="outline" size="sm">
+              <Edit2 className="h-4 w-4" />
+              Bulk edit
+            </Button>
+            <Button onClick={removeSelected} variant="outline" size="sm" disabled={isLoading}>
+              <Trash2 className="h-4 w-4" />
+              Remove selected
+            </Button>
+          </div>
+        </Panel>
+      )}
 
       {showFilters && (
-        <div className="border rounded-lg p-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Panel className="mb-4 grid grid-cols-1 gap-4 p-4 md:grid-cols-3">
           <div>
             <label className="text-xs text-muted-foreground">Date from</label>
-            <input
+            <Input
               type="date"
-              className="border rounded-md px-2 text-sm w-full h-8"
+              className="h-8"
               value={dateStart}
               onChange={(e) => {
                 setDateStart(e.target.value)
@@ -630,9 +639,9 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
           </div>
           <div>
             <label className="text-xs text-muted-foreground">Date to</label>
-            <input
+            <Input
               type="date"
-              className="border rounded-md px-2 text-sm w-full h-8"
+              className="h-8"
               value={dateEnd}
               onChange={(e) => {
                 setDateEnd(e.target.value)
@@ -641,9 +650,9 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
           </div>
           <div>
             <label className="text-xs text-muted-foreground">Merchant contains</label>
-            <input
+            <Input
               type="text"
-              className="border rounded-md px-2 text-sm w-full h-8"
+              className="h-8"
               value={merchantContains}
               onChange={(e) => {
                 setMerchantContains(e.target.value)
@@ -652,10 +661,10 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
           </div>
           <div>
             <label className="text-xs text-muted-foreground">Amount min</label>
-            <input
+            <Input
               type="number"
               step="0.01"
-              className="border rounded-md px-2 text-sm w-full h-8"
+              className="h-8"
               value={amountMin}
               onChange={(e) => {
                 setAmountMin(e.target.value)
@@ -664,10 +673,10 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
           </div>
           <div>
             <label className="text-xs text-muted-foreground">Amount max</label>
-            <input
+            <Input
               type="number"
               step="0.01"
-              className="border rounded-md px-2 text-sm w-full h-8"
+              className="h-8"
               value={amountMax}
               onChange={(e) => {
                 setAmountMax(e.target.value)
@@ -676,8 +685,8 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
           </div>
           <div className="flex items-center gap-3">
             <label className="text-xs text-muted-foreground">Has receipt</label>
-            <select
-              className="border rounded-md px-2 text-sm h-8"
+            <Select
+              className="h-8"
               value={hasReceipt}
               onChange={(e) => {
                 setHasReceipt(e.target.value as 'all' | 'yes' | 'no')
@@ -686,7 +695,7 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               <option value="all">All</option>
               <option value="yes">Yes</option>
               <option value="no">No</option>
-            </select>
+            </Select>
             <label className="text-xs text-muted-foreground flex items-center gap-2">
               <input
                 type="checkbox"
@@ -698,11 +707,11 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               Uncategorized
             </label>
           </div>
-        </div>
+        </Panel>
       )}
 
       {showColumnManager && (
-        <div className="border rounded-lg p-4 mb-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <Panel className="mb-4 grid grid-cols-2 gap-2 p-4 md:grid-cols-4">
           {columnList.map((col) => (
             <label key={col.key} className="text-sm flex items-center gap-2">
               <input
@@ -717,11 +726,11 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               {col.label}
             </label>
           ))}
-        </div>
+        </Panel>
       )}
 
       {showBulkEdit && (
-        <div className="border rounded-lg p-4 mb-4">
+        <Panel className="mb-4 p-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium">Bulk Edit</h3>
             <button
@@ -737,9 +746,9 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-xs text-muted-foreground">Category</label>
-              <input
+              <Input
                 type="text"
-                className="border rounded-md px-2 text-sm w-full h-8"
+                className="h-8"
                 value={bulkEditValues.category || ''}
                 onChange={(e) =>
                   setBulkEditValues({
@@ -751,9 +760,9 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Subcategory</label>
-              <input
+              <Input
                 type="text"
-                className="border rounded-md px-2 text-sm w-full h-8"
+                className="h-8"
                 value={bulkEditValues.subcategory || ''}
                 onChange={(e) =>
                   setBulkEditValues({
@@ -765,9 +774,9 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Merchant</label>
-              <input
+              <Input
                 type="text"
-                className="border rounded-md px-2 text-sm w-full h-8"
+                className="h-8"
                 value={bulkEditValues.merchant || ''}
                 onChange={(e) =>
                   setBulkEditValues({
@@ -779,9 +788,9 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Notes</label>
-              <input
+              <Input
                 type="text"
-                className="border rounded-md px-2 text-sm w-full h-8"
+                className="h-8"
                 value={bulkEditValues.notes || ''}
                 onChange={(e) =>
                   setBulkEditValues({
@@ -807,89 +816,65 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
               {selectedIds.size === 1 ? '' : 's'}
             </Button>
           </div>
-        </div>
+        </Panel>
       )}
 
-      {error && <div className="mb-4 text-sm text-destructive border border-destructive/40 rounded-md p-3">{error}</div>}
+      {error && <InlineAlert className="mb-4">{error}</InlineAlert>}
 
       {isLoading ? (
-        <div className="flex-1 flex items-center justify-center border-2 border-dashed rounded-lg">
-          <div className="text-center text-muted-foreground">
-            <RefreshCw className="h-8 w-8 mx-auto mb-3 animate-spin opacity-60" />
-            <p className="text-sm">Loading transactions...</p>
-          </div>
-        </div>
+        <LoadingState label="Loading transactions..." />
       ) : transactions.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center border-2 border-dashed rounded-lg">
-          <div className="text-center text-muted-foreground">
-            <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium">No transactions yet</p>
-            <p className="text-sm mt-1 mb-4">Import a CSV statement to get started</p>
-            {onNavigate && (
-              <Button size="sm" onClick={() => onNavigate('import')}>
-                Import a statement
-              </Button>
-            )}
-          </div>
-        </div>
+        <EmptyState
+          icon={FileText}
+          title="No transactions yet"
+          description="Import a CSV statement to get started."
+          action={onNavigate && <Button size="sm" onClick={() => onNavigate('import')}>Import a statement</Button>}
+        />
       ) : (
-        <div className="border rounded-lg overflow-hidden flex-1 flex flex-col min-h-0">
-          <div className="overflow-x-auto flex-1 flex flex-col min-h-0">
-            <div className="min-w-[1400px] flex-1 flex flex-col min-h-0">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border">
+          <div ref={parentRef} className="min-h-0 min-w-0 flex-1 overflow-auto">
+            <div
+              className="min-h-full"
+              style={{
+                minWidth: `${tableMinWidth}px`,
+                width: `max(100%, ${tableMinWidth}px)`
+              }}
+            >
               {/* Header */}
-              <div className="grid grid-cols-[32px_28px_120px_6fr_6fr_140px_200px_140px_140px_2fr_80px] gap-x-3 bg-muted px-3 py-2 text-xs font-medium shrink-0">
+              <div
+                className="sticky top-0 z-10 grid shrink-0 gap-x-3 bg-muted px-3 py-2 text-xs font-medium shadow-sm"
+                style={{ gridTemplateColumns: tableGridTemplate }}
+              >
                 <div className="flex items-center justify-center">
                   <input type="checkbox" checked={allSelected} onChange={(e) => toggleSelectAll(e.target.checked)} />
                 </div>
                 <div></div>
-                {effectiveVisibleColumns.date && (
-                  <button className="whitespace-nowrap text-left" onClick={() => toggleSort('date')}>
-                    Date
-                  </button>
-                )}
-                {effectiveVisibleColumns.merchant && (
-                  <button className="whitespace-nowrap text-left" onClick={() => toggleSort('merchant')}>
-                    Merchant
-                  </button>
-                )}
-                {effectiveVisibleColumns.description && (
-                  <button className="whitespace-nowrap text-left" onClick={() => toggleSort('description')}>
-                    Description
-                  </button>
-                )}
-                {effectiveVisibleColumns.amount && (
-                  <button className="whitespace-nowrap text-right" onClick={() => toggleSort('amount')}>
-                    Amount
-                  </button>
-                )}
-                {effectiveVisibleColumns.account && (
-                  <button className="whitespace-nowrap text-left" onClick={() => toggleSort('account')}>
-                    Account
-                  </button>
-                )}
-                {effectiveVisibleColumns.category && (
-                  <button className="whitespace-nowrap text-left" onClick={() => toggleSort('category')}>
-                    Category
-                  </button>
-                )}
-                {effectiveVisibleColumns.subcategory && (
-                  <button className="whitespace-nowrap text-left" onClick={() => toggleSort('subcategory')}>
-                    Subcategory
-                  </button>
-                )}
-                {effectiveVisibleColumns.notes && <div className="whitespace-nowrap">Notes</div>}
+                {tableColumns.map((column) => (
+                  column.sortKey ? (
+                    <button
+                      key={column.key}
+                      className={`whitespace-nowrap ${column.align === 'right' ? 'text-right' : 'text-left'}`}
+                      onClick={() => toggleSort(column.sortKey)}
+                    >
+                      {column.label}
+                    </button>
+                  ) : (
+                    <div key={column.key} className="whitespace-nowrap">
+                      {column.label}
+                    </div>
+                  )
+                ))}
                 <div></div>
               </div>
 
               {/* Virtualised body */}
-              <div ref={parentRef} className="flex-1 overflow-auto">
-                <div
-                  style={{
-                    height: `${rowVirtualizer.getTotalSize()}px`,
-                    position: 'relative'
-                  }}
-                >
-                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              <div
+                style={{
+                  height: `${rowVirtualizer.getTotalSize()}px`,
+                  position: 'relative'
+                }}
+              >
+                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                     const tx = transactions[virtualRow.index]
                     const accountMeta = accounts.find((acct) => acct.accountNumber === tx.account)
                     const isEditing = editingId === tx.id
@@ -913,9 +898,10 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                           top: 0,
                           left: 0,
                           width: '100%',
+                          gridTemplateColumns: tableGridTemplate,
                           transform: `translateY(${virtualRow.start}px)`
                         }}
-                        className="grid grid-cols-[32px_28px_120px_6fr_6fr_140px_200px_140px_140px_2fr_80px] gap-x-3 px-3 py-2 text-sm border-t"
+                        className="grid gap-x-3 border-t px-3 py-2 text-sm"
                       >
                         <div className="flex items-center justify-center">
                           <input type="checkbox" checked={selectedIds.has(tx.id)} onChange={(e) => toggleSelection(tx.id, e.target.checked)} />
@@ -927,109 +913,123 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                             </button>
                           ) : null}
                         </div>
-                        {effectiveVisibleColumns.date && (
-                          <div className="whitespace-nowrap">
-                            {fmtDate(tx.date)}
-                            {isSplitChild && <span className="ml-2 text-[10px] uppercase tracking-wide text-muted-foreground">Split</span>}
-                          </div>
-                        )}
-                        {effectiveVisibleColumns.merchant && (
-                          <div className="truncate flex items-center gap-1.5" title={tx.merchant || ''}>
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                className="border rounded-md px-2 text-sm w-full"
-                                value={editValues.merchant || ''}
-                                onChange={(e) =>
-                                  setEditValues({
-                                    ...editValues,
-                                    merchant: e.target.value
-                                  })
-                                }
-                              />
-                            ) : (
-                              <>
-                                {isSplitChild && <span className="shrink-0 text-muted-foreground">↳</span>}
-                                <span className="truncate">{tx.merchant || '—'}</span>
-                                {tx.ai_edited && <span className="shrink-0 inline-flex items-center px-1 py-0.5 rounded text-[9px] font-bold tracking-wide bg-primary/15 text-primary">AI</span>}
-                              </>
-                            )}
-                          </div>
-                        )}
-                        {effectiveVisibleColumns.description && (
-                          <div className="truncate text-muted-foreground" title={tx.description || ''}>
-                            {tx.description || '—'}
-                          </div>
-                        )}
-                        {effectiveVisibleColumns.amount && <div className={`text-right whitespace-nowrap font-medium ${amountClass(tx.amount)}`}>{fmtCurrency(tx.amount)}</div>}
-                        {effectiveVisibleColumns.account && (
-                          <div className="truncate whitespace-nowrap">
-                            {tx.account}
-                            {accountMeta && (accountMeta.bankName || accountMeta.accountType) && (
-                              <span className="text-xs text-muted-foreground ml-2">
-                                {accountMeta.bankName ? accountMeta.bankName : 'Unknown Bank'}
-                                {accountMeta.accountType ? ` • ${accountMeta.accountType}` : ''}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        {effectiveVisibleColumns.category && (
-                          <div className="truncate">
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                className="border rounded-md px-2 text-sm w-full"
-                                value={editValues.category || ''}
-                                onChange={(e) =>
-                                  setEditValues({
-                                    ...editValues,
-                                    category: e.target.value
-                                  })
-                                }
-                              />
-                            ) : (
-                              tx.category || '—'
-                            )}
-                          </div>
-                        )}
-                        {effectiveVisibleColumns.subcategory && (
-                          <div className="truncate">
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                className="border rounded-md px-2 text-sm w-full"
-                                value={editValues.subcategory || ''}
-                                onChange={(e) =>
-                                  setEditValues({
-                                    ...editValues,
-                                    subcategory: e.target.value
-                                  })
-                                }
-                              />
-                            ) : (
-                              tx.subcategory || '—'
-                            )}
-                          </div>
-                        )}
-                        {effectiveVisibleColumns.notes && (
-                          <div className="truncate">
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                className="border rounded-md px-2 text-sm w-full"
-                                value={editValues.notes || ''}
-                                onChange={(e) =>
-                                  setEditValues({
-                                    ...editValues,
-                                    notes: e.target.value
-                                  })
-                                }
-                              />
-                            ) : (
-                              tx.notes || '—'
-                            )}
-                          </div>
-                        )}
+                        {tableColumns.map((column) => {
+                          switch (column.key) {
+                            case 'date':
+                              return (
+                                <div key={column.key} className="whitespace-nowrap">
+                                  {fmtDate(tx.date)}
+                                  {isSplitChild && <span className="ml-2 text-[10px] uppercase tracking-wide text-muted-foreground">Split</span>}
+                                </div>
+                              )
+                            case 'merchant':
+                              return (
+                                <div key={column.key} className="flex min-w-0 items-center gap-1.5 truncate" title={tx.merchant || ''}>
+                                  {isEditing ? (
+                                    <input
+                                      type="text"
+                                      className="w-full rounded-md border px-2 text-sm"
+                                      value={editValues.merchant || ''}
+                                      onChange={(e) =>
+                                        setEditValues({
+                                          ...editValues,
+                                          merchant: e.target.value
+                                        })
+                                      }
+                                    />
+                                  ) : (
+                                    <>
+                                      {isSplitChild && <span className="shrink-0 text-muted-foreground">↳</span>}
+                                      <span className="truncate">{tx.merchant || '—'}</span>
+                                      {tx.ai_edited && <span className="inline-flex shrink-0 items-center rounded bg-primary/15 px-1 py-0.5 text-[9px] font-bold tracking-wide text-primary">AI</span>}
+                                    </>
+                                  )}
+                                </div>
+                              )
+                            case 'description':
+                              return (
+                                <div key={column.key} className="truncate text-muted-foreground" title={tx.description || ''}>
+                                  {tx.description || '—'}
+                                </div>
+                              )
+                            case 'amount':
+                              return <div key={column.key} className={`whitespace-nowrap text-right font-medium ${amountClass(tx.amount)}`}>{fmtCurrency(tx.amount)}</div>
+                            case 'account':
+                              return (
+                                <div key={column.key} className="truncate whitespace-nowrap">
+                                  {tx.account}
+                                  {accountMeta && (accountMeta.bankName || accountMeta.accountType) && (
+                                    <span className="ml-2 text-xs text-muted-foreground">
+                                      {accountMeta.bankName ? accountMeta.bankName : 'Unknown Bank'}
+                                      {accountMeta.accountType ? ` • ${accountMeta.accountType}` : ''}
+                                    </span>
+                                  )}
+                                </div>
+                              )
+                            case 'category':
+                              return (
+                                <div key={column.key} className="truncate">
+                                  {isEditing ? (
+                                    <input
+                                      type="text"
+                                      className="w-full rounded-md border px-2 text-sm"
+                                      value={editValues.category || ''}
+                                      onChange={(e) =>
+                                        setEditValues({
+                                          ...editValues,
+                                          category: e.target.value
+                                        })
+                                      }
+                                    />
+                                  ) : (
+                                    tx.category || '—'
+                                  )}
+                                </div>
+                              )
+                            case 'subcategory':
+                              return (
+                                <div key={column.key} className="truncate">
+                                  {isEditing ? (
+                                    <input
+                                      type="text"
+                                      className="w-full rounded-md border px-2 text-sm"
+                                      value={editValues.subcategory || ''}
+                                      onChange={(e) =>
+                                        setEditValues({
+                                          ...editValues,
+                                          subcategory: e.target.value
+                                        })
+                                      }
+                                    />
+                                  ) : (
+                                    tx.subcategory || '—'
+                                  )}
+                                </div>
+                              )
+                            case 'notes':
+                              return (
+                                <div key={column.key} className="truncate">
+                                  {isEditing ? (
+                                    <input
+                                      type="text"
+                                      className="w-full rounded-md border px-2 text-sm"
+                                      value={editValues.notes || ''}
+                                      onChange={(e) =>
+                                        setEditValues({
+                                          ...editValues,
+                                          notes: e.target.value
+                                        })
+                                      }
+                                    />
+                                  ) : (
+                                    tx.notes || '—'
+                                  )}
+                                </div>
+                              )
+                            default:
+                              return null
+                          }
+                        })}
                         <div className="flex items-center gap-1">
                           {isEditing ? (
                             <>
@@ -1176,8 +1176,7 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
                         )}
                       </div>
                     )
-                  })}
-                </div>
+                })}
               </div>
             </div>
           </div>
@@ -1256,6 +1255,6 @@ export function TransactionsPage({ onNavigate }: { onNavigate?: (page: string) =
           {total > 0 && <span className={`ml-4 font-medium ${amountClass(totalAmount)}`}>{fmtCurrency(totalAmount)}</span>}
         </div>
       </div>
-    </div>
+    </PageShell>
   )
 }
