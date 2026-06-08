@@ -4,6 +4,16 @@ A running journal of design and product decisions. Each entry is dated so contex
 
 ---
 
+## 2026-06-08 — User guide regenerated for UI polish release
+
+Rebuilt all 12 screenshots and rewrote `docs/user-guide.md` to reflect the dashboard redesign (KPI cards, data quality panel, month-over-month panel, updated charts), the new Transactions page (column manager, filter badge, footer totals, transaction splits), and minor polish across all other pages.
+
+## 2026-06-08 — User guide with Playwright screenshots
+
+Added `docs/user-guide.md` covering all eight pages. Screenshots are captured programmatically via Playwright's `_electron` launcher (no browser download needed) so they stay in sync with the app. Chose to store screenshots under `docs/screenshots/` to keep them alongside the guide.
+
+---
+
 ## 2026-02-14 — Initial direction
 
 **Goals**

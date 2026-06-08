@@ -38,6 +38,71 @@ Key tools: `query_transactions`, `set_category`, `import_statements`, `get_recei
 
 See `docs/mcp-setup.md` for setup instructions if the server isn't connected.
 
+## Electron automation (Playwright)
+
+Use `playwright`'s `_electron` launcher for **any task that requires running the app**: E2E tests, screenshot capture, UI verification, smoke testing. It attaches directly to the Electron binary — no browser download, no CDP wiring needed.
+
+### Prerequisites
+
+```bash
+# Playwright is already a dev dep in app/package.json
+# Build the app first so out/main/index.js exists
+cd app && npm run build
+# Seed sample data if needed
+NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/seed.ts
+# Start a virtual display on Linux (headless env)
+Xvfb :99 -screen 0 1280x900x24 &
+export DISPLAY=:99
+```
+
+### Boilerplate
+
+```ts
+import { _electron as electron } from 'playwright'
+import * as path from 'path'
+
+const appPath = path.resolve(__dirname, '../app')
+const app = await electron.launch({
+  executablePath: path.resolve(appPath, 'node_modules/.bin/electron'),
+  args: [path.resolve(appPath, 'out/main/index.js')],
+  env: { ...process.env, NODE_ENV: 'production', DISPLAY: process.env.DISPLAY || ':99' },
+})
+const page = await app.firstWindow()
+await page.waitForLoadState('domcontentloaded')
+// page is a normal Playwright Page — use locator(), click(), screenshot(), evaluate(), etc.
+await app.close()
+```
+
+### Running scripts
+
+```bash
+cd app
+DISPLAY=:99 NODE_PATH=./node_modules npx tsx --tsconfig tsconfig.node.json ../scripts/<script>.ts
+```
+
+### Navigation
+
+The sidebar nav items are plain buttons with text labels. Navigate by clicking the label text:
+
+```ts
+await page.locator('text="Transactions"').first().click()
+```
+
+Page IDs: `dashboard`, `transactions`, `receipts`, `items`, `import`, `reconcile`, `ask`, `settings`.
+
+### DOM notes
+
+- The transactions table is **virtualised** — rows render as `[data-index]` divs, not `<tr>` elements.
+- Receipt thumbnails are `<img>` elements; click the image to open the detail viewer.
+- The settings file is at `~/.config/Electron/settings.json` in Linux environments (`dataFolder` key).
+
+### Existing scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/capture-screenshots.ts` | Captures one screenshot per page |
+| `scripts/capture-screenshots-detail.ts` | Captures transaction and receipt detail views |
+
 ## Key conventions
 
 - All user edits write to `changes.csv` via `appendChangeRow()` — never mutate `ledger.csv` or `transactions.csv` directly.
