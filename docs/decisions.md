@@ -4,6 +4,12 @@ A running journal of design and product decisions. Each entry is dated so contex
 
 ---
 
+## 2026-06-08 — User guide with Playwright screenshots
+
+Added `docs/user-guide.md` covering all eight pages. Screenshots are captured programmatically via Playwright's `_electron` launcher (no browser download needed) so they stay in sync with the app. Chose to store screenshots under `docs/screenshots/` to keep them alongside the guide.
+
+---
+
 ## 2026-02-14 — Initial direction
 
 **Goals**
