@@ -2,6 +2,26 @@
 
 Genzeb is a local-first desktop app for tracking personal expenses. Your data lives entirely on your own machine as plain CSV files — no accounts, no cloud sync, no subscription required.
 
+### Three ways to use it
+
+**1. Desktop UI**
+The full graphical interface for importing statements, browsing transactions, managing receipts, and reviewing your finances visually.
+
+**2. Ask AI (built-in)**
+A conversational panel inside the app. Ask plain-English questions about your transactions — "How much did I spend on dining last month?" — and get answers powered by your own Anthropic or OpenAI API key. Your data never leaves your machine except for that specific query.
+
+**3. MCP agent (Claude Code, Claude Desktop, Codex, Codex Desktop, or any MCP-compatible AI tool)**
+Genzeb exposes an MCP server that AI agents can connect to directly. This means you can query your finances, categorize transactions, import statements, and link receipts without opening the app at all.
+
+```
+# Example: ask Claude Code or Codex about your finances
+> How much did I spend on subscriptions this year?
+> Categorize all transactions from Amazon as Shopping
+> Show me unlinked receipts from last month
+```
+
+The MCP server and the UI read and write the same data folder, so changes made by an agent appear instantly in the app and vice versa. See `docs/mcp-setup.md` for connection instructions.
+
 ---
 
 ## Table of Contents
