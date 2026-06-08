@@ -10,6 +10,17 @@ Every edit you make is recorded as a new row in `changes.csv` — nothing is eve
 
 See [docs/design-doc.md](docs/design-doc.md) for the full data model and schema.
 
+### Three ways to use it
+
+**1. Desktop UI**
+The full graphical interface for importing statements, browsing transactions, managing receipts, and reviewing your finances visually.
+
+**2. Ask AI (built-in)**
+A conversational panel inside the app. Ask plain-English questions about your transactions — "How much did I spend on dining last month?" — and get answers powered by your own Anthropic or OpenAI API key. Your data never leaves your machine except for that specific query.
+
+**3. MCP agent (Claude Code, Claude Desktop, ChatGPT Desktop, or any MCP-compatible AI tool)**
+Genzeb exposes an MCP server that AI agents can connect to directly. Query your finances, categorize transactions, import statements, and link receipts without opening the app at all. The MCP server and the UI share the same data folder, so changes made by an agent appear instantly in the app and vice versa. See [docs/mcp-setup.md](docs/mcp-setup.md) for setup instructions.
+
 ---
 
 ## Contents
