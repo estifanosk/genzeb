@@ -33,6 +33,8 @@ Genzeb exposes an MCP server that AI agents can connect to directly. Query your 
 - [Optional: LLM features](#optional-llm-features)
 - [For developers](#for-developers)
 
+📖 **[Full user guide →](docs/user-guide.md)**
+
 ---
 
 ## Prerequisites
