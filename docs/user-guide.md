@@ -227,7 +227,7 @@ Confirmed links are stored in `links.csv`. To remove a link, click **Unlink** fr
 
 ## 8. Ask AI
 
-![Ask AI](screenshots/11-ask-ai.png)
+![Ask AI](screenshots/11-ask-ai-response.png)
 
 Ask AI lets you query your transaction data in plain English. It requires an API key (Anthropic or OpenAI) set in **Settings**.
 
