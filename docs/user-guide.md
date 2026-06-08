@@ -10,11 +10,11 @@ The full graphical interface for importing statements, browsing transactions, ma
 **2. Ask AI (built-in)**
 A conversational panel inside the app. Ask plain-English questions about your transactions — "How much did I spend on dining last month?" — and get answers powered by your own Anthropic or OpenAI API key. Your data never leaves your machine except for that specific query.
 
-**3. MCP agent (Claude Code, Claude Desktop, Codex, Codex Desktop, or any MCP-compatible AI tool)**
+**3. MCP agent (Claude Code, Claude Desktop, ChatGPT Desktop, or any MCP-compatible AI tool)**
 Genzeb exposes an MCP server that AI agents can connect to directly. This means you can query your finances, categorize transactions, import statements, and link receipts without opening the app at all.
 
 ```
-# Example: ask Claude Code or Codex about your finances
+# Example: ask Claude Code or ChatGPT Desktop about your finances
 > How much did I spend on subscriptions this year?
 > Categorize all transactions from Amazon as Shopping
 > Show me unlinked receipts from last month
